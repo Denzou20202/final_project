@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+dist
+**/dist
+out-tsc
+**/out-tsc
+.git
+.nx/cache
+.nx/workspace-data
+**/*.log
+.env
+.env.local
+.env.production

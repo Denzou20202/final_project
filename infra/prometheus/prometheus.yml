@@ -1,0 +1,54 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: user-service
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ['user-service:3002']
+
+  - job_name: ticket-service
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ['ticket-service:3011']
+
+  - job_name: chat-service
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ['chat-service:3004']
+
+  - job_name: knowledge-service
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ['knowledge-service:3006']
+
+  - job_name: analytics-service
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ['analytics-service:3005']
+
+  - job_name: notification-service
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ['notification-service:3003']
+
+  # TLS cert-expiry check for veloxdesk.pp.ua, probed internally at web:443
+  # (nginx's own single 443 server block has no SNI branching — same cert a
+  # real visitor gets, see infra/blackbox/blackbox.yml's server_name
+  # override for why the internal target name still validates correctly).
+  # Cert expiry changes slowly — no need for the global 15s interval.
+  - job_name: blackbox-tls-cert
+    metrics_path: /probe
+    params:
+      module: [tls_connect]
+    static_configs:
+      - targets: ['web:443']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+    scrape_interval: 5m

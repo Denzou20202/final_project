@@ -1,0 +1,43 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/api-gateway"
+    },
+    {
+      "path": "./apps/ticket-service"
+    },
+    {
+      "path": "./apps/user-service"
+    },
+    {
+      "path": "./apps/notification-service"
+    },
+    {
+      "path": "./apps/chat-service"
+    },
+    {
+      "path": "./apps/analytics-service"
+    },
+    {
+      "path": "./apps/knowledge-service"
+    },
+    {
+      "path": "./libs/common"
+    },
+    {
+      "path": "./libs/database"
+    },
+    {
+      "path": "./libs/types"
+    },
+    {
+      "path": "./frontend/operator-app"
+    },
+    {
+      "path": "./frontend/client-portal"
+    }
+  ]
+}

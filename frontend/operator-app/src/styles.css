@@ -1,0 +1,322 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* THEME: Absolute Contrast (Black/White + Neon Purple) - DEFAULT */
+  :root {
+    --tk-surface: 255 255 255;
+    --tk-surface-card: 250 250 250;
+    --tk-surface-sidebar: 245 245 245;
+    --tk-surface-muted: 240 240 240;
+    --tk-border: 229 229 229;
+    --tk-border-subtle: 240 240 240;
+    --tk-ink: 0 0 0;
+    --tk-ink-muted: 102 102 102;
+    --tk-ink-subtle: 153 153 153;
+    --tk-ink-faint: 204 204 204;
+    --tk-elevated: 0 0 0;
+    --tk-brand-50: 245 243 255;
+    --tk-brand-100: 237 233 254;
+    --tk-brand-600: 139 92 246; /* Purple-500 */
+    --tk-brand-700: 109 40 217; /* Purple-700 */
+    --tk-brand-hover: 124 58 237;
+  }
+  
+  .dark {
+    color-scheme: dark;
+    --tk-surface: 0 0 0;
+    --tk-surface-card: 15 15 15;
+    --tk-surface-sidebar: 10 10 10;
+    --tk-surface-muted: 20 20 20;
+    --tk-border: 40 40 40;
+    --tk-border-subtle: 30 30 30;
+    --tk-ink: 255 255 255;
+    --tk-ink-muted: 170 170 170;
+    --tk-ink-subtle: 120 120 120;
+    --tk-ink-faint: 80 80 80;
+    --tk-elevated: 30 30 30;
+    --tk-brand-50: 30 15 60;
+    --tk-brand-100: 40 20 80;
+    --tk-brand-600: 167 139 250; /* Purple-400 */
+    --tk-brand-700: 196 181 253;
+    --tk-brand-hover: 139 92 246;
+  }
+
+  /* THEME: Modern Warmth (Coffee/Terracotta) */
+  :root[data-theme="warm"] {
+    --tk-surface: 252 252 249;
+    --tk-surface-card: 255 255 255;
+    --tk-surface-sidebar: 251 248 243;
+    --tk-surface-muted: 247 243 237;
+    --tk-border: 236 229 219;
+    --tk-border-subtle: 243 238 230;
+    --tk-ink: 43 38 34;
+    --tk-ink-muted: 90 82 74;
+    --tk-ink-subtle: 154 144 134;
+    --tk-ink-faint: 169 159 147;
+    --tk-elevated: 43 38 34;
+    --tk-brand-50: 255 241 237;
+    --tk-brand-100: 255 231 224;
+    --tk-brand-600: 224 106 80; /* Terracotta */
+    --tk-brand-700: 190 75 52;
+    --tk-brand-hover: 200 85 62;
+  }
+
+  .dark[data-theme="warm"] {
+    --tk-surface: 28 25 23;
+    --tk-surface-card: 41 37 36;
+    --tk-surface-sidebar: 32 29 28;
+    --tk-surface-muted: 45 42 41;
+    --tk-border: 68 64 60;
+    --tk-border-subtle: 55 52 50;
+    --tk-ink: 231 229 228;
+    --tk-ink-muted: 168 162 158;
+    --tk-ink-subtle: 120 113 108;
+    --tk-ink-faint: 87 83 78;
+    --tk-elevated: 60 55 52;
+    --tk-brand-50: 60 30 25;
+    --tk-brand-100: 75 35 30;
+    --tk-brand-600: 234 131 109;
+    --tk-brand-700: 240 160 145;
+    --tk-brand-hover: 214 111 89;
+  }
+
+  /* THEME: Cyber Glass (Midnight Blue/Cyan) */
+  :root[data-theme="cyber"] {
+    --tk-surface: 240 245 255;
+    --tk-surface-card: 255 255 255;
+    --tk-surface-sidebar: 230 240 255;
+    --tk-surface-muted: 220 230 250;
+    --tk-border: 200 215 240;
+    --tk-border-subtle: 215 230 250;
+    --tk-ink: 10 20 40;
+    --tk-ink-muted: 50 70 100;
+    --tk-ink-subtle: 100 120 160;
+    --tk-ink-faint: 150 170 200;
+    --tk-elevated: 15 30 60;
+    --tk-brand-50: 224 250 255;
+    --tk-brand-100: 190 240 255;
+    --tk-brand-600: 14 165 233; /* Sky/Cyan */
+    --tk-brand-700: 2 132 199;
+    --tk-brand-hover: 10 150 210;
+  }
+
+  .dark[data-theme="cyber"] {
+    --tk-surface: 11 15 25;
+    --tk-surface-card: 18 25 45;
+    --tk-surface-sidebar: 13 18 35;
+    --tk-surface-muted: 25 35 60;
+    --tk-border: 45 65 110;
+    --tk-border-subtle: 30 45 80;
+    --tk-ink: 230 240 255;
+    --tk-ink-muted: 150 180 230;
+    --tk-ink-subtle: 90 120 180;
+    --tk-ink-faint: 60 85 135;
+    --tk-elevated: 35 50 90;
+    --tk-brand-50: 15 45 70;
+    --tk-brand-100: 20 60 90;
+    --tk-brand-600: 56 189 248; /* Bright Cyan */
+    --tk-brand-700: 125 211 252;
+    --tk-brand-hover: 14 165 233;
+  }
+
+
+  /* THEME: Zen Forest (Matcha/Pine) */
+  :root[data-theme="forest"] {
+    --tk-surface: 246 248 246;
+    --tk-surface-card: 255 255 255;
+    --tk-surface-sidebar: 240 244 240;
+    --tk-surface-muted: 235 240 235;
+    --tk-border: 220 230 220;
+    --tk-border-subtle: 235 242 235;
+    --tk-ink: 20 35 25;
+    --tk-ink-muted: 60 85 70;
+    --tk-ink-subtle: 110 140 120;
+    --tk-ink-faint: 150 180 160;
+    --tk-elevated: 25 45 35;
+    --tk-brand-50: 235 250 240;
+    --tk-brand-100: 210 245 220;
+    --tk-brand-600: 16 185 129; /* Emerald */
+    --tk-brand-700: 4 120 87;
+    --tk-brand-hover: 5 150 105;
+  }
+
+  .dark[data-theme="forest"] {
+    --tk-surface: 16 26 21;
+    --tk-surface-card: 25 38 31;
+    --tk-surface-sidebar: 20 32 26;
+    --tk-surface-muted: 30 45 38;
+    --tk-border: 45 75 60;
+    --tk-border-subtle: 35 55 45;
+    --tk-ink: 230 245 235;
+    --tk-ink-muted: 150 185 165;
+    --tk-ink-subtle: 90 130 110;
+    --tk-ink-faint: 65 95 80;
+    --tk-elevated: 40 65 52;
+    --tk-brand-50: 20 50 35;
+    --tk-brand-100: 30 70 50;
+    --tk-brand-600: 52 211 153; 
+    --tk-brand-700: 167 243 208;
+    --tk-brand-hover: 16 185 129;
+  }
+
+  /* THEME: Sunset Glow (Peach/Plum) */
+  :root[data-theme="sunset"] {
+    --tk-surface: 255 249 245;
+    --tk-surface-card: 255 255 255;
+    --tk-surface-sidebar: 255 240 232;
+    --tk-surface-muted: 255 235 224;
+    --tk-border: 245 210 195;
+    --tk-border-subtle: 255 225 215;
+    --tk-ink: 40 15 25;
+    --tk-ink-muted: 95 50 70;
+    --tk-ink-subtle: 155 100 120;
+    --tk-ink-faint: 200 150 170;
+    --tk-elevated: 55 20 35;
+    --tk-brand-50: 255 240 242;
+    --tk-brand-100: 255 220 226;
+    --tk-brand-600: 244 63 94; /* Rose */
+    --tk-brand-700: 190 18 60;
+    --tk-brand-hover: 225 29 72;
+  }
+
+  .dark[data-theme="sunset"] {
+    --tk-surface: 24 15 28;
+    --tk-surface-card: 35 22 40;
+    --tk-surface-sidebar: 29 18 34;
+    --tk-surface-muted: 45 28 50;
+    --tk-border: 85 45 90;
+    --tk-border-subtle: 60 30 65;
+    --tk-ink: 255 235 240;
+    --tk-ink-muted: 205 150 175;
+    --tk-ink-subtle: 145 90 115;
+    --tk-ink-faint: 100 55 75;
+    --tk-elevated: 60 30 70;
+    --tk-brand-50: 60 20 40;
+    --tk-brand-100: 90 25 55;
+    --tk-brand-600: 251 113 133;
+    --tk-brand-700: 254 205 211;
+    --tk-brand-hover: 244 63 94;
+  }
+
+  /* THEME: Industrial Slate (Silver/Graphite) */
+  :root[data-theme="slate"] {
+    --tk-surface: 241 245 249;
+    --tk-surface-card: 255 255 255;
+    --tk-surface-sidebar: 226 232 240;
+    --tk-surface-muted: 212 219 230;
+    --tk-border: 203 213 225;
+    --tk-border-subtle: 226 232 240;
+    --tk-ink: 15 23 42;
+    --tk-ink-muted: 71 85 105;
+    --tk-ink-subtle: 100 116 139;
+    --tk-ink-faint: 148 163 184;
+    --tk-elevated: 30 41 59;
+    --tk-brand-50: 239 246 255;
+    --tk-brand-100: 219 234 254;
+    --tk-brand-600: 37 99 235; /* Blue */
+    --tk-brand-700: 29 78 216;
+    --tk-brand-hover: 30 64 175;
+  }
+
+  .dark[data-theme="slate"] {
+    --tk-surface: 15 23 42;
+    --tk-surface-card: 30 41 59;
+    --tk-surface-sidebar: 23 33 50;
+    --tk-surface-muted: 40 54 75;
+    --tk-border: 51 65 85;
+    --tk-border-subtle: 40 50 65;
+    --tk-ink: 241 245 249;
+    --tk-ink-muted: 148 163 184;
+    --tk-ink-subtle: 100 116 139;
+    --tk-ink-faint: 71 85 105;
+    --tk-elevated: 50 65 90;
+    --tk-brand-50: 20 40 80;
+    --tk-brand-100: 30 55 110;
+    --tk-brand-600: 96 165 250;
+    --tk-brand-700: 191 219 254;
+    --tk-brand-hover: 59 130 246;
+  }
+
+
+  /* THEME: Original Classic */
+  :root[data-theme="classic"] {
+    --tk-surface: 244 239 232;
+    --tk-surface-card: 255 255 255;
+    --tk-surface-sidebar: 251 248 243;
+    --tk-surface-muted: 247 243 237;
+    --tk-border: 236 229 219;
+    --tk-border-subtle: 243 238 230;
+    --tk-ink: 43 38 34;
+    --tk-ink-muted: 90 82 74;
+    --tk-ink-subtle: 154 144 134;
+    --tk-ink-faint: 169 159 147;
+    --tk-elevated: 43 38 34;
+    --tk-brand-50: 230 244 241;
+    --tk-brand-100: 233 244 241;
+    --tk-brand-600: 13 148 136;
+    --tk-brand-700: 11 110 99;
+    --tk-brand-hover: 11 110 99;
+  }
+
+  .dark[data-theme="classic"] {
+    --tk-surface: 21 26 33;
+    --tk-surface-card: 31 38 47;
+    --tk-surface-sidebar: 26 32 40;
+    --tk-surface-muted: 37 45 55;
+    --tk-border: 47 57 69;
+    --tk-border-subtle: 40 49 60;
+    --tk-ink: 227 233 240;
+    --tk-ink-muted: 178 190 203;
+    --tk-ink-subtle: 125 138 152;
+    --tk-ink-faint: 99 111 125;
+    --tk-elevated: 55 66 80;
+    --tk-brand-50: 19 48 45;
+    --tk-brand-100: 22 54 50;
+    --tk-brand-600: 16 158 143;
+    --tk-brand-700: 61 209 190;
+    --tk-brand-hover: 12 122 111;
+  }
+
+  body {
+    @apply bg-surface font-sans text-ink antialiased;
+    background-image: radial-gradient(at 0% 0%, rgb(var(--tk-brand-600) / 0.08) 0px, transparent 50%),
+                      radial-gradient(at 100% 100%, rgb(var(--tk-brand-600) / 0.05) 0px, transparent 50%);
+    background-attachment: fixed;
+    transition: background-color 0.5s ease;
+  }
+}
+
+@layer components {
+  button {
+    @apply transition-all duration-300 ease-out;
+  }
+  button:active {
+    @apply scale-[0.97];
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--tk-border));
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--tk-ink-subtle));
+  background-clip: content-box;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(var(--tk-border));
+  background-clip: content-box;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--tk-ink-subtle));
+  background-clip: content-box;
+}
