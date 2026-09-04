@@ -1,5 +1,5 @@
 import { SYSTEM_USER_ID } from '@veloxdesk/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VipBadge } from '../components/common/VipBadge.js';
 import { DuplicateContactsModal } from '../components/settings/DuplicateContactsModal.js';
@@ -8,9 +8,11 @@ import { CreateUserModal } from '../components/settings/CreateUserModal.js';
 import { useCurrentUser } from '../hooks/useAuth.js';
 import { useDownloadContactsCsv } from '../hooks/useContacts.js';
 import { usePermissionGroups, useResetTwoFactor } from '../hooks/usePermissionGroups.js';
-import { useAssignableUsers, useDeactivateUser, useReactivateUser } from '../hooks/useUsers.js';
+import { useDeactivateUser, useReactivateUser, useUsersPage } from '../hooks/useUsers.js';
 import { getErrorMessage } from '../lib/errors.js';
 import type { PublicUser } from '../lib/types.js';
+
+const PAGE_SIZE_OPTIONS = [20, 50, 100] as const;
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -20,13 +22,57 @@ export default function UsersPage() {
   const { t } = useTranslation();
   const { data: me } = useCurrentUser();
   const isAdmin = me?.role === 'admin';
-  const { data: usersPage, isLoading } = useAssignableUsers();
+
+  // «Ищите нужного пользователя» — draft is local so typing stays instant;
+  // the actual query (and with it the request) updates after a short pause.
+  // Same 350ms debounce as TicketsPage's search box, minus the URL sync —
+  // this admin table doesn't need a shareable/back-navigable search state.
+  const [searchDraft, setSearchDraft] = useState('');
+  const [search, setSearch] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(searchDraft.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [searchDraft]);
+
+  const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(50);
+  // Real pagination (not "load more") — pageCursors[i] is the cursor that
+  // fetches page i, so Prev never needs to re-derive anything, same pattern
+  // as TicketsPage's pageCursors/pageIndex. Any search/pageSize change must
+  // restart at page 1 — a cursor from the old query is meaningless against
+  // the new one (doubly so across search ↔ non-search, which sort
+  // differently on the backend — see NameCursor).
+  const [pageCursors, setPageCursors] = useState<(string | undefined)[]>([undefined]);
+  const [pageIndex, setPageIndex] = useState(0);
+  useEffect(() => {
+    setPageCursors([undefined]);
+    setPageIndex(0);
+  }, [search, pageSize]);
+
+  const { data: usersPage, isLoading, isFetching } = useUsersPage(search, pageCursors[pageIndex], pageSize);
   // The seeded system account (SYSTEM_USER_ID — see libs/types/system-accounts.ts)
   // has to stay IN the shared GET /users response, since operator-app's
   // ChatPanel resolves automated-reply author names from this same query —
   // but it's not a real staff member an admin should see/manage here, so
   // it's filtered out of this one page instead of at the API level.
   const visibleUsers = (usersPage?.items ?? []).filter((u) => u.id !== SYSTEM_USER_ID);
+  const hasNextPage = !!usersPage?.nextCursor;
+  const hasPrevPage = pageIndex > 0;
+
+  function goToNextPage() {
+    if (!usersPage?.nextCursor) return;
+    const cursor = usersPage.nextCursor;
+    setPageCursors((prev) => {
+      const next = [...prev];
+      next[pageIndex + 1] = cursor;
+      return next;
+    });
+    setPageIndex((i) => i + 1);
+  }
+
+  function goToPrevPage() {
+    setPageIndex((i) => Math.max(0, i - 1));
+  }
+
   const { data: permissionGroups } = usePermissionGroups();
   const deactivate = useDeactivateUser();
   const reactivate = useReactivateUser();
@@ -67,32 +113,41 @@ export default function UsersPage() {
           <div className="font-display text-lg font-bold">{t('admin.users.title')}</div>
           <div className="mt-0.5 text-[12.5px] text-ink-subtle">{t('admin.users.subtitle')}</div>
         </div>
-        {isAdmin && (
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => downloadContactsCsv.mutate()}
-              disabled={downloadContactsCsv.isPending}
-              className="rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-ink-muted hover:bg-surface-muted disabled:opacity-50"
-            >
-              {downloadContactsCsv.isPending ? t('common.saving') : t('admin.contacts.exportButton')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setDuplicatesOpen(true)}
-              className="rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-ink-muted hover:bg-surface-muted"
-            >
-              {t('admin.contacts.findDuplicatesButton')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setCreateOpen(true)}
-              className="rounded-lg bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-hover"
-            >
-              {t('admin.users.newUser')}
-            </button>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="search"
+            value={searchDraft}
+            onChange={(e) => setSearchDraft(e.target.value)}
+            placeholder={t('admin.users.searchPlaceholder')}
+            className="w-full rounded-lg border border-border bg-surface-card px-3 py-1.5 text-[12.5px] outline-none focus:border-brand-600 sm:w-64"
+          />
+          {isAdmin && (
+            <>
+              <button
+                type="button"
+                onClick={() => downloadContactsCsv.mutate()}
+                disabled={downloadContactsCsv.isPending}
+                className="rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-ink-muted hover:bg-surface-muted disabled:opacity-50"
+              >
+                {downloadContactsCsv.isPending ? t('common.saving') : t('admin.contacts.exportButton')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDuplicatesOpen(true)}
+                className="rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-ink-muted hover:bg-surface-muted"
+              >
+                {t('admin.contacts.findDuplicatesButton')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCreateOpen(true)}
+                className="rounded-lg bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-hover"
+              >
+                {t('admin.users.newUser')}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-auto px-4 pb-6 sm:px-6">
@@ -239,6 +294,47 @@ export default function UsersPage() {
                 )}
               </tbody>
             </table>
+            <div className="flex flex-wrap items-center gap-3 border-t border-border-subtle px-4 py-2.5">
+              <span className="text-[12.5px] text-ink-faint">
+                {t('admin.users.pageRange', {
+                  from: visibleUsers.length === 0 ? 0 : pageIndex * pageSize + 1,
+                  to: pageIndex * pageSize + visibleUsers.length,
+                })}
+              </span>
+              <div className="flex-1" />
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={goToPrevPage}
+                  disabled={!hasPrevPage || isFetching}
+                  className="rounded-lg border border-border px-3 py-1.5 text-[12.5px] font-medium text-ink-muted hover:bg-surface-muted disabled:opacity-40"
+                >
+                  {t('admin.users.prevPage')}
+                </button>
+                <button
+                  type="button"
+                  onClick={goToNextPage}
+                  disabled={!hasNextPage || isFetching}
+                  className="rounded-lg border border-border px-3 py-1.5 text-[12.5px] font-medium text-ink-muted hover:bg-surface-muted disabled:opacity-40"
+                >
+                  {t('admin.users.nextPage')}
+                </button>
+              </div>
+              <label className="flex items-center gap-1.5 text-[12.5px] text-ink-muted">
+                {t('admin.users.pageSizeLabel')}
+                <select
+                  value={pageSize}
+                  onChange={(e) => setPageSize(Number(e.target.value) as (typeof PAGE_SIZE_OPTIONS)[number])}
+                  className="rounded-lg border border-border bg-surface-card px-2.5 py-1.5 text-[12.5px] text-ink-muted outline-none"
+                >
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
         )}
       </div>

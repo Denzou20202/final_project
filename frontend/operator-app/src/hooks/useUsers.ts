@@ -1,10 +1,11 @@
 import type { UserRole } from '@veloxdesk/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import {
   createUser,
   deactivateUser,
   deleteUser,
   fetchUsers,
+  fetchUsersPage,
   reactivateUser,
   resetUserPassword,
   searchUsers,
@@ -41,11 +42,35 @@ export function useUserSearch(query: string, enabled: boolean) {
   });
 }
 
+// Backs UsersPage's paginated table — real Prev/Next through every account
+// (search or not), mirroring useTicketsPage's cursor-per-page-index pattern
+// in TicketsPage.tsx. Distinct from useAssignableUsers (single page-of-100,
+// used by pickers) and useUserSearch (typeahead dropdown, top-N only, no
+// paging).
+export function useUsersPage(search: string, cursor: string | undefined, limit: number) {
+  return useQuery({
+    queryKey: ['users-page', search, cursor, limit],
+    queryFn: () => fetchUsersPage({ cursor, search: search || undefined, limit }),
+    // Keep the current rows on screen while the next page/search result
+    // loads — same reasoning as useTicketsPage: otherwise every Prev/Next
+    // click blanks the table into a spinner for a beat before repainting.
+    placeholderData: keepPreviousData,
+  });
+}
+
+// Every mutation below can change who shows up in either list — invalidate
+// both, not just ['users'], or UsersPage's table would keep showing stale
+// rows after e.g. deactivating someone until an unrelated refetch happened.
+function invalidateUsers(queryClient: QueryClient) {
+  queryClient.invalidateQueries({ queryKey: ['users'] });
+  queryClient.invalidateQueries({ queryKey: ['users-page'] });
+}
+
 export function useCreateUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }
 
@@ -53,7 +78,7 @@ export function useUpdateUserRole() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, role }: { id: string; role: UserRole }) => updateUserRole(id, role),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }
 
@@ -62,7 +87,7 @@ export function useSetAdminRestriction() {
   return useMutation({
     mutationFn: ({ id, cannotManageAdmins }: { id: string; cannotManageAdmins: boolean }) =>
       setAdminRestriction(id, cannotManageAdmins),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }
 
@@ -70,7 +95,7 @@ export function useSetVip() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, isVip }: { id: string; isVip: boolean }) => setVip(id, isVip),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }
 
@@ -78,7 +103,7 @@ export function useUpdateUserProfile() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, ...input }: { id: string } & UpdateUserProfileInput) => updateUserProfile(id, input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }
 
@@ -87,7 +112,7 @@ export function useResetUserPassword() {
   return useMutation({
     mutationFn: ({ id, password, currentPassword, totpCode }: { id: string; password: string; currentPassword?: string; totpCode?: string }) =>
       resetUserPassword(id, password, currentPassword, totpCode),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }
 
@@ -98,7 +123,7 @@ export function useDeactivateUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deactivateUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }
 
@@ -106,7 +131,7 @@ export function useReactivateUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: reactivateUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }
 
@@ -116,6 +141,6 @@ export function useDeleteUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => invalidateUsers(queryClient),
   });
 }

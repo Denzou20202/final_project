@@ -4,6 +4,7 @@ import { AuthProvider, Locale, UserRole } from '@veloxdesk/types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
+import { NameCursor } from './name-cursor.js';
 
 export interface UpdateUserProfileData {
   fullName?: string;
@@ -43,16 +44,24 @@ export class UsersRepository {
   // otherwise there'd be no way to find and reactivate one.
   // `search` switches this into a name-ordered ILIKE lookup instead of the
   // usual createdAt-keyset page — see ListUsersQueryDto's own comment for
-  // why (an async-search picker needs to reach any of 1000+ clients, not
-  // just whichever ones happen to sort onto the first createdAt page).
-  // `after` is ignored in that mode, same reasoning as
-  // UsersService.listPublicProfiles skipping the cursor.
-  findPage(limit: number, after?: KeysetCursor, search?: string): Promise<UserEntity[]> {
+  // why (both the async-search picker and the paginated admin Users table
+  // need to reach any of 1000+ clients, not just whichever ones happen to
+  // sort onto the first createdAt page). `searchAfter` keyset-pages through
+  // that name-ordered result the same way `after` does for the createdAt
+  // order — see NameCursor's own comment for why it's a separate cursor
+  // shape instead of reusing `KeysetCursor`.
+  findPage(limit: number, after?: KeysetCursor, search?: string, searchAfter?: NameCursor): Promise<UserEntity[]> {
     const qb = this.repository.createQueryBuilder('user').withDeleted().take(limit + 1);
 
     if (search) {
       qb.where('(user.fullName ILIKE :search OR user.email ILIKE :search)', { search: `%${search}%` });
-      qb.orderBy('user.fullName', 'ASC');
+      if (searchAfter) {
+        qb.andWhere('(user.fullName, user.id) > (:cursorFullName, :cursorId)', {
+          cursorFullName: searchAfter.fullName,
+          cursorId: searchAfter.id,
+        });
+      }
+      qb.orderBy('user.fullName', 'ASC').addOrderBy('user.id', 'ASC');
       return qb.getMany();
     }
 

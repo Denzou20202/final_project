@@ -1,11 +1,11 @@
 import { AutomationActionType, CustomFieldType, TicketPriority } from '@veloxdesk/types';
 import { useState } from 'react';
-import type { Control, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import type { Control, FieldError, FieldErrorsImpl, Merge, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { pickLocalized } from '../../../lib/localized.js';
 import type { PublicCustomFieldDefinition, PublicMacro, PublicTeam, PublicTicketStatus, PublicUser } from '../../../lib/types.js';
-import type { RuleFormValues } from './rule-form-values.js';
+import type { ActionFormValue, RuleFormValues } from './rule-form-values.js';
 
 const inputClass = 'rounded-lg border border-border bg-surface-card px-2 py-1.5 text-[12.5px] outline-none focus:border-brand-600';
 
@@ -21,6 +21,7 @@ export function ActionRow({
   operators,
   macros,
   initialFormula,
+  error,
 }: {
   index: number;
   control: Control<RuleFormValues>;
@@ -36,6 +37,11 @@ export function ActionRow({
   // already had when the modal opened for editing; new rows default to
   // "value" (see call site in AutomationRuleModal).
   initialFormula: string | undefined;
+  // The action schema's cross-field `.refine()` (exactly one of value/formula
+  // for SET_CUSTOM_FIELD, else value required) has no `path`, so zodResolver
+  // attaches it to the action object itself rather than one specific field —
+  // rendered as a single row-level message below, not per-input.
+  error?: Merge<FieldError, FieldErrorsImpl<ActionFormValue>>;
 }) {
   const { t, i18n } = useTranslation();
   const type = useWatch({ control, name: `actions.${index}.type` });
@@ -222,6 +228,7 @@ export function ActionRow({
           )}
         </div>
       )}
+      {error?.message && <p className="text-xs text-priority-urgent">{error.message}</p>}
     </div>
   );
 }

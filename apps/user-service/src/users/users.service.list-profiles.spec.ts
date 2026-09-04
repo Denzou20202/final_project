@@ -1,4 +1,5 @@
 import { UserRole } from '@veloxdesk/types';
+import { decodeNameCursor, encodeNameCursor } from './name-cursor.js';
 import { UsersRepository } from './users.repository.js';
 import { UsersService } from './users.service.js';
 
@@ -6,12 +7,16 @@ function makeUser(id: string, fullName: string) {
   return { id, fullName, role: UserRole.CLIENT, permissionGroupId: null, createdAt: new Date() };
 }
 
-// Regression coverage for the report-filters scale bug: GET /users had no
-// search param at all, so any client picker (ReportFiltersForm's client
-// filter) could only ever offer whichever ~100 accounts landed on the
-// first createdAt-ordered page — the vast majority of a 1000+-client
-// deployment was simply unreachable. `search` switches findPage into a
-// name/email ILIKE lookup instead.
+// Regression coverage for two related scale bugs, both from the round-5
+// audit (2026-08-26): GET /users originally had no search param at all, so
+// any client picker (ReportFiltersForm's client filter) could only ever
+// offer whichever ~100 accounts landed on the first createdAt-ordered page.
+// `search` switches findPage into a name/email ILIKE lookup instead. That
+// fixed the picker, but left the admin Users table (UsersPage.tsx) itself
+// still hard-capped at one page — search results couldn't be paged past
+// `limit` either, since search mode dropped any incoming cursor entirely.
+// `search`+cursor now keyset-paginates by (fullName, id) via NameCursor,
+// mirroring what the createdAt path already did.
 describe('UsersService.listPublicProfiles — search mode', () => {
   let usersRepository: jest.Mocked<Pick<UsersRepository, 'findPage'>>;
   let permissionGroupsRepository: { findFlagsByGroupIds: jest.Mock };
@@ -37,29 +42,45 @@ describe('UsersService.listPublicProfiles — search mode', () => {
     );
   });
 
-  it('passes the search term through to findPage instead of a cursor', async () => {
+  it('passes the search term through to findPage with no searchAfter when no cursor is given', async () => {
     usersRepository.findPage.mockResolvedValue([makeUser('u1', 'Иван Иванов')] as never);
 
     const result = await service.listPublicProfiles(20, undefined, 'иван');
 
-    expect(usersRepository.findPage).toHaveBeenCalledWith(20, undefined, 'иван');
+    expect(usersRepository.findPage).toHaveBeenCalledWith(20, undefined, 'иван', undefined);
     expect(result.items).toHaveLength(1);
   });
 
-  it('ignores an incoming cursor when search is active — the orderings are incompatible', async () => {
-    await service.listPublicProfiles(20, 'some-opaque-cursor', 'иван');
+  it('decodes an incoming cursor as a NameCursor (not the createdAt KeysetCursor) when search is active', async () => {
+    const cursor = encodeNameCursor({ fullName: 'Иван Иванов', id: 'u1' });
 
-    expect(usersRepository.findPage).toHaveBeenCalledWith(20, undefined, 'иван');
+    await service.listPublicProfiles(20, cursor, 'иван');
+
+    expect(usersRepository.findPage).toHaveBeenCalledWith(20, undefined, 'иван', { fullName: 'Иван Иванов', id: 'u1' });
   });
 
-  it('trims to `limit` and never computes a nextCursor in search mode, even if a full page+1 comes back', async () => {
+  it('rejects a cursor from the other pagination mode (or any other malformed value) with a 400, not a silent drop', async () => {
+    await expect(service.listPublicProfiles(20, 'not-a-name-cursor', 'иван')).rejects.toThrow('Invalid pagination cursor');
+    expect(usersRepository.findPage).not.toHaveBeenCalled();
+  });
+
+  it('trims to `limit` and encodes a NameCursor (not a createdAt cursor) for the next page when a full page+1 comes back', async () => {
     usersRepository.findPage.mockResolvedValue(
-      Array.from({ length: 21 }, (_, i) => makeUser(`u${i}`, `User ${i}`)) as never,
+      Array.from({ length: 21 }, (_, i) => makeUser(`u${i}`, `User ${String(i).padStart(2, '0')}`)) as never,
     );
 
     const result = await service.listPublicProfiles(20, undefined, 'user');
 
     expect(result.items).toHaveLength(20);
+    expect(result.nextCursor).not.toBeNull();
+    expect(decodeNameCursor(result.nextCursor as string)).toEqual({ fullName: 'User 19', id: 'u19' });
+  });
+
+  it('returns a null nextCursor once the search results fit in a single page', async () => {
+    usersRepository.findPage.mockResolvedValue([makeUser('u1', 'Иван Иванов')] as never);
+
+    const result = await service.listPublicProfiles(20, undefined, 'иван');
+
     expect(result.nextCursor).toBeNull();
   });
 });

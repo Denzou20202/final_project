@@ -33,6 +33,7 @@ import { PermissionGroupsRepository } from '../permission-groups/permission-grou
 import { TeamsService } from '../teams/teams.service.js';
 import { UserEventsPublisherService } from '../user-events/user-events-publisher.service.js';
 import { AuthenticatedIdentity } from './directory-identity.js';
+import { decodeNameCursor, encodeNameCursor } from './name-cursor.js';
 import { CompleteProfileDto } from './dto/complete-profile.dto.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateOwnProfileDto } from './dto/update-own-profile.dto.js';
@@ -818,30 +819,45 @@ export class UsersService {
   }
 
   async listPublicProfiles(limit = DEFAULT_PAGE_SIZE, cursor?: string, search?: string): Promise<PublicUserPage> {
-    // Search mode (see ListUsersQueryDto's own comment) is a one-shot
-    // name-ordered lookup, not the usual keyset page — a typeahead only
-    // ever needs the top N matches, and mixing search with `cursor` would
-    // require re-deriving position in a completely different ordering
-    // (name, not createdAt) that the opaque cursor doesn't encode.
+    // Search mode (see ListUsersQueryDto's own comment) sorts by fullName
+    // instead of createdAt, so a cursor from one mode is meaningless in the
+    // other — which mode `cursor` decodes as follows `search` on each call.
+    // Both support real Prev/Next paging: the async-search picker only ever
+    // asks for the first page, but the paginated admin Users table
+    // (UsersPage) pages through search results too.
     const after = !search && cursor ? this.parseCursor(cursor) : undefined;
-    const rows = await this.usersRepository.findPage(limit, after, search);
+    const searchAfter = search && cursor ? this.parseNameCursor(cursor) : undefined;
+    const rows = await this.usersRepository.findPage(limit, after, search, searchAfter);
 
     // Trimmed to `limit` regardless of mode — findPage always fetches
-    // `limit + 1` so this can tell whether more exist — but nextCursor is
-    // only ever meaningful outside search mode (see above).
+    // `limit + 1` so this can tell whether more exist.
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, limit) : rows;
     const lastRow = page.at(-1);
+    const nextCursor =
+      hasMore && lastRow
+        ? search
+          ? encodeNameCursor({ fullName: lastRow.fullName, id: lastRow.id })
+          : encodeCursor({ createdAt: lastRow.createdAt, id: lastRow.id })
+        : null;
 
     return {
       items: await this.toPublicUsersWithGroups(page),
-      nextCursor: !search && hasMore && lastRow ? encodeCursor({ createdAt: lastRow.createdAt, id: lastRow.id }) : null,
+      nextCursor,
     };
   }
 
   private parseCursor(cursor: string) {
     try {
       return decodeCursor(cursor);
+    } catch {
+      throw new BadRequestException('Invalid pagination cursor');
+    }
+  }
+
+  private parseNameCursor(cursor: string) {
+    try {
+      return decodeNameCursor(cursor);
     } catch {
       throw new BadRequestException('Invalid pagination cursor');
     }

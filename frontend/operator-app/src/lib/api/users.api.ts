@@ -38,6 +38,17 @@ export async function searchUsers(query: string, limit = 20): Promise<PublicUser
   return data;
 }
 
+// Backs the admin Users table (UsersPage.tsx) — real Prev/Next through every
+// account, optionally filtered by the same free-text search as searchUsers
+// above. Distinct from both fetchUsers (a single page-of-100, for pickers)
+// and searchUsers (a typeahead's top-N, no further paging): this one always
+// forwards `cursor`, so the backend keyset-pages through search results too
+// instead of returning only the first match batch.
+export async function fetchUsersPage(params: { cursor?: string; search?: string; limit: number }): Promise<PublicUserPage> {
+  const { data } = await userApi.get<PublicUserPage>('/users', { params });
+  return data;
+}
+
 // Admin-only on the backend — self-service /auth/register always creates a
 // client, this is the only way to get an operator/admin account onto the
 // system without touching SQL directly.

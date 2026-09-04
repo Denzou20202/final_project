@@ -231,6 +231,7 @@ export function AutomationRuleModal({
                   customFields={customFields ?? []}
                   teams={teams ?? []}
                   statuses={statuses ?? []}
+                  error={errors.conditions?.[index]}
                 />
               ))}
               {conditionsArray.fields.length === 0 && (
@@ -267,6 +268,7 @@ export function AutomationRuleModal({
                   operators={operators}
                   macros={macros ?? []}
                   initialFormula={item.formula}
+                  error={errors.actions?.[index]}
                 />
               ))}
             </div>
