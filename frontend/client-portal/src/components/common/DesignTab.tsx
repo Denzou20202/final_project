@@ -45,7 +45,7 @@ export function DesignTab() {
     {
       key: 'classic',
       name: 'Original Classic',
-      description: 'Оригинальный дизайн с изумрудным акцентом',
+      description: t('settings.designThemeClassicDescription'),
       colors: ['bg-[#F4EFE8]', 'bg-[#151A21]', 'bg-[#0D9488]'],
     },
   ];

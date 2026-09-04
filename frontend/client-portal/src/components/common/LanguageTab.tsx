@@ -1,6 +1,7 @@
 import { Locale } from '@veloxdesk/types';
 import { useTranslation } from 'react-i18next';
 import { useCurrentUser, useUpdateOwnProfile } from '../../hooks/useAuth.js';
+import { getErrorMessage } from '../../lib/errors.js';
 
 const LANGUAGES: Locale[] = [Locale.RU, Locale.UK, Locale.EN];
 
@@ -41,6 +42,13 @@ export function LanguageTab() {
           </label>
         ))}
       </div>
+      {updateProfile.isError && (
+        // The language switch itself already applied (i18n.changeLanguage
+        // always succeeds locally) — this only warns that the choice may not
+        // follow the person to their next device/browser, since the backend
+        // persist failed silently before this.
+        <p className="mt-2 text-xs text-priority-urgent">{getErrorMessage(updateProfile.error)}</p>
+      )}
     </div>
   );
 }

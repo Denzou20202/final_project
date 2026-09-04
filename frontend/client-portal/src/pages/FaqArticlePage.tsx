@@ -5,6 +5,7 @@ import { ImagePreviewModal } from '../components/common/ImagePreviewModal.js';
 import { LogoMark } from '../components/common/LogoMark.js';
 import { usePublishedArticle, useRateArticle } from '../hooks/useArticles.js';
 import { useKnowledgeTheme } from '../hooks/useKnowledgeTheme.js';
+import { getErrorMessage } from '../lib/errors.js';
 import { toIntlLocale } from '../lib/format.js';
 import { pickLocalized } from '../lib/localized.js';
 import { useAuthStore } from '../store/auth.store.js';
@@ -36,11 +37,20 @@ export default function FaqArticlePage() {
   const rateArticle = useRateArticle(articleId ?? '');
   useKnowledgeTheme();
 
+  // rated/markRated are only committed in onSuccess now — this used to set
+  // both, and show the "thanks" state, BEFORE the mutation even attempted
+  // the network call. A failure (offline, 5xx) still showed "thanks for
+  // rating" while the vote never actually landed, and the permanent
+  // localStorage flag meant this browser could never rate the article again,
+  // with zero indication anything went wrong.
   function handleRate(helpful: boolean) {
     if (!articleId || rated) return;
-    setRated(true);
-    markRated(articleId);
-    rateArticle.mutate(helpful);
+    rateArticle.mutate(helpful, {
+      onSuccess: () => {
+        setRated(true);
+        markRated(articleId);
+      },
+    });
   }
 
   // Event delegation: article.content is injected HTML (sanitized server-
@@ -104,7 +114,8 @@ export default function FaqArticlePage() {
                   <button
                     type="button"
                     onClick={() => handleRate(true)}
-                    className="rounded-lg border border-border px-3 py-1.5 text-[13px] font-medium text-ink-muted hover:border-brand-600 hover:text-brand-600"
+                    disabled={rateArticle.isPending}
+                    className="rounded-lg border border-border px-3 py-1.5 text-[13px] font-medium text-ink-muted hover:border-brand-600 hover:text-brand-600 disabled:opacity-60"
                   >
                     <span role="img" aria-label={t('faq.rateHelpfulAria')}>
                       👍
@@ -114,13 +125,17 @@ export default function FaqArticlePage() {
                   <button
                     type="button"
                     onClick={() => handleRate(false)}
-                    className="rounded-lg border border-border px-3 py-1.5 text-[13px] font-medium text-ink-muted hover:border-priority-urgent hover:text-priority-urgent"
+                    disabled={rateArticle.isPending}
+                    className="rounded-lg border border-border px-3 py-1.5 text-[13px] font-medium text-ink-muted hover:border-priority-urgent hover:text-priority-urgent disabled:opacity-60"
                   >
                     <span role="img" aria-label={t('faq.rateNotHelpfulAria')}>
                       👎
                     </span>{' '}
                     {t('faq.rateNotHelpful')}
                   </button>
+                  {rateArticle.isError && (
+                    <span className="text-[12px] text-priority-urgent">{getErrorMessage(rateArticle.error)}</span>
+                  )}
                 </>
               )}
             </div>

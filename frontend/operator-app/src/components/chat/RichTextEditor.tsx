@@ -132,25 +132,25 @@ function Toolbar({
           {state.inTable && (
             <>
               <ToolbarButton
-                label="+Р"
+                label={t('chat.toolbarAddRowLabel')}
                 title={t('chat.toolbarAddRow')}
                 active={false}
                 onClick={() => editor.chain().focus().addRowAfter().run()}
               />
               <ToolbarButton
-                label="+К"
+                label={t('chat.toolbarAddColumnLabel')}
                 title={t('chat.toolbarAddColumn')}
                 active={false}
                 onClick={() => editor.chain().focus().addColumnAfter().run()}
               />
               <ToolbarButton
-                label="−Р"
+                label={t('chat.toolbarDeleteRowLabel')}
                 title={t('chat.toolbarDeleteRow')}
                 active={false}
                 onClick={() => editor.chain().focus().deleteRow().run()}
               />
               <ToolbarButton
-                label="−К"
+                label={t('chat.toolbarDeleteColumnLabel')}
                 title={t('chat.toolbarDeleteColumn')}
                 active={false}
                 onClick={() => editor.chain().focus().deleteColumn().run()}

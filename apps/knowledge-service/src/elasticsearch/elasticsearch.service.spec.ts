@@ -20,4 +20,21 @@ describe('ElasticsearchService.onModuleInit — ES unreachable at startup', () =
 
     await expect(service.onModuleInit()).resolves.toBeUndefined();
   });
+
+  // Regression coverage: a single try/catch around both ensureIndex calls
+  // meant a transient failure on the FIRST (ES reachable but flaking
+  // mid-init, not fully down) silently skipped the second entirely, with no
+  // later retry — this method only ever runs once per process lifetime, so
+  // one index stayed permanently missing until a manual restart.
+  it('still attempts the second index when the first one fails', async () => {
+    const configService = { get: () => 'http://localhost:9200' };
+    const service = new ElasticsearchService(configService as never);
+    const exists = jest.fn().mockRejectedValueOnce(new Error('timeout')).mockResolvedValueOnce(true);
+
+    (service as unknown as { client: unknown }).client = { indices: { exists } };
+
+    await service.onModuleInit();
+
+    expect(exists).toHaveBeenCalledTimes(2);
+  });
 });

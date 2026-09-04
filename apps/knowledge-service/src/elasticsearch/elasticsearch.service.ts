@@ -32,29 +32,42 @@ export class ElasticsearchService implements OnModuleInit {
   // Best-effort instead: log and move on, so the service still starts;
   // search/index calls will simply keep failing until ES comes up, same as
   // any other runtime ES outage after a successful boot.
+  //
+  // Each ensureIndex call gets its OWN try/catch, not one shared around
+  // both — a single wrapping try/catch meant a transient failure partway
+  // through TICKETS_INDEX (ES reachable but flaking mid-init, not fully
+  // down) silently skipped ARTICLES_INDEX entirely, with no later retry:
+  // this method only ever runs once per process lifetime, so a half-failed
+  // init left one index permanently missing until a manual restart —
+  // contradicting the "same as any other runtime ES outage" claim above,
+  // which only actually holds once BOTH indices exist.
   async onModuleInit(): Promise<void> {
+    await this.tryEnsureIndex(TICKETS_INDEX, {
+      properties: {
+        title: { type: 'text', analyzer: 'russian' },
+        description: { type: 'text', analyzer: 'russian' },
+        status: { type: 'keyword' },
+        priority: { type: 'keyword' },
+        createdBy: { type: 'keyword' },
+        assignedTo: { type: 'keyword' },
+        createdAt: { type: 'date' },
+      },
+    });
+    await this.tryEnsureIndex(ARTICLES_INDEX, {
+      properties: {
+        title: { type: 'text', analyzer: 'russian' },
+        content: { type: 'text', analyzer: 'russian' },
+        publishedAt: { type: 'date' },
+        isPublic: { type: 'boolean' },
+      },
+    });
+  }
+
+  private async tryEnsureIndex(index: string, mappings: estypes.MappingTypeMapping): Promise<void> {
     try {
-      await this.ensureIndex(TICKETS_INDEX, {
-        properties: {
-          title: { type: 'text', analyzer: 'russian' },
-          description: { type: 'text', analyzer: 'russian' },
-          status: { type: 'keyword' },
-          priority: { type: 'keyword' },
-          createdBy: { type: 'keyword' },
-          assignedTo: { type: 'keyword' },
-          createdAt: { type: 'date' },
-        },
-      });
-      await this.ensureIndex(ARTICLES_INDEX, {
-        properties: {
-          title: { type: 'text', analyzer: 'russian' },
-          content: { type: 'text', analyzer: 'russian' },
-          publishedAt: { type: 'date' },
-          isPublic: { type: 'boolean' },
-        },
-      });
+      await this.ensureIndex(index, mappings);
     } catch (error) {
-      this.logger.error(`Elasticsearch unavailable at startup — indices not verified/created: ${error}`);
+      this.logger.error(`Elasticsearch unavailable — index "${index}" not verified/created: ${error}`);
     }
   }
 

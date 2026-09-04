@@ -6,6 +6,7 @@ import { PriorityBadge } from '../components/tickets/PriorityBadge.js';
 import { StatusBadge } from '../components/tickets/StatusBadge.js';
 import { useCurrentUser } from '../hooks/useAuth.js';
 import { useTicket, useUnwatchTicket, useWatchStatus, useWatchTicket } from '../hooks/useTickets.js';
+import { getErrorMessage } from '../lib/errors.js';
 import { useRecentActivityStore } from '../store/recent-activity.store.js';
 
 export default function TicketDetailPage() {
@@ -18,6 +19,7 @@ export default function TicketDetailPage() {
   const watch = useWatchTicket();
   const unwatch = useUnwatchTicket();
   const clearRecentActivity = useRecentActivityStore((s) => s.clear);
+  const watchError = watch.error ? getErrorMessage(watch.error) : unwatch.error ? getErrorMessage(unwatch.error) : undefined;
 
   useEffect(() => {
     if (ticketId) clearRecentActivity(ticketId);
@@ -76,6 +78,7 @@ export default function TicketDetailPage() {
               {watchStatus?.isWatching ? t('ticketDetail.watching') : t('ticketDetail.notWatching')}
             </button>
           </div>
+          {watchError && <p className="mt-1.5 text-xs text-priority-urgent">{watchError}</p>}
         </div>
         <div className="min-h-0 flex-1">
           {/* key forces a remount on ticket switch — without it React reuses

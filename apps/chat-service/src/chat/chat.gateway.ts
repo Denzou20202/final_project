@@ -320,9 +320,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     // email-ingestion path before (ticket-events-subscriber.service.ts) —
     // that path stays for actual email replies, but the far more common
     // case (an operator or client typing in the chat panel) never fired a
-    // notification at all. `client.to(...)` excludes the sender, so nobody
-    // hears/sees a notification for their own message. Internal notes never
-    // notify the client — same reasoning as the broadcast above.
+    // notification at all. Internal notes never notify the client — same
+    // reasoning as the broadcast above.
     if (!comment.isInternal) {
       const notification: TicketEventPayload = {
         type: 'reply',
@@ -335,8 +334,18 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         createdBy: ticket.createdBy,
       };
       if (user.role === UserRole.CLIENT) {
-        client.to(OPERATORS_ROOM).emit('ticket:notification', notification);
+        // Same confidentiality gap already fixed above for internal
+        // messages (and on the sibling 'created'/'updated'/'attachment'
+        // channel in TicketEventsSubscriberService) — OPERATORS_ROOM has no
+        // per-recipient scoping, so a department- or own-tickets-restricted
+        // operator would otherwise receive this ticket's title/number/status
+        // over the wire regardless of whether they can see it over REST.
+        await this.emitToStaffWhoCanSeeTicket(ticket, 'ticket:notification', notification, user.sub);
       } else {
+        // `client.to(...)` excludes the sender, so nobody hears/sees a
+        // notification for their own message. This branch targets the
+        // client's own room, not staff, so no restrictToDepartments-style
+        // scoping applies here.
         client.to(userRoom(ticket.createdBy)).emit('ticket:notification', notification);
       }
     }

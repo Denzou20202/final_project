@@ -594,13 +594,16 @@ describe('UsersService — restricted admin (cannotManageAdmins)', () => {
     expect(usersRepository.setRefreshTokenHash).toHaveBeenCalledWith('restricted-admin', null);
   });
 
-  // Regression: assignTeam was the one mutation here still missing
-  // forceReauth — a department change stayed live in an already-issued
-  // access token (restrictToDepartments scoping) for its full TTL, unlike
-  // every sibling mutation in this describe block.
-  it('forces reauth after a team assignment change', async () => {
+  // Regression: assignTeam used to force reauth on the (mistaken) premise
+  // that team membership feeds restrictToDepartments/departmentIds in the
+  // JWT the same way permission-group departments do. It doesn't —
+  // AuthService.resolvePermissionContext never consults team_members — so
+  // forcing a live session out over a routing/organizational change was
+  // pure unnecessary friction, unlike its siblings below which DO gate a
+  // real permission-relevant field.
+  it('does not force reauth after a team assignment change', async () => {
     await service.assignTeam('operator-1', 'team-2', normalActor as never);
-    expect(usersRepository.setRefreshTokenHash).toHaveBeenCalledWith('operator-1', null);
+    expect(usersRepository.setRefreshTokenHash).not.toHaveBeenCalled();
   });
 
   it('forces reauth after a permission-group assignment change', async () => {

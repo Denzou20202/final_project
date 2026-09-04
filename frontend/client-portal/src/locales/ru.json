@@ -90,6 +90,7 @@
     "designThemeForestDescription": "Природные оттенки фисташки и хвои для расслабленной работы",
     "designThemeSunsetDescription": "Сочные градиенты заката с ярким розовым акцентом",
     "designThemeSlateDescription": "Профессиональный стальной интерфейс для разработчиков",
+    "designThemeClassicDescription": "Оригинальный дизайн с изумрудным акцентом",
     "notifications": {
       "description": "Новый ответ в вашем тикете.",
       "sound": "Звук",
@@ -238,6 +239,10 @@
     "toolbarAddColumn": "Добавить столбец",
     "toolbarDeleteRow": "Удалить строку",
     "toolbarDeleteColumn": "Удалить столбец",
+    "toolbarAddRowLabel": "+Р",
+    "toolbarAddColumnLabel": "+К",
+    "toolbarDeleteRowLabel": "−Р",
+    "toolbarDeleteColumnLabel": "−К",
     "toolbarDeleteTable": "Удалить таблицу"
   },
   "csat": {

@@ -416,14 +416,16 @@ export class UsersService {
     }
     await this.assertAdminActionAllowed(actor, user);
     await this.teamsService.assignUserTeam(id, teamId);
-    // Department/team membership feeds restrictToDepartments scoping in the
-    // JWT (see PermissionGroupsService's own forceReauthForMembers for the
-    // same reasoning) — without this, a narrowing team change stayed live in
-    // an already-issued access token for its full remaining TTL, unlike
-    // every sibling mutation here (updateRole/assignPermissionGroup/
-    // setAdminRestriction) that already forces reauth for exactly this
-    // reason.
-    await this.forceReauth(id);
+    // No forceReauth here (unlike updateRole/assignPermissionGroup/
+    // setAdminRestriction below) — a since-corrected assumption held that
+    // team membership fed restrictToDepartments/departmentIds in the JWT,
+    // the same way permission-group departments do. It doesn't:
+    // AuthService.resolvePermissionContext computes departmentIds solely
+    // from the user's permission group (permission_group_departments) plus
+    // the (currently unused) user_extra_departments table — team_members is
+    // never consulted. A plain team reassignment is a routing/organizational
+    // change, not a permission change, so forcing a live session out over it
+    // was pure unnecessary friction with no security benefit.
     return this.toPublicUserWithGroup(user);
   }
 

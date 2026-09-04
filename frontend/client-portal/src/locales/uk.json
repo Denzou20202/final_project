@@ -90,6 +90,7 @@
     "designThemeForestDescription": "Природні відтінки фісташки та хвої для розслабленої роботи",
     "designThemeSunsetDescription": "Соковиті градієнти заходу сонця з яскравим рожевим акцентом",
     "designThemeSlateDescription": "Професійний сталевий інтерфейс для розробників",
+    "designThemeClassicDescription": "Оригінальний дизайн зі смарагдовим акцентом",
     "notifications": {
       "description": "Нова відповідь у вашому тікеті.",
       "sound": "Звук",
@@ -238,6 +239,10 @@
     "toolbarAddColumn": "Додати стовпець",
     "toolbarDeleteRow": "Видалити рядок",
     "toolbarDeleteColumn": "Видалити стовпець",
+    "toolbarAddRowLabel": "+Р",
+    "toolbarAddColumnLabel": "+С",
+    "toolbarDeleteRowLabel": "−Р",
+    "toolbarDeleteColumnLabel": "−С",
     "toolbarDeleteTable": "Видалити таблицю"
   },
   "csat": {

@@ -112,6 +112,7 @@
     "designThemeForestDescription": "Природные оттенки фисташки и хвои для расслабленной работы",
     "designThemeSunsetDescription": "Сочные градиенты заката с ярким розовым акцентом",
     "designThemeSlateDescription": "Профессиональный стальной интерфейс для разработчиков",
+    "designThemeClassicDescription": "Оригинальный дизайн с изумрудным акцентом",
     "notifications": {
       "description": "Новый тикет в общей очереди, назначение на вас, упоминание, ответ в тикете, где вы исполнитель, и изменения по SLA или автоматизации.",
       "descriptionAdmin": "Плюс новая заявка на регистрацию от клиента.",
@@ -1046,6 +1047,10 @@
     "toolbarAddColumn": "Добавить столбец",
     "toolbarDeleteRow": "Удалить строку",
     "toolbarDeleteColumn": "Удалить столбец",
+    "toolbarAddRowLabel": "+Р",
+    "toolbarAddColumnLabel": "+К",
+    "toolbarDeleteRowLabel": "−Р",
+    "toolbarDeleteColumnLabel": "−К",
     "toolbarDeleteTable": "Удалить таблицу"
   },
   "search": {

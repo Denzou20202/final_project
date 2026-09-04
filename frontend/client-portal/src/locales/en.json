@@ -90,6 +90,7 @@
     "designThemeForestDescription": "Natural pistachio and pine tones for relaxed work",
     "designThemeSunsetDescription": "Rich sunset gradients with a bold pink accent",
     "designThemeSlateDescription": "A professional steel interface for developers",
+    "designThemeClassicDescription": "The original design with an emerald accent",
     "notifications": {
       "description": "A new reply on your ticket.",
       "sound": "Sound",
@@ -236,6 +237,10 @@
     "toolbarAddColumn": "Add column",
     "toolbarDeleteRow": "Delete row",
     "toolbarDeleteColumn": "Delete column",
+    "toolbarAddRowLabel": "+R",
+    "toolbarAddColumnLabel": "+C",
+    "toolbarDeleteRowLabel": "−R",
+    "toolbarDeleteColumnLabel": "−C",
     "toolbarDeleteTable": "Delete table"
   },
   "csat": {

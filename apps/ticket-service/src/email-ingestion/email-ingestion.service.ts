@@ -151,41 +151,12 @@ export class EmailIngestionService implements OnApplicationBootstrap {
       this.logger.warn('Skipping inbound message with no parseable From address');
       return;
     }
-    // Checked before any DB write — nothing upstream of this (IMAP itself,
-    // nginx) gates the mail channel at all. Returning normally (not
-    // throwing) lets the caller still flag the message \Seen, so a flood
-    // doesn't just keep re-arriving on every subsequent poll.
-    if (!(await this.rateLimiter.shouldProcess(fromAddress))) {
-      return;
-    }
 
     const messageId = parsed.messageId ?? undefined;
     const threadCandidates = extractThreadCandidates(
       parsed.inReplyTo,
       parsed.references as string | string[] | undefined,
     );
-    // parsed.text is genuine plain text from an unauthenticated sender (the
-    // support mailbox needs no auth to email) — a literal `<img
-    // src=x onerror="...">` typed as ordinary characters must render as
-    // that literal text, not get interpreted as markup once the frontend
-    // puts comment.body/description into dangerouslySetInnerHTML. Escape
-    // first (same two-step pattern telegram-ingestion uses for its own
-    // plain-text path via telegramEntitiesToHtml), then sanitizeCommentBody
-    // like every other comment.body/description write in this codebase.
-    const body = sanitizeCommentBody(escapeHtml((parsed.text ?? '').trim() || '(пустое письмо)'));
-    const subject = parsed.subject?.trim() || '(без темы)';
-
-    const sender = await this.userResolver.findOrCreateByEmail(fromAddress, parsed.from?.value[0]?.name);
-    if (!sender) {
-      // A staff (or deactivated) account already owns this address — see
-      // findOrCreateByEmail's own comment. Dropping silently (not throwing)
-      // is deliberate: throwing here would leave the message unflagged
-      // \Seen, and the exact same forged/stale From: keeps re-arriving on
-      // every 15s poll forever.
-      this.logger.warn(`Skipping inbound message from ${fromAddress} — not a client mailbox`);
-      return;
-    }
-
     // IMAP's \Seen flag is best-effort, not transactional with our DB write —
     // if the connection drops between creating the ticket and flagging the
     // message (Greenmail does this occasionally), the same message comes
@@ -210,6 +181,44 @@ export class EmailIngestionService implements OnApplicationBootstrap {
 
     if (existingTicket && messageId && existingTicket.externalThreadId === messageId) {
       this.logger.debug(`Message ${messageId} was already processed into ticket ${existingTicket.id}, skipping`);
+      return;
+    }
+
+    // Checked only once a message is confirmed NOT already processed —
+    // nothing upstream of this (IMAP itself, nginx) gates the mail channel
+    // at all, but the dedup check above must run first: a dropped IMAP
+    // connection between ticket-creation and \Seen-flagging (see the comment
+    // above) deliberately causes the SAME message to retry on later poll
+    // ticks, and each retry used to charge the rate limiter again before
+    // reaching that dedup check — a few ordinary retries could exhaust the
+    // global threshold and silently rate-limit every OTHER sender's genuinely
+    // new mail, a self-inflicted outage from routine infra flakiness rather
+    // than actual abuse. Returning normally (not throwing) here lets the
+    // caller still flag the message \Seen, so a real flood doesn't just keep
+    // re-arriving on every subsequent poll.
+    if (!(await this.rateLimiter.shouldProcess(fromAddress))) {
+      return;
+    }
+
+    // parsed.text is genuine plain text from an unauthenticated sender (the
+    // support mailbox needs no auth to email) — a literal `<img
+    // src=x onerror="...">` typed as ordinary characters must render as
+    // that literal text, not get interpreted as markup once the frontend
+    // puts comment.body/description into dangerouslySetInnerHTML. Escape
+    // first (same two-step pattern telegram-ingestion uses for its own
+    // plain-text path via telegramEntitiesToHtml), then sanitizeCommentBody
+    // like every other comment.body/description write in this codebase.
+    const body = sanitizeCommentBody(escapeHtml((parsed.text ?? '').trim() || '(пустое письмо)'));
+    const subject = parsed.subject?.trim() || '(без темы)';
+
+    const sender = await this.userResolver.findOrCreateByEmail(fromAddress, parsed.from?.value[0]?.name);
+    if (!sender) {
+      // A staff (or deactivated) account already owns this address — see
+      // findOrCreateByEmail's own comment. Dropping silently (not throwing)
+      // is deliberate: throwing here would leave the message unflagged
+      // \Seen, and the exact same forged/stale From: keeps re-arriving on
+      // every 15s poll forever.
+      this.logger.warn(`Skipping inbound message from ${fromAddress} — not a client mailbox`);
       return;
     }
 
