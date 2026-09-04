@@ -108,44 +108,44 @@ export default function UsersPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-none flex-col gap-2.5 px-4 pb-3.5 pt-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="flex flex-none flex-col gap-2.5 px-4 pb-3.5 pt-4 sm:px-6">
         <div>
           <div className="font-display text-lg font-bold">{t('admin.users.title')}</div>
           <div className="mt-0.5 text-[12.5px] text-ink-subtle">{t('admin.users.subtitle')}</div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:justify-end">
           <input
             type="search"
             value={searchDraft}
             onChange={(e) => setSearchDraft(e.target.value)}
             placeholder={t('admin.users.searchPlaceholder')}
-            className="w-full rounded-lg border border-border bg-surface-card px-3 py-1.5 text-[12.5px] outline-none focus:border-brand-600 sm:w-64"
+            className="w-full min-w-[120px] flex-1 basis-0 rounded-lg border border-border bg-surface-card px-3 py-1.5 text-[12.5px] outline-none focus:border-brand-600 sm:max-w-64"
           />
           {isAdmin && (
-            <>
+            <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-nowrap">
               <button
                 type="button"
                 onClick={() => downloadContactsCsv.mutate()}
                 disabled={downloadContactsCsv.isPending}
-                className="rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-ink-muted hover:bg-surface-muted disabled:opacity-50"
+                className="shrink-0 whitespace-nowrap rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-ink-muted hover:bg-surface-muted disabled:opacity-50"
               >
                 {downloadContactsCsv.isPending ? t('common.saving') : t('admin.contacts.exportButton')}
               </button>
               <button
                 type="button"
                 onClick={() => setDuplicatesOpen(true)}
-                className="rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-ink-muted hover:bg-surface-muted"
+                className="shrink-0 whitespace-nowrap rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-ink-muted hover:bg-surface-muted"
               >
                 {t('admin.contacts.findDuplicatesButton')}
               </button>
               <button
                 type="button"
                 onClick={() => setCreateOpen(true)}
-                className="rounded-lg bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-hover"
+                className="shrink-0 whitespace-nowrap rounded-lg bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-hover"
               >
                 {t('admin.users.newUser')}
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>
