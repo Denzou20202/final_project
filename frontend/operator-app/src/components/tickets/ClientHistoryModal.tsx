@@ -200,7 +200,7 @@ export function ClientHistoryModal({
                       })()}
                     </td>
                     <td className="px-5 py-3 text-ink-muted">{lookupUser(ticket.assignedTo)}</td>
-                    <td className="px-5 py-3 text-ink-muted">{formatDateTime(ticket.createdAt)}</td>
+                    <td className="px-5 py-3 text-ink-muted">{formatDateTime(ticket.createdAt, i18n.language)}</td>
                   </tr>
                 ))}
               </tbody>

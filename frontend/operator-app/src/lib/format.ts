@@ -8,11 +8,28 @@ export function formatMinutes(t: TFunction, value: number | null): string {
   return t('analytics.hoursShort', { count: (value / 60).toFixed(1) });
 }
 
-// Single source of truth for "ДД.ММ.ГГГГ, ЧЧ:ММ" — this used to be
+// Mirrors the backend's identically-named map in telegram-ingestion.service.ts
+// — same three values as i18n.ts's supportedLngs, mapped to their Intl tag.
+const LOCALE_TO_INTL: Record<string, string> = {
+  ru: 'ru-RU',
+  uk: 'uk-UA',
+  en: 'en-US',
+};
+
+// Exported for the handful of call sites that need a different Intl option
+// set than formatDateTime's own (a chat timestamp, a status-history entry
+// without a year, etc.) but should still resolve the same three locales.
+export function toIntlLocale(language: string): string {
+  return LOCALE_TO_INTL[language] ?? LOCALE_TO_INTL['ru'];
+}
+
+// Single source of truth for a localized "date, time" — this used to be
 // redefined per-file (some missing `year`, producing inconsistent output
-// between the audit log, client history, trash, etc.).
-export function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('ru-RU', {
+// between the audit log, client history, trash, etc.), always hardcoded to
+// 'ru-RU' regardless of the viewer's actual selected language. Pass
+// `i18n.language` from the calling component.
+export function formatDateTime(iso: string, language: string): string {
+  return new Date(iso).toLocaleString(toIntlLocale(language), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

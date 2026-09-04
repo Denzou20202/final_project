@@ -1,4 +1,11 @@
-import { CreateBucketCommand, GetObjectCommand, HeadBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  CreateBucketCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadBucketCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -65,6 +72,20 @@ export class S3Service implements OnModuleInit {
       return { body, contentType: result.ContentType ?? 'application/octet-stream' };
     } catch {
       throw new NotFoundException('Image not found');
+    }
+  }
+
+  // Best-effort cleanup (called from ArticlesService.remove) — same
+  // reasoning as ticket-service's identical S3Service.deleteObject: by the
+  // time this runs, the referencing DB row is already gone, so a failure
+  // here leaves an orphaned object, not a dangling reference. Log and
+  // swallow rather than propagate — the article delete should never fail
+  // over an image cleanup miss.
+  async deleteObject(key: string): Promise<void> {
+    try {
+      await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+    } catch (err) {
+      this.logger.warn(`Failed to delete S3 object "${key}": ${(err as Error).message}`);
     }
   }
 }

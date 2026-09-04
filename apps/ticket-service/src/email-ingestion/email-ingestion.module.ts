@@ -7,6 +7,7 @@ import { SlaModule } from '../sla/sla.module.js';
 import { TicketEventsModule } from '../ticket-events/ticket-events.module.js';
 import { TicketStatusesModule } from '../ticket-statuses/ticket-statuses.module.js';
 import { TicketTypesModule } from '../ticket-types/ticket-types.module.js';
+import { EmailIngestionRateLimiterService } from './email-ingestion-rate-limiter.service.js';
 import { EmailIngestionService } from './email-ingestion.service.js';
 import { EmailUserResolverService } from './email-user-resolver.service.js';
 
@@ -22,6 +23,6 @@ import { EmailUserResolverService } from './email-user-resolver.service.js';
     TicketStatusesModule,
     TicketTypesModule,
   ],
-  providers: [EmailIngestionService, EmailUserResolverService],
+  providers: [EmailIngestionService, EmailUserResolverService, EmailIngestionRateLimiterService],
 })
 export class EmailIngestionModule {}

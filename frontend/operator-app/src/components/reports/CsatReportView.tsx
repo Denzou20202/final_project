@@ -259,7 +259,7 @@ export function CsatReportView() {
                         </td>
                         <td className="px-4 py-3 text-ink-muted">{row.clientName}</td>
                         <td className="px-4 py-3 text-ink-muted">{row.assigneeName || '—'}</td>
-                        <td className="px-4 py-3 text-ink-faint">{formatDateTime(row.submittedAt)}</td>
+                        <td className="px-4 py-3 text-ink-faint">{formatDateTime(row.submittedAt, i18n.language)}</td>
                         <td className="px-4 py-3">
                           <ScoreBadge score={row.avgScore} />
                         </td>

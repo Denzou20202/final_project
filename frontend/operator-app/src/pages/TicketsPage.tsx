@@ -154,7 +154,7 @@ const TicketRow = memo(function TicketRow({
       case 'createdAt':
         return (
           <td key={key} className="truncate px-4 py-3 text-ink-subtle">
-            {formatDate(ticket.createdAt)}
+            {formatDate(ticket.createdAt, i18n.language)}
           </td>
         );
     }

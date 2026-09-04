@@ -8,6 +8,7 @@ import { PriorityBadge } from '../components/tickets/PriorityBadge.js';
 import { StatusBadge } from '../components/tickets/StatusBadge.js';
 import { useTicketCounts, useTicketsPage } from '../hooks/useTickets.js';
 import { useTicketStatuses } from '../hooks/useTicketStatuses.js';
+import { toIntlLocale } from '../lib/format.js';
 import { resolveStatusIdParam } from '../lib/status-url.js';
 import type { PublicTicket } from '../lib/types.js';
 import { useRecentActivityStore } from '../store/recent-activity.store.js';
@@ -22,8 +23,8 @@ const COLUMN_SORT_FIELDS: Partial<Record<TicketColumnKey, TicketSortField>> = {
   createdAt: TicketSortField.CREATED_AT,
 };
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('ru-RU', {
+function formatDate(iso: string, language: string): string {
+  return new Date(iso).toLocaleString(toIntlLocale(language), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -32,7 +33,7 @@ function formatDate(iso: string): string {
   });
 }
 
-function bodyCell(key: TicketColumnKey, ticket: PublicTicket, isRecent: boolean) {
+function bodyCell(key: TicketColumnKey, ticket: PublicTicket, isRecent: boolean, language: string) {
   switch (key) {
     case 'number':
       return (
@@ -63,14 +64,14 @@ function bodyCell(key: TicketColumnKey, ticket: PublicTicket, isRecent: boolean)
     case 'createdAt':
       return (
         <td key={key} className="px-4 py-3 text-ink-subtle">
-          {formatDate(ticket.createdAt)}
+          {formatDate(ticket.createdAt, language)}
         </td>
       );
   }
 }
 
 export default function TicketsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTicketIds = useRecentActivityStore((s) => s.activeTicketIds);
@@ -289,7 +290,7 @@ export default function TicketsPage() {
                       }`}
                     >
                       <td className="px-3 py-3" />
-                      {columnOrder.map((key) => bodyCell(key, ticket, isRecent))}
+                      {columnOrder.map((key) => bodyCell(key, ticket, isRecent, i18n.language))}
                     </tr>
                   );
                 })}

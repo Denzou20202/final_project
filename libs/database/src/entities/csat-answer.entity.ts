@@ -12,6 +12,10 @@ import { TicketEntity } from './ticket.entity.js';
 // renames or disables the question, past reports keep reading what the
 // client actually saw, the same convention EmployeeStatusHistoryEntity uses
 // for status names.
+// (surveyId, questionId) unique — see migration
+// AddCsatAnswersUniqueQuestionPerSurvey for why (a single submission
+// listing the same question twice used to insert duplicate rows unchecked).
+@Index(['surveyId', 'questionId'], { unique: true })
 @Entity('csat_answers')
 export class CsatAnswerEntity {
   @PrimaryGeneratedColumn('uuid')

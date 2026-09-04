@@ -3,13 +3,14 @@ import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { downloadAttachment } from '../../hooks/useAttachments.js';
 import { useUserLookup } from '../../hooks/useUserLookup.js';
+import { toIntlLocale } from '../../lib/format.js';
 import { isImageFile, isVideoFile } from '../../lib/is-image-file.js';
 import type { PublicAttachment, PublicComment } from '../../lib/types.js';
 import { AttachmentImage } from './AttachmentImage.js';
 import { AttachmentVideo } from './AttachmentVideo.js';
 
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+function formatTime(iso: string, language: string): string {
+  return new Date(iso).toLocaleTimeString(toIntlLocale(language), { hour: '2-digit', minute: '2-digit' });
 }
 
 function formatFileSize(t: TFunction, bytes: number): string {
@@ -105,7 +106,7 @@ export const MessageBubble = memo(function MessageBubble({
   onEdit: (comment: PublicComment) => void;
   onSplitToTicket?: (comment: PublicComment) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const lookupUser = useUserLookup();
   const hasText = comment.body.trim().length > 0;
   // Splitting off a new ticket only makes sense from the client's own words
@@ -129,7 +130,7 @@ export const MessageBubble = memo(function MessageBubble({
         <AttachmentChips attachments={attachments} fromClient={false} hasText={hasText} />
         <div className="mt-1 flex items-center gap-1.5 text-[11px] text-ink-faint">
           <span>
-            {lookupUser(comment.authorId)} · {formatTime(comment.createdAt)}
+            {lookupUser(comment.authorId)} · {formatTime(comment.createdAt, i18n.language)}
             {comment.editedAt && <span className="italic"> · {t('chat.edited')}</span>}
           </span>
           {canEdit && (
@@ -160,7 +161,7 @@ export const MessageBubble = memo(function MessageBubble({
       </div>
       <div className="mt-1 flex items-center gap-1.5 px-1 text-[11px] text-ink-faint">
         <span>
-          {lookupUser(comment.authorId)} · {formatTime(comment.createdAt)}
+          {lookupUser(comment.authorId)} · {formatTime(comment.createdAt, i18n.language)}
           {comment.editedAt && <span className="italic"> · {t('chat.edited')}</span>}
         </span>
         {canEdit && (

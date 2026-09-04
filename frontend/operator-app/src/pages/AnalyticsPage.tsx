@@ -48,7 +48,9 @@ export default function AnalyticsPage() {
     ? getErrorMessage(dashboardError)
     : teamLoadError
       ? getErrorMessage(teamLoadError)
-      : undefined;
+      : downloadCsv.error
+        ? getErrorMessage(downloadCsv.error)
+        : undefined;
 
   function statusLabel(statusId: string): string {
     const status = statuses?.find((s) => s.id === statusId);

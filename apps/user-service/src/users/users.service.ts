@@ -22,7 +22,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectDataSource } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryFailedError } from 'typeorm';
 import { TotpEncryptionService } from '../auth/totp-encryption.service.js';
 import { TotpService } from '../auth/totp.service.js';
 import { CitiesRepository } from '../cities/cities.repository.js';
@@ -43,6 +43,11 @@ import { PublicUser, PublicUserPage, toPublicUser } from './user.public.js';
 
 const DEFAULT_PAGE_SIZE = 20;
 const PASSWORD_SALT_ROUNDS = 12;
+// Postgres error code for a foreign_key_violation — raised by reject()'s
+// hard delete when the target already has tickets/comments/etc. attached
+// (see UsersService.hardDelete's own comment for the full list of blocking
+// FKs to users.id).
+const FOREIGN_KEY_VIOLATION = '23503';
 const TELEGRAM_LINK_TOKEN_TTL_MS = 15 * 60 * 1000;
 
 @Injectable()
@@ -655,6 +660,14 @@ export class UsersService {
   // (AuthService.register issues no tokens for it), so there's nothing to
   // preserve or keep hidden: it just disappears, the same way it would if
   // the registration had never happened. See UsersRepository.hardDeleteIfPending.
+  // That assumption breaks for an email-provisioned pending account (see
+  // EmailUserResolverService.findOrCreateByEmail) — it can already have real
+  // tickets/comments attached despite never completing approval, unlike a
+  // self-registered row (blocked from doing anything by AuthService's
+  // completeLogin check). Unlike UsersService.hardDelete, this path doesn't
+  // reassign that data to SYSTEM_USER_ID — a reject should surface the
+  // conflict to the admin rather than silently absorbing content into a
+  // rejected account's history.
   async reject(id: string): Promise<void> {
     const user = await this.usersRepository.findById(id);
     if (!user) {
@@ -663,8 +676,16 @@ export class UsersService {
     if (user.approvedAt) {
       throw new BadRequestException('Cannot reject an already-approved user');
     }
-    // Same race-closing condition as approve() above.
-    const applied = await this.usersRepository.hardDeleteIfPending(id);
+    let applied: boolean;
+    try {
+      // Same race-closing condition as approve() above.
+      applied = await this.usersRepository.hardDeleteIfPending(id);
+    } catch (error) {
+      if (error instanceof QueryFailedError && (error as unknown as { code?: string }).code === FOREIGN_KEY_VIOLATION) {
+        throw new ConflictException('Cannot reject — this account already has tickets or comments; deactivate it instead');
+      }
+      throw error;
+    }
     if (!applied) {
       throw new ConflictException('User was already approved or rejected by someone else');
     }

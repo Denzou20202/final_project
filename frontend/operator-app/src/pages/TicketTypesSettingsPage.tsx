@@ -19,7 +19,11 @@ export default function TicketTypesSettingsPage() {
     deleteType.mutate(type.id);
   }
 
-  const deleteError = deleteType.error ? getErrorMessage(deleteType.error) : undefined;
+  const actionError = deleteType.error
+    ? getErrorMessage(deleteType.error)
+    : moveType.error
+      ? getErrorMessage(moveType.error)
+      : undefined;
   const list = types ?? [];
 
   return (
@@ -41,8 +45,8 @@ export default function TicketTypesSettingsPage() {
       <div className="flex-1 overflow-auto px-4 pb-6 sm:px-6">
         {isLoading && <div className="py-16 text-center text-sm text-ink-subtle">{t('common.loading')}</div>}
 
-        {deleteError && (
-          <p className="mb-3 rounded-lg bg-priority-urgent/10 px-3 py-2 text-sm text-priority-urgent">{deleteError}</p>
+        {actionError && (
+          <p className="mb-3 rounded-lg bg-priority-urgent/10 px-3 py-2 text-sm text-priority-urgent">{actionError}</p>
         )}
 
         {!isLoading && list.length > 0 && (

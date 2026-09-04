@@ -22,7 +22,7 @@ function ScoreDot({ score }: { score: number }) {
 // Read-only for operators/admins — only the client can submit (see
 // CsatModal.tsx in client-portal); nothing here ever calls useSubmitCsat.
 export function CsatSection({ ticketId, status }: { ticketId: string; status: PublicTicketStatus }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isClosed = status.isClosed;
   const { data: csat } = useCsat(ticketId, isClosed);
 
@@ -42,7 +42,7 @@ export function CsatSection({ ticketId, status }: { ticketId: string; status: Pu
           ))}
           {csat.submittedAt && (
             <p className="mt-1 text-[11px] text-ink-faint">
-              {t('csat.submittedAt', { date: formatDateTime(csat.submittedAt) })}
+              {t('csat.submittedAt', { date: formatDateTime(csat.submittedAt, i18n.language) })}
             </p>
           )}
         </div>

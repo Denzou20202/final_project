@@ -25,6 +25,7 @@ import { TicketEventsPublisherService } from '../ticket-events/ticket-events-pub
 import { TicketStatusesRepository } from '../ticket-statuses/ticket-statuses.repository.js';
 import { toPublicTicketStatus } from '../ticket-statuses/ticket-status.public.js';
 import { TicketTypesRepository } from '../ticket-types/ticket-types.repository.js';
+import { EmailIngestionRateLimiterService } from './email-ingestion-rate-limiter.service.js';
 import { EmailUserResolverService } from './email-user-resolver.service.js';
 import { extractThreadCandidates } from './thread-matching.js';
 
@@ -49,6 +50,7 @@ export class EmailIngestionService implements OnApplicationBootstrap {
     private readonly activityRepository: Repository<TicketActivityEntity>,
     private readonly ticketStatusesRepository: TicketStatusesRepository,
     private readonly ticketTypesRepository: TicketTypesRepository,
+    private readonly rateLimiter: EmailIngestionRateLimiterService,
   ) {}
 
   onApplicationBootstrap(): void {
@@ -147,6 +149,13 @@ export class EmailIngestionService implements OnApplicationBootstrap {
     const fromAddress = parsed.from?.value[0]?.address;
     if (!fromAddress) {
       this.logger.warn('Skipping inbound message with no parseable From address');
+      return;
+    }
+    // Checked before any DB write — nothing upstream of this (IMAP itself,
+    // nginx) gates the mail channel at all. Returning normally (not
+    // throwing) lets the caller still flag the message \Seen, so a flood
+    // doesn't just keep re-arriving on every subsequent poll.
+    if (!(await this.rateLimiter.shouldProcess(fromAddress))) {
       return;
     }
 

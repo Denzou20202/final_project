@@ -1,6 +1,7 @@
 import { decodeCursor, encodeCursor, JwtPayload, sanitizeArticleBody } from '@veloxdesk/common';
 import { KnowledgeArticleStatus } from '@veloxdesk/types';
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { S3Service } from '../article-images/s3.service.js';
 import { ARTICLES_INDEX, ElasticsearchService } from '../elasticsearch/elasticsearch.service.js';
 import { ArticlesRepository } from './articles.repository.js';
 import { ArticleSearchResult, PublicArticle, PublicArticlePage, toPublicArticle } from './article.public.js';
@@ -42,6 +43,7 @@ export class ArticlesService {
   constructor(
     private readonly articlesRepository: ArticlesRepository,
     private readonly elasticsearch: ElasticsearchService,
+    private readonly s3: S3Service,
   ) {}
 
   async create(dto: CreateArticleDto, actor: JwtPayload): Promise<PublicArticle> {
@@ -138,9 +140,18 @@ export class ArticlesService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.getArticleOrThrow(id);
+    const article = await this.getArticleOrThrow(id);
     await this.articlesRepository.delete(id);
     await this.removeFromIndex(id);
+    // Best-effort — there's no join table tracking which S3 image keys an
+    // article embeds (ArticleImagesService.upload never persists that
+    // association anywhere), so this is the only way to find them: parse
+    // the content HTML for the same /api/public/images/:key URLs the editor
+    // itself inserted on upload. Doesn't catch keys orphaned by an EDIT that
+    // removed an image reference without deleting the article — only the
+    // delete-the-whole-article path, matching TicketsService.hardDelete's
+    // scope for ticket attachments.
+    await this.removeEmbeddedImages(article.content);
   }
 
   // Backs the client-facing FAQ page — published articles only, 404 (not
@@ -248,6 +259,14 @@ export class ArticlesService {
     } catch (err) {
       this.logger.warn(`Failed to remove article ${id} from index: ${err}`);
     }
+  }
+
+  // Same key charset PublicImagesController/ArticleImagesService's SAFE_KEY
+  // check requires, so this only ever matches keys that could actually have
+  // been uploaded through that flow.
+  private async removeEmbeddedImages(content: string): Promise<void> {
+    const keys = [...content.matchAll(/\/api\/public\/images\/([\w.-]+)/g)].map((m) => m[1]);
+    await Promise.allSettled(keys.map((key) => this.s3.deleteObject(key)));
   }
 
   private async getArticleOrThrow(id: string) {

@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { downloadAttachment } from '../../hooks/useAttachments.js';
+import { toIntlLocale } from '../../lib/format.js';
 import { isImageFile, isVideoFile } from '../../lib/is-image-file.js';
 import type { PublicAttachment } from '../../lib/types.js';
 import { AttachmentImage } from './AttachmentImage.js';
@@ -21,12 +22,12 @@ function formatFileSize(t: TFunction, bytes: number): string {
   return t('chat.fileSizeMB', { count: (bytes / (1024 * 1024)).toFixed(1) });
 }
 
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+function formatTime(iso: string, language: string): string {
+  return new Date(iso).toLocaleTimeString(toIntlLocale(language), { hour: '2-digit', minute: '2-digit' });
 }
 
 function FileChip({ attachment }: { attachment: PublicAttachment }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpening, setOpening] = useState(false);
 
   async function handleOpen() {
@@ -50,7 +51,7 @@ function FileChip({ attachment }: { attachment: PublicAttachment }) {
       </span>
       <span className="max-w-[240px] truncate font-medium text-ink">{attachment.fileName}</span>
       <span className="text-ink-faint">{formatFileSize(t, attachment.fileSize)}</span>
-      <span className="text-[11px] text-ink-faint">{formatTime(attachment.createdAt)}</span>
+      <span className="text-[11px] text-ink-faint">{formatTime(attachment.createdAt, i18n.language)}</span>
     </button>
   );
 }
@@ -68,7 +69,7 @@ export function AttachmentInlineCard({
   attachment: PublicAttachment;
   isMine: boolean | null;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isMedia = isImageFile(attachment.fileName) || isVideoFile(attachment.fileName);
 
   if (isMine === null) {
@@ -77,7 +78,7 @@ export function AttachmentInlineCard({
         <MediaOrChip attachment={attachment} />
         {isMedia && (
           <span className="text-[11px] text-ink-faint">
-            {attachment.fileName} · {formatTime(attachment.createdAt)}
+            {attachment.fileName} · {formatTime(attachment.createdAt, i18n.language)}
           </span>
         )}
       </div>
@@ -89,7 +90,7 @@ export function AttachmentInlineCard({
       <MediaOrChip attachment={attachment} />
       <div className="mt-1 flex items-center gap-1.5 px-1 text-[11px] text-ink-faint">
         <span>
-          {isMine ? t('chat.you') : t('chat.supportAgent')} · {formatTime(attachment.createdAt)}
+          {isMine ? t('chat.you') : t('chat.supportAgent')} · {formatTime(attachment.createdAt, i18n.language)}
         </span>
       </div>
     </div>

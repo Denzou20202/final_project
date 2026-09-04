@@ -107,7 +107,7 @@ export default function KnowledgeListPage() {
                         </>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-ink-subtle">{formatDate(article.updatedAt)}</td>
+                    <td className="px-4 py-3 text-ink-subtle">{formatDate(article.updatedAt, i18n.language)}</td>
                   </tr>
                 ))}
               </tbody>

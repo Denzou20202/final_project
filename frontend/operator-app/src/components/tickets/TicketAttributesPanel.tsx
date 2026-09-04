@@ -235,12 +235,12 @@ export function TicketAttributesPanel({ ticket }: { ticket: PublicTicket }) {
           <div className="mt-1 flex flex-col gap-0.5 text-[12px] text-ink-faint">
             <span>
               {t('ticketFields.responseBy', {
-                date: formatDateTime(addMinutes(ticket.createdAt, slaPolicy.responseTimeMin)),
+                date: formatDateTime(addMinutes(ticket.createdAt, slaPolicy.responseTimeMin), i18n.language),
               })}
             </span>
             <span>
               {t('ticketFields.resolutionBy', {
-                date: formatDateTime(addMinutes(ticket.createdAt, slaPolicy.resolutionTimeMin)),
+                date: formatDateTime(addMinutes(ticket.createdAt, slaPolicy.resolutionTimeMin), i18n.language),
               })}
             </span>
           </div>

@@ -18,7 +18,8 @@ describe('TeamsService', () => {
       'create' | 'findAll' | 'findById' | 'updateName' | 'delete' | 'countTicketsForTeam' | 'findMemberIds' | 'findMemberIdsByTeamIds' | 'setMembers' | 'setUserTeam'
     >
   >;
-  let usersRepository: { find: jest.Mock; findOne: jest.Mock };
+  let usersRepository: { find: jest.Mock; findOne: jest.Mock; update: jest.Mock };
+  let userEventsPublisher: { publish: jest.Mock };
   let service: TeamsService;
 
   beforeEach(() => {
@@ -29,15 +30,17 @@ describe('TeamsService', () => {
       updateName: jest.fn(),
       delete: jest.fn(),
       countTicketsForTeam: jest.fn(),
-      findMemberIds: jest.fn(),
+      findMemberIds: jest.fn().mockResolvedValue([]),
       findMemberIdsByTeamIds: jest.fn(),
       setMembers: jest.fn(),
       setUserTeam: jest.fn(),
     };
-    usersRepository = { find: jest.fn(), findOne: jest.fn() };
+    usersRepository = { find: jest.fn(), findOne: jest.fn(), update: jest.fn() };
+    userEventsPublisher = { publish: jest.fn().mockResolvedValue(undefined) };
     service = new TeamsService(
       teamsRepository as unknown as TeamsRepository,
       usersRepository as never,
+      userEventsPublisher as never,
     );
   });
 
@@ -82,6 +85,19 @@ describe('TeamsService', () => {
       });
       expect(teamsRepository.setMembers).toHaveBeenCalledWith('team-1', ['u1']);
     });
+
+    // Regression coverage: a brand-new team's initial roster sets each
+    // member's restrictToDepartments/departmentIds JWT claim for the first
+    // time, but nothing force-reauthed them — same gap as update() below.
+    it('force-reauths a brand-new team\'s initial members', async () => {
+      teamsRepository.create.mockResolvedValue(makeTeam());
+      usersRepository.find.mockResolvedValue([makeUser('u1', UserRole.OPERATOR)]);
+
+      await service.create({ name: 'X', memberIds: ['u1'] });
+
+      expect(usersRepository.update).toHaveBeenCalledWith({ id: expect.anything() }, { refreshTokenHash: null });
+      expect(userEventsPublisher.publish).toHaveBeenCalledWith({ type: 'account_security_changed', userId: 'u1' });
+    });
   });
 
   describe('update', () => {
@@ -108,6 +124,43 @@ describe('TeamsService', () => {
       await service.update('team-1', { memberIds: [] });
 
       expect(teamsRepository.setMembers).toHaveBeenCalledWith('team-1', []);
+    });
+
+    it('does not force-reauth anyone when only the name changes', async () => {
+      teamsRepository.findById.mockResolvedValue(makeTeam());
+
+      await service.update('team-1', { name: 'Новое имя' });
+
+      expect(usersRepository.update).not.toHaveBeenCalled();
+      expect(userEventsPublisher.publish).not.toHaveBeenCalled();
+    });
+
+    // Regression coverage: TeamsService had no equivalent of
+    // PermissionGroupsService.forceReauthForMembers — a bulk member-list
+    // edit changes every affected user's restrictToDepartments/
+    // departmentIds JWT claim, but nothing forced re-login. The union of
+    // OLD and NEW rosters matters: a user REMOVED from the team has a stale
+    // claim too, not just one who was added.
+    it('force-reauths the union of members removed AND added by a roster change', async () => {
+      teamsRepository.findById.mockResolvedValue(makeTeam());
+      teamsRepository.findMemberIds.mockResolvedValue(['old-member']);
+      usersRepository.find.mockResolvedValue([makeUser('new-member', UserRole.OPERATOR)]);
+
+      await service.update('team-1', { memberIds: ['new-member'] });
+
+      expect(teamsRepository.setMembers).toHaveBeenCalledWith('team-1', ['new-member']);
+      expect(usersRepository.update).toHaveBeenCalledWith(
+        { id: expect.anything() },
+        { refreshTokenHash: null },
+      );
+      expect(userEventsPublisher.publish).toHaveBeenCalledWith({
+        type: 'account_security_changed',
+        userId: 'old-member',
+      });
+      expect(userEventsPublisher.publish).toHaveBeenCalledWith({
+        type: 'account_security_changed',
+        userId: 'new-member',
+      });
     });
   });
 

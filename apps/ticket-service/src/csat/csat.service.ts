@@ -121,6 +121,14 @@ export class CsatService {
     if (survey.submittedAt) {
       throw new BadRequestException('This survey has already been submitted');
     }
+    // A single request listing the same questionId twice used to insert two
+    // rows unchecked (see the unique-index comment below) — rejected here
+    // with a clear message rather than letting the second row hit that
+    // constraint and surface as a raw 500.
+    const questionIds = answers.map((a) => a.questionId);
+    if (new Set(questionIds).size !== questionIds.length) {
+      throw new BadRequestException('Duplicate questionId in submission');
+    }
 
     // One batched lookup instead of one findById per answer.
     const questions = await this.questionsRepository.findByIds(answers.map((a) => a.questionId));
@@ -149,14 +157,15 @@ export class CsatService {
     //
     // The submittedAt check above reads the survey before this transaction
     // starts, so two concurrent submits (double-click, two tabs) can both
-    // pass it and both reach here — there's no unique constraint on
-    // (survey_id, question_id) in csat_answers to stop a second insert.
-    // Claiming the survey via a conditional UPDATE first closes that
-    // window: only whichever request's write actually flips submitted_at
-    // from NULL gets to insert answer rows; the loser's update affects zero
-    // rows and aborts the transaction instead of leaving duplicate answers
-    // behind. Same TOCTOU idiom as TicketsService.updateStatus's self-assign
-    // race fix.
+    // pass it and both reach here. The `(survey_id, question_id)` unique
+    // index (see AddCsatAnswersUniqueQuestionPerSurvey) would eventually
+    // stop a genuine duplicate insert, but only with a raw constraint
+    // violation — claiming the survey via a conditional UPDATE first closes
+    // the window cleanly instead: only whichever request's write actually
+    // flips submitted_at from NULL gets to insert answer rows; the loser's
+    // update affects zero rows and aborts the transaction instead of
+    // reaching the insert at all. Same TOCTOU idiom as TicketsService.
+    // updateStatus's self-assign race fix.
     await this.dataSource.transaction(async (manager) => {
       const result = await manager.update(
         CsatSurveyEntity,

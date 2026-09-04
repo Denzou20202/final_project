@@ -13,7 +13,7 @@ import { PageLoading } from '../common/PageLoading.js';
 // (h-[85vh] w-[85vw]), minus the left <aside> nav — this is a single list,
 // no sub-sections.
 export function PendingRegistrationsModal({ onClose }: { onClose: () => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: users, isLoading } = usePendingRegistrations(true);
   const approve = useApproveRegistration();
   const reject = useRejectRegistration();
@@ -81,7 +81,7 @@ export function PendingRegistrationsModal({ onClose }: { onClose: () => void }) 
                     <tr key={user.id} className="border-b border-border-subtle text-[13.5px] last:border-0">
                       <td className="px-4 py-3 font-medium">{user.fullName}</td>
                       <td className="px-4 py-3 text-ink-muted">{user.email}</td>
-                      <td className="px-4 py-3 text-ink-muted">{formatDateTime(user.createdAt)}</td>
+                      <td className="px-4 py-3 text-ink-muted">{formatDateTime(user.createdAt, i18n.language)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
                           <button

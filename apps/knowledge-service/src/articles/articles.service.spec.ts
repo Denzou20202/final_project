@@ -28,7 +28,7 @@ describe('ArticlesService.update — empty patch guard', () => {
   beforeEach(() => {
     articlesRepository = { findById: jest.fn().mockResolvedValue(makeArticle()), update: jest.fn() };
     elasticsearch = { index: jest.fn(), delete: jest.fn() };
-    service = new ArticlesService(articlesRepository as never, elasticsearch as never);
+    service = new ArticlesService(articlesRepository as never, elasticsearch as never, {} as never);
   });
 
   it('does not call repository.update for an empty PATCH body (would throw UpdateValuesMissingError)', async () => {
@@ -50,7 +50,7 @@ describe('ArticlesService.findPublishedOrThrow — view counting', () => {
 
   beforeEach(() => {
     articlesRepository = { findById: jest.fn(), incrementViewCount: jest.fn() };
-    service = new ArticlesService(articlesRepository as never, {} as never);
+    service = new ArticlesService(articlesRepository as never, {} as never, {} as never);
   });
 
   it('rejects a draft article the same as a missing one', async () => {
@@ -94,7 +94,7 @@ describe('ArticlesService.rate', () => {
 
   beforeEach(() => {
     articlesRepository = { findById: jest.fn(), incrementHelpful: jest.fn(), incrementNotHelpful: jest.fn() };
-    service = new ArticlesService(articlesRepository as never, {} as never);
+    service = new ArticlesService(articlesRepository as never, {} as never, {} as never);
   });
 
   it('rejects rating a non-published article', async () => {
@@ -144,7 +144,7 @@ describe('ArticlesService.listPublished — anonymous vs authenticated visibilit
 
   beforeEach(() => {
     articlesRepository = { findPage: jest.fn().mockResolvedValue([]) };
-    service = new ArticlesService(articlesRepository as never, {} as never);
+    service = new ArticlesService(articlesRepository as never, {} as never, {} as never);
   });
 
   it('restricts an anonymous listing to public articles only', async () => {
@@ -180,7 +180,7 @@ describe('ArticlesService.list — popular-sort offset pagination', () => {
 
   beforeEach(() => {
     articlesRepository = { findPage: jest.fn() };
-    service = new ArticlesService(articlesRepository as never, {} as never);
+    service = new ArticlesService(articlesRepository as never, {} as never, {} as never);
   });
 
   it('requests offset 0 for the first popular page and encodes the next offset as the cursor', async () => {
@@ -231,7 +231,7 @@ describe('ArticlesService.searchPublished — anonymous vs authenticated visibil
         { id: 'private-1', score: 0.9, source: { title: 'Private', isPublic: false }, highlight: {} },
       ]),
     };
-    service = new ArticlesService({} as never, elasticsearch as never);
+    service = new ArticlesService({} as never, elasticsearch as never, {} as never);
   });
 
   it('filters private hits out for an anonymous searcher', async () => {

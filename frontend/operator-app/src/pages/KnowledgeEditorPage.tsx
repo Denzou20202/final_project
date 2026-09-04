@@ -4,7 +4,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { TableKit } from '@tiptap/extension-table';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -86,7 +86,12 @@ export default function KnowledgeEditorPage() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { titleUk: '', titleEn: '', isPublic: false },
+    // `title` included even though it's always overwritten by reset() for an
+    // existing article — for a brand-new one, reset() never runs at all (no
+    // `article` ever arrives), so title stayed undefined and
+    // useAutoTranslate's `sourceText.trim()` crashed the whole page on
+    // mount, before the operator could type a single character.
+    defaultValues: { title: '', titleUk: '', titleEn: '', isPublic: false },
   });
   // Skips auto-fill for an existing article being edited — its uk/en may
   // already be deliberately set (or deliberately left blank), same guard
@@ -146,14 +151,22 @@ export default function KnowledgeEditorPage() {
     },
   });
 
+  // Guarded to run once per article id, not on every `article` reference
+  // change — publish()/unpublish() invalidate the ['article', id] query
+  // (see useArticles.ts), which used to re-fire this unconditionally and
+  // silently wipe any unsaved title/content edits the operator had typed
+  // since the last save (neither button goes through handleSubmit). `editor`
+  // stays in the dep array so this still runs once editor becomes ready if
+  // the article finished loading first — that pass leaves the ref untouched
+  // until it can actually call setContent.
+  const initializedArticleIdRef = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (article) {
-      reset({ title: article.title, titleUk: article.titleUk ?? '', titleEn: article.titleEn ?? '', isPublic: article.isPublic });
-      editor?.commands.setContent(article.content);
+    if (!article || !editor || initializedArticleIdRef.current === article.id) {
+      return;
     }
-    // editor is included so this still sets content if the article finishes
-    // loading before Tiptap's editor instance is ready — harmless no-op the
-    // rest of the time, since editor stays referentially stable afterward.
+    initializedArticleIdRef.current = article.id;
+    reset({ title: article.title, titleUk: article.titleUk ?? '', titleEn: article.titleEn ?? '', isPublic: article.isPublic });
+    editor.commands.setContent(article.content);
   }, [article, reset, editor]);
 
   const onSubmit = (values: FormValues) => {
@@ -178,7 +191,8 @@ export default function KnowledgeEditorPage() {
     deleteArticle.mutate(articleId, { onSuccess: () => navigate('/knowledge') });
   }
 
-  const saveError = updateArticle.error ?? createArticle.error ?? deleteArticle.error;
+  const saveError =
+    updateArticle.error ?? createArticle.error ?? deleteArticle.error ?? publishArticle.error ?? unpublishArticle.error;
   const errorMessage = saveError ? getErrorMessage(saveError) : undefined;
 
   if (isEditing && isLoading) {

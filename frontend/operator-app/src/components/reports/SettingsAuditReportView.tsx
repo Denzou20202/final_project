@@ -31,7 +31,7 @@ function formatChangeValue(value: unknown): string {
 // whom, so it doesn't reuse ReportFiltersForm (that's ticket-filter-shaped),
 // just its own actor/module/event-type/date filters.
 export function SettingsAuditReportView() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const now = new Date();
   const [from, setFrom] = useState(toLocalDateInputValue(new Date(now.getTime() - DEFAULT_PERIOD_DAYS * MS_PER_DAY)));
   const [to, setTo] = useState(toLocalDateInputValue(now));
@@ -188,7 +188,7 @@ export function SettingsAuditReportView() {
                 <tbody>
                   {rows.map((row) => (
                     <tr key={row.id} className="border-b border-border-subtle text-[13.5px] last:border-0">
-                      <td className="px-4 py-3 text-ink-faint">{formatDateTime(row.createdAt)}</td>
+                      <td className="px-4 py-3 text-ink-faint">{formatDateTime(row.createdAt, i18n.language)}</td>
                       <td className="px-4 py-3 font-medium">{row.actorName}</td>
                       <td className="px-4 py-3 text-ink-muted">{t(`settingsAuditModule.${row.module}`)}</td>
                       <td className="px-4 py-3 text-ink-muted">{t(`settingsAuditEventType.${row.eventType}`)}</td>

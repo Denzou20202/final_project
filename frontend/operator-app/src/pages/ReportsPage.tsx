@@ -153,7 +153,14 @@ export default function ReportsPage() {
 
   async function handleDeleteSaved(id: string) {
     if (!window.confirm(t('reports.deleteSavedConfirm'))) return;
-    await deleteSaved.mutateAsync(id);
+    try {
+      await deleteSaved.mutateAsync(id);
+    } catch {
+      // Surfaced via deleteSaved.error in runError below — caught here only
+      // to avoid an unhandled rejection, the onClick call site below never
+      // awaits this promise.
+      return;
+    }
     if (selectedSavedId === id) handleNewReport();
   }
 
@@ -215,7 +222,9 @@ export default function ReportsPage() {
         ? getErrorMessage(downloadXml.error)
         : downloadTagDetail.error
           ? getErrorMessage(downloadTagDetail.error)
-          : undefined;
+          : deleteSaved.error
+            ? getErrorMessage(deleteSaved.error)
+            : undefined;
 
   return (
     <div className="flex h-full">

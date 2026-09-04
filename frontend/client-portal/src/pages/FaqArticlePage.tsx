@@ -5,11 +5,12 @@ import { ImagePreviewModal } from '../components/common/ImagePreviewModal.js';
 import { LogoMark } from '../components/common/LogoMark.js';
 import { usePublishedArticle, useRateArticle } from '../hooks/useArticles.js';
 import { useKnowledgeTheme } from '../hooks/useKnowledgeTheme.js';
+import { toIntlLocale } from '../lib/format.js';
 import { pickLocalized } from '../lib/localized.js';
 import { useAuthStore } from '../store/auth.store.js';
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+function formatDate(iso: string, language: string): string {
+  return new Date(iso).toLocaleDateString(toIntlLocale(language), { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 const RATED_STORAGE_PREFIX = 'veloxdesk-faq-rated-';
@@ -83,7 +84,7 @@ export default function FaqArticlePage() {
             </h1>
             {article.publishedAt && (
               <div className="mt-1 flex items-center gap-2 text-[12px] text-ink-faint">
-                <span>{t('faq.publishedOn', { date: formatDate(article.publishedAt) })}</span>
+                <span>{t('faq.publishedOn', { date: formatDate(article.publishedAt, i18n.language) })}</span>
                 <span>·</span>
                 <span>{t('faq.viewsCount', { count: article.viewCount })}</span>
               </div>

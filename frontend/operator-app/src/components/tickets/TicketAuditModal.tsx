@@ -205,7 +205,7 @@ export function TicketAuditModal({ ticketId, onClose }: { ticketId: string; onCl
                   {getActivityLabel(t, entry, statusesById, typesById, i18n.language)}
                 </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-ink-faint">
-                  <span>{formatDateTime(entry.createdAt)}</span>
+                  <span>{formatDateTime(entry.createdAt, i18n.language)}</span>
                   <span>·</span>
                   <span>{entry.actorId ? lookupUser(entry.actorId) : t('ticketDetail.system')}</span>
                   {role && <RoleBadge role={role} />}

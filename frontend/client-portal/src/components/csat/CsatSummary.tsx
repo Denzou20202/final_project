@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
+import { toIntlLocale } from '../../lib/format.js';
 import type { PublicCsatSubmittedAnswer } from '../../lib/types.js';
 
-function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('ru-RU', {
+function formatDateTime(iso: string, language: string): string {
+  return new Date(iso).toLocaleString(toIntlLocale(language), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -34,7 +35,7 @@ export function CsatSummary({
   answers: PublicCsatSubmittedAnswer[];
   submittedAt: string | null | undefined;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <div className="flex-none border-b border-border bg-surface-muted px-6 py-3">
       <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-ink-faint">{t('csat.title')}</div>
@@ -47,7 +48,7 @@ export function CsatSummary({
         ))}
       </div>
       {submittedAt && (
-        <p className="mt-1 text-[11px] text-ink-faint">{t('csat.submittedAt', { date: formatDateTime(submittedAt) })}</p>
+        <p className="mt-1 text-[11px] text-ink-faint">{t('csat.submittedAt', { date: formatDateTime(submittedAt, i18n.language) })}</p>
       )}
     </div>
   );

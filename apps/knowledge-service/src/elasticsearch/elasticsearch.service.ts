@@ -25,26 +25,37 @@ export class ElasticsearchService implements OnModuleInit {
   // (per the design prototype and all seed data), and the default "standard"
   // analyzer doesn't stem Russian word forms — "заказ"/"заказа"/"заказов"
   // would otherwise only match their exact surface form.
+  //
+  // ES unreachable at boot (not ready yet, network blip) used to throw
+  // uncaught out of here, crashing the whole knowledge-service — including
+  // its Postgres-backed article CRUD, which has nothing to do with search.
+  // Best-effort instead: log and move on, so the service still starts;
+  // search/index calls will simply keep failing until ES comes up, same as
+  // any other runtime ES outage after a successful boot.
   async onModuleInit(): Promise<void> {
-    await this.ensureIndex(TICKETS_INDEX, {
-      properties: {
-        title: { type: 'text', analyzer: 'russian' },
-        description: { type: 'text', analyzer: 'russian' },
-        status: { type: 'keyword' },
-        priority: { type: 'keyword' },
-        createdBy: { type: 'keyword' },
-        assignedTo: { type: 'keyword' },
-        createdAt: { type: 'date' },
-      },
-    });
-    await this.ensureIndex(ARTICLES_INDEX, {
-      properties: {
-        title: { type: 'text', analyzer: 'russian' },
-        content: { type: 'text', analyzer: 'russian' },
-        publishedAt: { type: 'date' },
-        isPublic: { type: 'boolean' },
-      },
-    });
+    try {
+      await this.ensureIndex(TICKETS_INDEX, {
+        properties: {
+          title: { type: 'text', analyzer: 'russian' },
+          description: { type: 'text', analyzer: 'russian' },
+          status: { type: 'keyword' },
+          priority: { type: 'keyword' },
+          createdBy: { type: 'keyword' },
+          assignedTo: { type: 'keyword' },
+          createdAt: { type: 'date' },
+        },
+      });
+      await this.ensureIndex(ARTICLES_INDEX, {
+        properties: {
+          title: { type: 'text', analyzer: 'russian' },
+          content: { type: 'text', analyzer: 'russian' },
+          publishedAt: { type: 'date' },
+          isPublic: { type: 'boolean' },
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Elasticsearch unavailable at startup — indices not verified/created: ${error}`);
+    }
   }
 
   async ping(): Promise<void> {

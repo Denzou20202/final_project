@@ -6,7 +6,7 @@ import { getErrorMessage } from '../../lib/errors.js';
 import type { PublicDuplicateGroup, PublicUser } from '../../lib/types.js';
 
 function DuplicateGroupCard({ group }: { group: PublicDuplicateGroup }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const mergeContacts = useMergeContacts();
   // Earliest-created contact defaults as the surviving record — usually the
   // "original" — the admin can repoint the radio to any other member.
@@ -73,7 +73,7 @@ function DuplicateGroupCard({ group }: { group: PublicDuplicateGroup }) {
               </span>
               <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11.5px] text-ink-faint">
                 {contact.company && <span>{contact.company}</span>}
-                <span>{t('admin.contacts.registeredOn', { date: formatDateTime(contact.createdAt) })}</span>
+                <span>{t('admin.contacts.registeredOn', { date: formatDateTime(contact.createdAt, i18n.language) })}</span>
               </span>
             </span>
             {primaryId !== contact.id && (

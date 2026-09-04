@@ -18,6 +18,7 @@ import {
   useUpdateUserRole,
 } from '../../hooks/useUsers.js';
 import { getErrorMessage } from '../../lib/errors.js';
+import { toIntlLocale } from '../../lib/format.js';
 import { ROLE_LABELS } from '../../lib/labels.js';
 import { pickLocalized } from '../../lib/localized.js';
 import { LETTERS_ONLY_REGEX, PHONE_REGEX, capitalizeFirst, formatUaPhone } from '../../lib/textValidation.js';
@@ -38,8 +39,13 @@ type FormValues = {
   isVip: boolean;
 };
 
-function formatHistoryDate(iso: string): string {
-  return new Date(iso).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+function formatHistoryDate(iso: string, language: string): string {
+  return new Date(iso).toLocaleString(toIntlLocale(language), {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
 // Same field set as the «Клиент» panel on a ticket (TicketActionsPanel) —
@@ -569,7 +575,7 @@ export function EditUserModal({ user, canEditRole, onClose }: { user: PublicUser
                         {t('admin.users.autoBadge')}
                       </span>
                     )}
-                    <span className="flex-none text-[11px] text-ink-faint">{formatHistoryDate(entry.createdAt)}</span>
+                    <span className="flex-none text-[11px] text-ink-faint">{formatHistoryDate(entry.createdAt, i18n.language)}</span>
                   </div>
                 ))}
               </div>

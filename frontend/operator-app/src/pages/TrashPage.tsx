@@ -10,7 +10,7 @@ import { hardDeleteTicket, restoreTicket } from '../lib/api/tickets.api.js';
 import { formatDateTime } from '../lib/format.js';
 
 export default function TrashPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: trash, isLoading } = useTrash();
@@ -192,7 +192,7 @@ export default function TrashPage() {
                       <PriorityBadge priority={ticket.priority} />
                     </td>
                     <td className="px-4 py-3 text-ink-muted">
-                      {ticket.deletedAt ? formatDateTime(ticket.deletedAt) : '—'}
+                      {ticket.deletedAt ? formatDateTime(ticket.deletedAt, i18n.language) : '—'}
                     </td>
                   </tr>
                 ))}

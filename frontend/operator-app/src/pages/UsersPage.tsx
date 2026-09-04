@@ -10,16 +10,17 @@ import { useDownloadContactsCsv } from '../hooks/useContacts.js';
 import { usePermissionGroups, useResetTwoFactor } from '../hooks/usePermissionGroups.js';
 import { useDeactivateUser, useReactivateUser, useUsersPage } from '../hooks/useUsers.js';
 import { getErrorMessage } from '../lib/errors.js';
+import { toIntlLocale } from '../lib/format.js';
 import type { PublicUser } from '../lib/types.js';
 
 const PAGE_SIZE_OPTIONS = [20, 50, 100] as const;
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+function formatDate(iso: string, language: string): string {
+  return new Date(iso).toLocaleDateString(toIntlLocale(language), { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 export default function UsersPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: me } = useCurrentUser();
   const isAdmin = me?.role === 'admin';
 
@@ -90,7 +91,9 @@ export default function UsersPage() {
       ? getErrorMessage(reactivate.error)
       : resetTwoFactor.error
         ? getErrorMessage(resetTwoFactor.error)
-        : undefined;
+        : downloadContactsCsv.error
+          ? getErrorMessage(downloadContactsCsv.error)
+          : undefined;
 
   function handleDeactivate(user: PublicUser) {
     if (!window.confirm(t('admin.users.deactivateConfirm', { name: user.fullName }))) {
@@ -216,7 +219,7 @@ export default function UsersPage() {
                       <td className="px-4 py-3 text-ink-muted">
                         {user.permissionGroupId ? (groupNameById.get(user.permissionGroupId) ?? '…') : '—'}
                       </td>
-                      <td className="px-4 py-3 text-ink-muted">{formatDate(user.createdAt)}</td>
+                      <td className="px-4 py-3 text-ink-muted">{formatDate(user.createdAt, i18n.language)}</td>
                       {isAdmin && (
                         <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
