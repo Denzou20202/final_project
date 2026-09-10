@@ -1,0 +1,14 @@
+module.exports = {
+  displayName: 'client-portal',
+  preset: '../../jest.preset.js',
+  transform: {
+    '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '@nx/react/plugins/jest',
+    '^.+\\.[tj]sx?$': [
+      'babel-jest',
+      { presets: ['@nx/react/babel'], plugins: ['babel-plugin-transform-vite-meta-env'] },
+    ],
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  coverageDirectory: 'test-output/jest/coverage',
+};

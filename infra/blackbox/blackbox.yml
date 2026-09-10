@@ -1,0 +1,20 @@
+modules:
+  tls_connect:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      tls: true
+      tls_config:
+        server_name: veloxdesk.pp.ua
+        # insecure_skip_verify intentionally left at its default false — a
+        # real chain/hostname/expiry check, not just "a cert was presented".
+        # server_name is required here: the probe target is the internal
+        # compose service name (web:443), not the public domain, so without
+        # this override the TLS client would validate the presented cert
+        # (SAN=veloxdesk.pp.ua) against the wrong hostname ("web") and every
+        # probe would fail verification — a permanent false alarm, not a
+        # working alert. nginx's own server block has no SNI branching
+        # (server_name _; in nginx.prod.conf), so any SNI value reaches the
+        # identical single cert a real visitor gets — this override only
+        # changes what blackbox_exporter itself checks the returned cert
+        # against, not which cert nginx serves.

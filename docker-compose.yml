@@ -1,0 +1,103 @@
+# Фиксирует имя compose-проекта — без этого Compose берёт basename папки
+# ("ticketdesk"), а этому имени уже принадлежат старые тома-слепки прод-БД
+# (страховочная копия после переноса прода в VeloxDesk/, см. CHECKLIST.md) —
+# dev иначе тихо подключился бы к чужим данным вместо создания своих.
+name: veloxdesk-dev
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-veloxdesk}
+      POSTGRES_USER: ${DB_USER:-veloxdesk}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-veloxdesk} -d ${DB_NAME:-veloxdesk}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+      ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+    ports:
+      - '9200:9200'
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9200/_cluster/health || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-veloxdesk}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-veloxdesk-secret}
+    ports:
+      - '9000:9000'
+      - '${S3_CONSOLE_PORT:-9001}:9001'
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  greenmail:
+    image: greenmail/standalone:2.1.3
+    restart: unless-stopped
+    environment:
+      GREENMAIL_OPTS: >-
+        -Dgreenmail.setup.test.smtp
+        -Dgreenmail.setup.test.imap
+        -Dgreenmail.hostname=0.0.0.0
+        -Dgreenmail.users=support:${SMTP_PASS:-greenmail-secret}@veloxdesk.local
+        -Dgreenmail.verbose
+    ports:
+      - '3025:3025'
+      - '3143:3143'
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/certs:/etc/nginx/certs:ro
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+volumes:
+  postgres_data:
+  redis_data:
+  elasticsearch_data:
+  minio_data:

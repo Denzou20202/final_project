@@ -1,0 +1,67 @@
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
+dist
+tmp
+out-tsc
+
+# dependencies
+node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# environment
+.env
+.env.local
+# Root only — this one holds real secrets for docker-compose (DB/JWT/S3
+# credentials, see .env.production.example). frontend/*/.env.production is
+# a DIFFERENT thing entirely: build-time Vite config baked into the static
+# bundle at image-build time (just relative /api paths, no secret), and it
+# has to be checked into source or a clone of this repo can't build a
+# working web image at all — Vite falls back to its own http://localhost:*
+# defaults instead, and the deployed app can't reach any backend. Being
+# unanchored here used to silently swallow both of those files too.
+/.env.production
+
+# local dev TLS material — real certs come from Let's Encrypt / a real CA at deploy time
+infra/nginx/certs/*.key
+infra/nginx/certs/*.crt
+
+.nx/cache
+.nx/workspace-data
+.github/instructions/nx.instructions.md
+
+.nx/polygraph
+.nx/self-healing
+.nx/migrate-runs
+test-output
+
+vite.config.*.timestamp*

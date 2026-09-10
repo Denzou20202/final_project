@@ -1,0 +1,400 @@
+# Завершает парсинг compose с ошибкой, если этот файл запускается
+# не через infra/prod-compose.sh с ключом --env-file .env.production — это предотвращает 
+# тихий откат к .env файлу разработчика в корне репозитория для подстановки переменных
+# (слабые секреты разработчика могут быть применены к prod-контейнерам; см.
+# комментарий в infra/prod-compose.sh и CHECKLIST.md о двух инцидентах из-за этого).
+# VELOXDESK_PROD_ENV_GUARD существует только в .env.production, поэтому не может быть разрешен случайно.
+x-prod-env-guard:
+  guard: "${VELOXDESK_PROD_ENV_GUARD:?ERROR: docker-compose.prod.yml must be run via infra/prod-compose.sh, not raw docker compose (see that script's header comment)}"
+
+# Фиксирует имя compose-проекта как "veloxdesk" независимо от того, из какой
+# папки запущен этот файл — иначе Docker Compose берёт имя из basename
+# текущей директории, и контейнеры/тома получили бы разные имена (и
+# оказались бы отвязаны от существующих данных) при переносе prod-запуска
+# между каталогами.
+name: veloxdesk
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    # Стандартный образ поставляется с настройками для ноутбука (shared_buffers
+    # 128MB на хосте с 16GB). Это консервативные, но реальные
+    # значения для сервера, на котором этот экземпляр Postgres делит ресурсы с 12 другими
+    # контейнерами, а не выделенный БД-сервер: shared_buffers/maintenance_work_mem
+    # это реальные аллокации (держатся значительно ниже mem_limit в 3g, оставляя
+    # место для соединений/work_mem/OS); effective_cache_size — это только
+    # подсказка для планировщика запросов, а не аллокация;
+    # work_mem выделяется на каждую операцию sort/hash, поэтому значение скромное, 
+    # так как до ~60 пулированных соединений (6 сервисов × DB_POOL_MAX) могут использовать его одновременно.
+    command: postgres -c shared_buffers=1GB -c effective_cache_size=3GB -c work_mem=8MB -c maintenance_work_mem=256MB
+    mem_limit: 3g
+    cpus: '3'
+    environment:
+      POSTGRES_DB: ${DB_NAME:-veloxdesk}
+      POSTGRES_USER: ${DB_USER:-veloxdesk}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Только для хоста (127.0.0.1) — доступно для локального использования psql/admin с этой
+    # машины, но никогда из сети, даже если роутер ошибочно пробросит
+    # порты. Только nginx (80/443) должен смотреть в интернет.
+    ports:
+      - '127.0.0.1:5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-veloxdesk} -d ${DB_NAME:-veloxdesk}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    # allkeys-lru было здесь неправильным решением — политика молча вытесняла бы 
+    # данные задач BullMQ (индексирование, уведомления, триггеры)
+    # при нехватке памяти, что приводило бы к потере реальной работы без каких-либо ошибок.
+    # noeviction — это официальная рекомендация BullMQ: как только достигается maxmemory,
+    # запись отклоняется с ошибкой (которую может увидеть вызывающая сторона), 
+    # вместо того, чтобы тихо терять данные. Для Pub/sub постоянство данных не требуется в любом случае — 
+    # данные не хранятся, а только ретранслируются тем, кто подписан в момент публикации.
+    command: redis-server --maxmemory 400mb --maxmemory-policy noeviction
+    mem_limit: 512m
+    cpus: '1'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    restart: unless-stopped
+    # mem_limit дает запас над JVM heap (ES также нуждается в off-heap
+    # памяти — прямые буферы, собственные структуры индексов Lucene) —
+    # измерения показали 934MB RSS в простое сразу после свежего рестарта с
+    # 512MB heap (в лимите 1g оставалось бы всего ~90MB запаса, что слишком мало,
+    # учитывая, что размер индексов будет только расти).
+    mem_limit: 1536m
+    cpus: '2'
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+      ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9200/_cluster/health || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    mem_limit: 512m
+    cpus: '1'
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-veloxdesk}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+    volumes:
+      - minio_data:/data
+    ports:
+      - '127.0.0.1:9001:9001'
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Runs DB migrations against this same Postgres — `docker compose --profile
+  # tools run --rm migrator npm run migration:show` to preview what's
+  # pending, then `... run --rm migrator` (no override) to actually apply.
+  # `profiles: [tools]` means this never starts with a plain `up` (with or
+  # without --build) — compose skips any service outside the active
+  # profile set entirely, `run` included, unless `--profile tools` is
+  # passed explicitly. Replaces the previous process of running
+  # `DB_HOST=localhost npm run migration:run` by hand from a developer's
+  # laptop against the 127.0.0.1-published Postgres port below — this
+  # container reaches Postgres by its real service name instead, over the
+  # same compose network every other service already uses, no published
+  # port involved.
+  migrator:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+      target: migrator
+    profiles: ['tools']
+    env_file: .env.production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  user-service:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+      args:
+        APP_NAME: user-service
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: '1'
+    env_file: .env.production
+    environment:
+      PORT: 3002
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:' + process.env.PORT + '/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  ticket-service:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+      args:
+        APP_NAME: ticket-service
+    restart: unless-stopped
+    # Самый загруженный из 6 сервисов — на CRUD тикетов приходится основная часть
+    # REST трафика, плюс загрузка/скачивание вложений полностью буферизует 
+    # каждый файл через память этого процесса (см. attachments.service.ts).
+    mem_limit: 1536m
+    cpus: '2'
+    env_file: .env.production
+    environment:
+      PORT: 3011
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:' + process.env.PORT + '/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+      args:
+        APP_NAME: chat-service
+    restart: unless-stopped
+    # Удерживает каждое активное Socket.IO соединение (один инстанс, см.
+    # presence.service.ts) — рассчитан примерно на 1500 в основном бездействующих сокетов 
+    # плюс нормальный трафик сообщений/присутствия.
+    mem_limit: 1536m
+    cpus: '2'
+    env_file: .env.production
+    environment:
+      PORT: 3004
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:' + process.env.PORT + '/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  knowledge-service:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+      args:
+        APP_NAME: knowledge-service
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: '1'
+    env_file: .env.production
+    environment:
+      PORT: 3006
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:' + process.env.PORT + '/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+  analytics-service:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+      args:
+        APP_NAME: analytics-service
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: '1'
+    env_file: .env.production
+    environment:
+      PORT: 3005
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:' + process.env.PORT + '/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+      args:
+        APP_NAME: notification-service
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: '1'
+    env_file: .env.production
+    environment:
+      PORT: 3003
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:' + process.env.PORT + '/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/nginx.Dockerfile
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: '1'
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      # Делится с разовым контейнером certbot (см. infra/certbot-renew.sh):
+      # certbot_www обслуживает файлы ACME HTTP-01 challenge, certbot_certs -
+      # это куда записывается выданный сертификат. Примонтировано здесь только для чтения (ro),
+      # так как nginx только читает их — certbot пишет из собственного контейнера.
+      - certbot_www:/var/www/certbot:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      # Second, persistent copy of nginx's access/error log (see the
+      # access_log/error_log lines in nginx.prod.conf) — rw, unlike the two
+      # above, since nginx itself writes here. Survives container
+      # recreation, unlike the implicit /dev/stdout copy `docker logs` shows.
+      - nginx_logs:/var/log/nginx-persist
+    depends_on:
+      user-service:
+        condition: service_healthy
+      ticket-service:
+        condition: service_healthy
+      chat-service:
+        condition: service_healthy
+      knowledge-service:
+        condition: service_healthy
+      analytics-service:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: '1'
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    # Только для хоста, как postgres/minio выше — это внутренний ops-инструмент,
+    # он никогда не должен быть доступен напрямую через публичный IP.
+    ports:
+      - '127.0.0.1:9090:9090'
+    depends_on:
+      - user-service
+      - ticket-service
+      - chat-service
+      - knowledge-service
+      - analytics-service
+      - notification-service
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: '1'
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/etc/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    # Только для хоста — доступ через SSH-туннель (ssh -L 3000:localhost:3000 ...),
+    # а не открыт наружу через nginx / публичный IP.
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      - prometheus
+
+  adminer:
+    image: adminer:4.8.1
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: '0.5'
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    # Только для хоста — доступ через SSH-туннель (ssh -L 8080:localhost:8080 ...),
+    # так же как grafana/prometheus выше. UI для администрирования БД
+    # не должен быть доступен через публичный IP.
+    ports:
+      - '127.0.0.1:8080:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.28.0
+    restart: unless-stopped
+    # Крошечный статический Go-бинарник, делающий один TCP+TLS handshake за
+    # пробу — реальный footprint заметно меньше, чем у adminer выше.
+    mem_limit: 128m
+    cpus: '0.5'
+    volumes:
+      - ./infra/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    # Только для ручной отладки (curl 127.0.0.1:9115/probe?...) — та же
+    # конвенция «только хост», что у prometheus/grafana/adminer выше.
+    ports:
+      - '127.0.0.1:9115:9115'
+
+volumes:
+  postgres_data:
+  redis_data:
+  elasticsearch_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  certbot_www:
+  certbot_certs:
+  nginx_logs:
