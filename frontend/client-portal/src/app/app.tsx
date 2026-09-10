@@ -5,6 +5,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import '../store/theme.store.js';
 import { AppLayout } from '../components/layout/AppLayout.js';
 import { ProtectedRoute } from '../components/common/ProtectedRoute.js';
+import { UpdatePrompt } from '../components/common/UpdatePrompt.js';
 import FaqArticlePage from '../pages/FaqArticlePage.js';
 import FaqPage from '../pages/FaqPage.js';
 import LoginPage from '../pages/LoginPage.js';
@@ -16,8 +17,10 @@ import TicketsPage from '../pages/TicketsPage.js';
 
 export function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
+    <>
+      <UpdatePrompt />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/auth/callback" element={<OidcCallbackPage />} />
       <Route path="/faq" element={<FaqPage />} />
@@ -40,6 +43,7 @@ export function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </>
   );
 }
 

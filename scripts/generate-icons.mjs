@@ -56,9 +56,13 @@ async function main() {
     writeFile(join(operatorPublic, 'favicon.svg'), svgBuffer),
     writeFile(join(clientPublic, 'favicon.svg'), svgBuffer),
     writeFile(join(operatorPublic, 'apple-touch-icon.png'), appleTouchIcon),
+    writeFile(join(clientPublic, 'apple-touch-icon.png'), appleTouchIcon),
     writeFile(join(operatorPublic, 'pwa-192x192.png'), pwa192),
+    writeFile(join(clientPublic, 'pwa-192x192.png'), pwa192),
     writeFile(join(operatorPublic, 'pwa-512x512.png'), pwa512),
+    writeFile(join(clientPublic, 'pwa-512x512.png'), pwa512),
     writeFile(join(operatorPublic, 'pwa-maskable-512x512.png'), pwaMaskable512),
+    writeFile(join(clientPublic, 'pwa-maskable-512x512.png'), pwaMaskable512),
   ]);
 
   console.log('Icons generated from assets/brand/icon-mark.svg.');

@@ -10,7 +10,7 @@
     "closeMenu": "Close menu"
   },
   "onboarding": {
-    "welcomeTitle": "Welcome to Ticket Desk!",
+    "welcomeTitle": "Welcome to VeloxDesk!",
     "welcomeText": "Before you continue, please fill in a few details about yourself — it helps support staff assist you faster.",
     "next": "Next",
     "formTitle": "A bit about you",
@@ -195,7 +195,7 @@
     "scanHint": "Can't scan? Enter manually:",
     "stepWaiting": "Sign up",
     "waitingMessage": "Your registration request was sent to the administrator. Please wait a moment…",
-    "approvedTitle": "Welcome to Ticket Desk",
+    "approvedTitle": "Welcome to VeloxDesk",
     "loginRequiredMessage": "Your account is approved — sign in to continue.",
     "rejectedTitle": "Request declined",
     "rejectedMessage": "The administrator declined your registration. If this seems wrong, please contact support."
@@ -296,5 +296,9 @@
     "rateHelpfulAria": "Helpful",
     "rateNotHelpfulAria": "Not helpful",
     "rateThanks": "Thanks for the feedback!"
+  },
+  "updatePrompt": {
+    "available": "App update available",
+    "update": "Update"
   }
 }

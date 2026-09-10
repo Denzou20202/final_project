@@ -9,6 +9,9 @@ module.exports = {
     ],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  moduleNameMapper: {
+    '^virtual:pwa-register/react$': '<rootDir>/src/test-mocks/pwa-register-react.ts',
+  },
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: 'test-output/jest/coverage',
 };
