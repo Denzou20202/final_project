@@ -91,15 +91,21 @@ export class UsersService {
   // sanitizer earlier in this project.
   private async assertKnownCompanyAndCity(company?: string | null, city?: string | null): Promise<void> {
     if (company) {
-      const match = await this.companiesRepository.findByName(company);
-      if (!match) {
-        throw new BadRequestException(`Компания «${company}» отсутствует в справочнике`);
+      const companiesCount = await this.companiesRepository.count();
+      if (companiesCount > 0) {
+        const match = await this.companiesRepository.findByName(company);
+        if (!match) {
+          throw new BadRequestException(`Компания «${company}» отсутствует в справочнике`);
+        }
       }
     }
     if (city) {
-      const match = await this.citiesRepository.findByName(city);
-      if (!match) {
-        throw new BadRequestException(`Город «${city}» отсутствует в справочнике`);
+      const citiesCount = await this.citiesRepository.count();
+      if (citiesCount > 0) {
+        const match = await this.citiesRepository.findByName(city);
+        if (!match) {
+          throw new BadRequestException(`Город «${city}» отсутствует в справочнике`);
+        }
       }
     }
   }

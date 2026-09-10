@@ -1,5 +1,5 @@
 import { JwtPayload, SearchIndexProducerService } from '@veloxdesk/common';
-import { TicketActivityType } from '@veloxdesk/types';
+import { TicketActivityType, UserRole } from '@veloxdesk/types';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { TicketActivityRepository } from '../tickets/ticket-activity.repository.js';
 import { TicketsService } from '../tickets/tickets.service.js';
@@ -61,7 +61,13 @@ export class TagsService {
   async addToTicket(ticketId: string, name: string, actor: JwtPayload): Promise<PublicTag> {
     await this.ticketsService.assertAccess(ticketId, actor);
     const trimmed = name.trim();
-    const tag = await this.tagsRepository.findOrCreateByName(trimmed);
+    let tag = await this.tagsRepository.findByName(trimmed);
+    if (!tag) {
+      if (actor.role !== UserRole.ADMIN) {
+        throw new BadRequestException('Тільки адміністратор може створювати нові мітки');
+      }
+      tag = await this.tagsRepository.findOrCreateByName(trimmed);
+    }
 
     const alreadyLinked = await this.tagsRepository.isLinked(ticketId, tag.id);
     if (!alreadyLinked) {

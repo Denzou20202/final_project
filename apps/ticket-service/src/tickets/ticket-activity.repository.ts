@@ -2,7 +2,7 @@ import { TicketActivityEntity } from '@veloxdesk/database';
 import { TicketActivityType } from '@veloxdesk/types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 @Injectable()
 export class TicketActivityRepository {
@@ -22,6 +22,22 @@ export class TicketActivityRepository {
   }): Promise<TicketActivityEntity> {
     const activity = this.repository.create(data);
     return this.repository.save(activity);
+  }
+
+  logWithManager(
+    manager: EntityManager,
+    data: {
+      ticketId: string;
+      actorId: string | null;
+      type: TicketActivityType;
+      fromValue?: string | null;
+      toValue?: string | null;
+      field?: string | null;
+      internal?: boolean;
+    },
+  ): Promise<TicketActivityEntity> {
+    const activity = manager.create(TicketActivityEntity, data);
+    return manager.save(TicketActivityEntity, activity);
   }
 
   findByTicketId(ticketId: string): Promise<TicketActivityEntity[]> {

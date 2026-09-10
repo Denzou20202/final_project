@@ -311,8 +311,8 @@ describe('UsersService.changeOwnPassword', () => {
 
 describe('UsersService.completeProfile', () => {
   let usersRepository: jest.Mocked<Pick<UsersRepository, 'findById' | 'updateProfile'>>;
-  let companiesRepository: jest.Mocked<Pick<CompaniesRepository, 'findByName'>>;
-  let citiesRepository: jest.Mocked<Pick<CitiesRepository, 'findByName'>>;
+  let companiesRepository: jest.Mocked<Pick<CompaniesRepository, 'findByName' | 'count'>>;
+  let citiesRepository: jest.Mocked<Pick<CitiesRepository, 'findByName' | 'count'>>;
   let service: UsersService;
 
   beforeEach(() => {
@@ -326,8 +326,14 @@ describe('UsersService.completeProfile', () => {
     // Simulates "the submitted company/city is already a real catalog
     // entry" — matches the `dto` below, which every test here reuses as-is.
     // Individual tests override these per-call to exercise the rejection path.
-    companiesRepository = { findByName: jest.fn().mockResolvedValue({ id: 'company-1', name: 'ООО Ромашка' }) };
-    citiesRepository = { findByName: jest.fn().mockResolvedValue({ id: 'city-1', name: 'Киев' }) };
+    companiesRepository = {
+      findByName: jest.fn().mockResolvedValue({ id: 'company-1', name: 'ООО Ромашка' }),
+      count: jest.fn().mockResolvedValue(1),
+    };
+    citiesRepository = {
+      findByName: jest.fn().mockResolvedValue({ id: 'city-1', name: 'Киев' }),
+      count: jest.fn().mockResolvedValue(1),
+    };
     service = new UsersService(
       usersRepository as unknown as UsersRepository,
       permissionGroupsRepository as unknown as PermissionGroupsRepository,
@@ -394,8 +400,8 @@ describe('UsersService.completeProfile', () => {
 
 describe('UsersService.updateProfile — company/city catalog validation', () => {
   let usersRepository: jest.Mocked<Pick<UsersRepository, 'findById' | 'updateProfile'>>;
-  let companiesRepository: jest.Mocked<Pick<CompaniesRepository, 'findByName'>>;
-  let citiesRepository: jest.Mocked<Pick<CitiesRepository, 'findByName'>>;
+  let companiesRepository: jest.Mocked<Pick<CompaniesRepository, 'findByName' | 'count'>>;
+  let citiesRepository: jest.Mocked<Pick<CitiesRepository, 'findByName' | 'count'>>;
   let service: UsersService;
 
   // Stored value predates the catalog — no matching row for it.
@@ -409,8 +415,8 @@ describe('UsersService.updateProfile — company/city catalog validation', () =>
     const permissionGroupsRepository = { findFlagsByGroupIds: jest.fn().mockResolvedValue(new Map()) };
     const teamsService = { getTeamIdForUser: jest.fn().mockResolvedValue(null) };
     const userEventsPublisher = { publish: jest.fn().mockResolvedValue(undefined) };
-    companiesRepository = { findByName: jest.fn().mockResolvedValue(null) };
-    citiesRepository = { findByName: jest.fn().mockResolvedValue(null) };
+    companiesRepository = { findByName: jest.fn().mockResolvedValue(null), count: jest.fn().mockResolvedValue(1) };
+    citiesRepository = { findByName: jest.fn().mockResolvedValue(null), count: jest.fn().mockResolvedValue(1) };
     service = new UsersService(
       usersRepository as unknown as UsersRepository,
       permissionGroupsRepository as unknown as PermissionGroupsRepository,

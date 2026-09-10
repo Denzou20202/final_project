@@ -164,8 +164,8 @@ export class TicketsController {
 
   // Permanent — only reachable for a ticket already in Trash (see
   // TicketsService.hardDelete's findDeletedById guard), a real SQL DELETE,
-  // not another soft-delete on top of the existing one.
-  @Roles(UserRole.OPERATOR, UserRole.ADMIN)
+  // not another soft-delete on top of the existing one. Admin only.
+  @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id/permanent')
   hardDelete(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() actor: JwtPayload) {

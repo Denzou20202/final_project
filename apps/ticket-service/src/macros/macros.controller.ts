@@ -12,26 +12,29 @@ import { MacrosService } from './macros.service.js';
 @ApiTags('macros')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.OPERATOR, UserRole.ADMIN)
 @Controller('macros')
 export class MacrosController {
   constructor(private readonly macrosService: MacrosService) {}
 
+  @Roles(UserRole.ADMIN)
   @Post()
   create(@Body() dto: CreateMacroDto) {
     return this.macrosService.create(dto);
   }
 
+  @Roles(UserRole.OPERATOR, UserRole.ADMIN)
   @Get()
   list() {
     return this.macrosService.list();
   }
 
+  @Roles(UserRole.ADMIN)
   @Patch(':id')
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateMacroDto) {
     return this.macrosService.update(id, dto);
   }
 
+  @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {

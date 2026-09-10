@@ -36,6 +36,10 @@ export function MergeTicketModal({ ticket, onClose }: { ticket: PublicTicket; on
         setLookupError(t('ticketModals.alreadyMerged'));
         return;
       }
+      if (found.createdBy !== ticket.createdBy) {
+        setLookupError(t('ticketModals.differentClientsError'));
+        return;
+      }
       setTarget(found);
     } catch (err) {
       setLookupError(getErrorMessage(err, t('ticketDetail.notFound')));
@@ -45,7 +49,7 @@ export function MergeTicketModal({ ticket, onClose }: { ticket: PublicTicket; on
   }
 
   function handleConfirm() {
-    if (!target) return;
+    if (!target || target.createdBy !== ticket.createdBy) return;
     mergeTicket.mutate(
       { id: ticket.id, args: [target.id] },
       {

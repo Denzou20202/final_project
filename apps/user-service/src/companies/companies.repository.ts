@@ -17,6 +17,10 @@ export class CompaniesRepository {
     return this.companiesRepository.find({ order: { name: 'ASC' } });
   }
 
+  count(): Promise<number> {
+    return this.companiesRepository.count();
+  }
+
   findById(id: string): Promise<CompanyEntity | null> {
     return this.companiesRepository.findOne({ where: { id } });
   }

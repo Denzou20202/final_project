@@ -806,7 +806,8 @@ CREATE TABLE public.ticket_activities (
     from_value text,
     to_value text,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    field character varying(50)
+    field character varying(50),
+    internal boolean DEFAULT false NOT NULL
 );
 
 
@@ -1066,6 +1067,7 @@ COPY public.automation_rules (id, name, trigger, conditions, actions, is_enabled
 --
 
 COPY public.cities (id, name, created_at) FROM stdin;
+00000000-0000-0000-0000-000000000001	Київ	2026-08-01 00:00:00+00
 \.
 
 
@@ -1082,6 +1084,7 @@ COPY public.comments (id, ticket_id, author_id, body, is_internal, created_at, e
 --
 
 COPY public.companies (id, name, created_at) FROM stdin;
+00000000-0000-0000-0000-000000000001	Основна компанія	2026-08-01 00:00:00+00
 \.
 
 
@@ -1232,6 +1235,8 @@ COPY public.migrations (id, "timestamp", name) FROM stdin;
 60	1787900000000	AddDirectoryAuthSettingsAuditModules1787900000000
 61	1788000000000	AddTicketTypes1788000000000
 62	1788100000000	AddReportGroupByCategory1788100000000
+63	1788200000000	AddTicketActivityInternalFlag1788200000000
+64	1788300000000	AddCsatAnswersUniqueQuestionPerSurvey1788300000000
 \.
 
 
@@ -1327,7 +1332,7 @@ COPY public.teams (id, name, created_at, name_uk, name_en) FROM stdin;
 -- Data for Name: ticket_activities; Type: TABLE DATA; Schema: public; Owner: veloxdesk
 --
 
-COPY public.ticket_activities (id, ticket_id, actor_id, type, from_value, to_value, created_at, field) FROM stdin;
+COPY public.ticket_activities (id, ticket_id, actor_id, type, from_value, to_value, created_at, field, internal) FROM stdin;
 \.
 
 
@@ -1892,6 +1897,13 @@ CREATE INDEX "IDX_csat_answers_survey_id" ON public.csat_answers USING btree (su
 --
 
 CREATE INDEX "IDX_csat_answers_ticket_id" ON public.csat_answers USING btree (ticket_id);
+
+
+--
+-- Name: IDX_csat_answers_survey_question; Type: INDEX; Schema: public; Owner: veloxdesk
+--
+
+CREATE UNIQUE INDEX "IDX_csat_answers_survey_question" ON public.csat_answers USING btree (survey_id, question_id);
 
 
 --

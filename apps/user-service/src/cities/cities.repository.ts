@@ -17,6 +17,10 @@ export class CitiesRepository {
     return this.citiesRepository.find({ order: { name: 'ASC' } });
   }
 
+  count(): Promise<number> {
+    return this.citiesRepository.count();
+  }
+
   findById(id: string): Promise<CityEntity | null> {
     return this.citiesRepository.findOne({ where: { id } });
   }

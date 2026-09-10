@@ -8,7 +8,7 @@ const KNOWLEDGE_SERVICE_URL = import.meta.env['VITE_KNOWLEDGE_SERVICE_URL'] ?? '
 // Public by design (baked into the built JS bundle and read straight out of
 // the page's own HTML by Cloudflare's widget) — the actual secret lives
 // only in TURNSTILE_SECRET_KEY, server-side. See RegisterPage/LoginPage.
-export const TURNSTILE_SITE_KEY = import.meta.env['VITE_TURNSTILE_SITE_KEY'] ?? '';
+export const TURNSTILE_SITE_KEY = import.meta.env['VITE_TURNSTILE_SITE_KEY'] || '1x00000000000000000000AA';
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;

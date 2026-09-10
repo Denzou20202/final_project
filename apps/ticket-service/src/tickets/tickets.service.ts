@@ -152,6 +152,7 @@ export class TicketsService {
       }
     }
 
+    const defaultStatus = await this.ticketStatusesRepository.findDefault();
     const sanitizedDescription = sanitizeCommentBody(dto.description);
 
     const { ticket, descriptionComment } = await this.dataSource.transaction(async (manager) => {
@@ -182,6 +183,24 @@ export class TicketsService {
         }),
       );
 
+      // Log creation activity within the same transaction so if activity logging fails,
+      // the whole ticket creation rolls back atomically without leaving orphaned rows or 500 duplicates
+      if (this.activityRepository.logWithManager) {
+        await this.activityRepository.logWithManager(manager, {
+          ticketId: ticket.id,
+          actorId: actor.sub,
+          type: TicketActivityType.CREATED,
+          toValue: defaultStatus?.name ?? null,
+        });
+      } else {
+        await this.activityRepository.log({
+          ticketId: ticket.id,
+          actorId: actor.sub,
+          type: TicketActivityType.CREATED,
+          toValue: defaultStatus?.name ?? null,
+        });
+      }
+
       return { ticket, descriptionComment };
     });
 
@@ -193,13 +212,6 @@ export class TicketsService {
     // number (and the CREATED log below needs the loaded `status` relation
     // for its human-readable toValue), so this has to happen before both.
     const created = await this.getTicketOrThrow(ticket.id);
-
-    await this.activityRepository.log({
-      ticketId: ticket.id,
-      actorId: actor.sub,
-      type: TicketActivityType.CREATED,
-      toValue: created.status.name,
-    });
 
     // Three independent side effects — none reads another's result, so
     // running them concurrently instead of one at a time halves this

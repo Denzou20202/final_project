@@ -15,8 +15,8 @@
 # Идемпотентен: policy create — upsert (безопасно перезапускать), user add —
 # только если пользователя ещё нет (повторный запуск не сбрасывает секрет).
 #
-# Порядок использования (полностью — см. CHECKLIST.md / память сессии):
-#   1. Вписать S3_APP_ACCESS_KEY/S3_APP_SECRET_KEY в VeloxDesk/.env.production
+# Порядок использования:
+#   1. Вписать S3_APP_ACCESS_KEY/S3_APP_SECRET_KEY в .env.production
 #   2. ./infra/minio-provision-app-user.sh   (этот скрипт — только говорит с
 #      уже работающим контейнером minio через docker exec, ничего не рестартует)
 #   3. Убедиться mc-командами, что новый пользователь реально НЕ root

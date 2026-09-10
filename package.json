@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "license": "UNLICENSED",
   "scripts": {
-    "migration:generate": "TS_NODE_PROJECT=libs/database/tsconfig.lib.json typeorm-ts-node-esm migration:generate -d libs/database/src/data-source.ts",
-    "migration:run": "TS_NODE_PROJECT=libs/database/tsconfig.lib.json typeorm-ts-node-esm migration:run -d libs/database/src/data-source.ts --transaction each",
-    "migration:revert": "TS_NODE_PROJECT=libs/database/tsconfig.lib.json typeorm-ts-node-esm migration:revert -d libs/database/src/data-source.ts --transaction each",
-    "migration:show": "TS_NODE_PROJECT=libs/database/tsconfig.lib.json typeorm-ts-node-esm migration:show -d libs/database/src/data-source.ts",
+    "migration:generate": "node scripts/run-migration.mjs migration:generate -d libs/database/src/data-source.ts",
+    "migration:run": "node scripts/run-migration.mjs migration:run -d libs/database/src/data-source.ts --transaction each",
+    "migration:revert": "node scripts/run-migration.mjs migration:revert -d libs/database/src/data-source.ts --transaction each",
+    "migration:show": "node scripts/run-migration.mjs migration:show -d libs/database/src/data-source.ts",
     "generate:icons": "node scripts/generate-icons.mjs"
   },
   "private": true,

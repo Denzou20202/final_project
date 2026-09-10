@@ -7,14 +7,16 @@
 - Node.js >= 24, npm
 - Docker Desktop (или Docker Engine + Compose plugin)
 
-## 2. Установка зависимостей
+## 2. Установка зависимостей и настройка окружения
 
 ```bash
 npm install
 cp .env.example .env
+cp frontend/client-portal/.env.example frontend/client-portal/.env
+cp frontend/operator-app/.env.example frontend/operator-app/.env
 ```
 
-Значения по умолчанию в `.env` уже настроены на локальные dev-контейнеры — менять ничего не нужно для локального запуска.
+Значения по умолчанию в `.env` уже настроены на локальные dev-контейнеры — менять ничего не нужно для локального запуска. `CORS_ORIGINS` уже включает `https://localhost` и порты разработки.
 
 ## 3. TLS-сертификат для nginx (один раз)
 
@@ -47,13 +49,13 @@ docker exec veloxdesk-dev-minio-1 sh -c "
 
 ## 6. Восстановление чистой БД (1 админ, без данных)
 
-В репозитории лежит готовый дамп `backup/veloxdesk-clean-1admin.sql` — пустая база с ровно одним пользователем-администратором и счётчиком номеров тикетов, начинающимся с 1.
+В репозитории лежит готовый дамп `backup/veloxdesk-clean-1admin.sql` — пустая база с ровно одним пользователем-администратором, счётчиком номеров тикетов, начинающимся с 1, и базовыми записями справочников.
 
 ```bash
 docker exec -i veloxdesk-dev-postgres-1 psql -U veloxdesk -d veloxdesk < backup/veloxdesk-clean-1admin.sql
 ```
 
-(Схема и миграции уже включены в дамп — отдельно `migration:run` запускать не нужно.)
+(Схема и все актуальные миграции уже включены в дамп — отдельно `npm run migration:run` запускать не требуется, но при необходимости скрипты миграций кроссплатформенны и поддерживают Windows.)
 
 ## 7. Запуск приложения
 
