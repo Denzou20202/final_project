@@ -1,10 +1,10 @@
+import type { PublicTicketStatus } from './ticket-status.js';
+
 // Redis pub/sub contract for ephemeral, best-effort live UI updates — NOT the
 // same concern as the BullMQ `notifications` queue (libs/common), which is
 // for reliable, retried, persisted email delivery. A missed pub/sub message
 // just means an operator's dashboard doesn't flash right away; nothing is lost.
 export const TICKET_EVENTS_CHANNEL = 'ticket-events';
-
-import type { PublicTicketStatus } from './ticket-status.js';
 
 export type TicketEventType = 'created' | 'assigned' | 'reply' | 'mention' | 'updated' | 'attachment';
 

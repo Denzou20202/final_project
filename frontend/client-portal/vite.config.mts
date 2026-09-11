@@ -59,7 +59,7 @@ export default defineConfig(() => ({
           },
         ],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/socket\.io\//],
+        navigateFallbackDenylist: [/^\/api\//, /^\/socket\.io\//, /^\/staff\//],
       },
       devOptions: {
         enabled: false,

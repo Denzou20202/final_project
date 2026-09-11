@@ -88,8 +88,8 @@ services:
     image: nginx:1.27-alpine
     restart: unless-stopped
     ports:
-      - '80:80'
-      - '443:443'
+      - '${DEV_HTTP_PORT:-80}:80'
+      - '${DEV_HTTPS_PORT:-443}:443'
     volumes:
       - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./infra/nginx/certs:/etc/nginx/certs:ro
