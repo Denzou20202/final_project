@@ -1422,7 +1422,7 @@ COPY public.user_extra_departments (user_id, team_id) FROM stdin;
 
 COPY public.users (id, email, password_hash, full_name, role, created_at, updated_at, deleted_at, refresh_token_hash, computer_name, "position", department, company, phone, city, permission_group_id, totp_secret_encrypted, two_factor_enabled, current_status_id, locale, merged_into_id, approved_at, cannot_manage_admins, profile_completed_at, is_vip, telegram_chat_id, telegram_link_token, telegram_link_token_expires_at, telegram_pending_new_ticket, telegram_csat_draft, telegram_pending_reply_to_ticket_id, auth_provider, external_id) FROM stdin;
 00000000-0000-4000-8000-000000000001	system@veloxdesk.local	$2b$10$o3OmjDELOzVHRodxUv6sk.NXLwr8OAnnxBMl3nC2xcZWPms.4mZH.	Автоответчик	operator	2026-08-25 05:11:37.41416+00	2026-08-25 05:11:37.41416+00	2026-08-25 05:11:37.41416+00	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	ru	\N	2026-08-25 05:11:37.41416+00	f	\N	f	\N	\N	\N	f	\N	\N	local	\N
-9b280da3-43a8-497b-80a0-bfb924d8dcd5	admin@veloxdesk.local	$2b$10$6Aw9B5XJXD0i2ayJ6vv6DuRZ4MrEmq6u0zHRpOp0Y07cExL5aLnLe	Admin	admin	2026-08-25 05:11:59.633695+00	2026-08-25 05:11:59.633695+00	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	ru	\N	2026-08-25 05:12:03.100211+00	f	\N	f	\N	\N	\N	f	\N	\N	local	\N
+9b280da3-43a8-497b-80a0-bfb924d8dcd5	admin@veloxdesk.local	$2b$10$Zcky.tcoqJVAciT7XMgi.urMFmdvm48jw1io8cx0YLWzviitKNVNe	Admin	admin	2026-08-25 05:11:59.633695+00	2026-08-25 05:11:59.633695+00	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	ru	\N	2026-08-25 05:12:03.100211+00	f	\N	f	\N	\N	\N	f	\N	\N	local	\N
 \.
 
 
