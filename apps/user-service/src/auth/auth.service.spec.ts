@@ -1,15 +1,15 @@
 import { AuthAudience, AuthProvider, Locale, UserRole } from '@veloxdesk/types';
 import { ConflictException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { LdapConfigService } from '../ldap-config/ldap-config.service.js';
-import { OidcConfigService } from '../oidc-config/oidc-config.service.js';
-import { PermissionGroupsRepository } from '../permission-groups/permission-groups.repository.js';
-import { UsersService } from '../users/users.service.js';
-import { AuthService } from './auth.service.js';
-import { LdapAuthProvider } from './providers/ldap-auth.provider.js';
-import { LocalAuthProvider } from './providers/local-auth.provider.js';
-import { TotpEncryptionService } from './totp-encryption.service.js';
-import { TotpService } from './totp.service.js';
+import { LdapConfigService } from '../ldap-config/ldap-config.service';
+import { OidcConfigService } from '../oidc-config/oidc-config.service';
+import { PermissionGroupsRepository } from '../permission-groups/permission-groups.repository';
+import { UsersService } from '../users/users.service';
+import { AuthService } from './auth.service';
+import { LdapAuthProvider } from './providers/ldap-auth.provider';
+import { LocalAuthProvider } from './providers/local-auth.provider';
+import { TotpEncryptionService } from './totp-encryption.service';
+import { TotpService } from './totp.service';
 
 function makeUser(overrides: Partial<Record<string, unknown>> = {}) {
   return {

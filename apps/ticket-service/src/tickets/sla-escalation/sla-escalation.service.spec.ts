@@ -1,14 +1,11 @@
 import { TicketActivityType } from '@veloxdesk/types';
-import { SlaEscalationService } from './sla-escalation.service.js';
+import { SlaEscalationService } from './sla-escalation.service';
 
 describe('SlaEscalationService', () => {
   let service: SlaEscalationService;
   let slaEscalationRepository: {
     findResponseBreachCandidates: jest.Mock;
     findResolutionBreachCandidates: jest.Mock;
-  };
-  let activityRepository: {
-    existsOfType: jest.Mock;
   };
   let ticketsService: {
     applySlaEscalation: jest.Mock;
@@ -19,16 +16,12 @@ describe('SlaEscalationService', () => {
       findResponseBreachCandidates: jest.fn().mockResolvedValue([]),
       findResolutionBreachCandidates: jest.fn().mockResolvedValue([]),
     };
-    activityRepository = {
-      existsOfType: jest.fn().mockResolvedValue(false),
-    };
     ticketsService = {
       applySlaEscalation: jest.fn().mockResolvedValue(undefined),
     };
 
     service = new SlaEscalationService(
       slaEscalationRepository as never,
-      activityRepository as never,
       ticketsService as never,
     );
   });

@@ -1,9 +1,8 @@
 import { TicketActivityType } from '@veloxdesk/types';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { TicketActivityRepository } from '../ticket-activity.repository.js';
-import { TicketsService } from '../tickets.service.js';
-import { SlaEscalationRepository } from './sla-escalation.repository.js';
+import { TicketsService } from '../tickets.service';
+import { SlaEscalationRepository } from './sla-escalation.repository';
 
 @Injectable()
 export class SlaEscalationService {
@@ -11,7 +10,6 @@ export class SlaEscalationService {
 
   constructor(
     private readonly slaEscalationRepository: SlaEscalationRepository,
-    private readonly activityRepository: TicketActivityRepository,
     private readonly ticketsService: TicketsService,
   ) {}
 

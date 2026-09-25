@@ -196,7 +196,9 @@ export default function LoginPage() {
             }
           }
         }
-      } catch {}
+      } catch {
+        // Ignore corrupted storage
+      }
     }
 
     if (!accessToken) return;

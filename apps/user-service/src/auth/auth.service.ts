@@ -349,19 +349,22 @@ export class AuthService {
     // simply can't mint a new access token once the current one expires,
     // no separate message needed here since this path isn't user-facing.
     const user = await this.usersService.findById(payload.sub);
-    const hashes = user?.refreshTokenHashes && user.refreshTokenHashes.length > 0
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const hashes = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
       ? user.refreshTokenHashes
-      : (user?.refreshTokenHash ? [user.refreshTokenHash] : []);
+      : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
 
     const matchedHash = hashes.find((h) => refreshTokenMatches(refreshToken, h));
     if (!matchedHash) {
       throw new UnauthorizedException('Refresh token has been revoked');
     }
 
-    const context = await this.resolvePermissionContext(user!);
+    const context = await this.resolvePermissionContext(user);
     this.assertIpAllowed(ip, context.group);
 
-    return this.issueTokens(user!, context, matchedHash);
+    return this.issueTokens(user, context, matchedHash);
   }
 
   async logout(userId: string, refreshToken?: string): Promise<void> {

@@ -131,9 +131,6 @@ export class UsersService {
     return result;
   }
 
-  private async assertKnownCompanyAndCity(company?: string | null, city?: string | null): Promise<void> {
-    await this.resolveCompanyAndCity(company, city);
-  }
 
   // canBeAssignee depends on the user's GROUP, not the user row — resolved
   // here rather than stored, so it's never stale after a group edit. teamId

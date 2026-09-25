@@ -1,5 +1,5 @@
 import { KnowledgeArticleEntity } from '@veloxdesk/database';
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Redis } from 'ioredis';
@@ -25,7 +25,8 @@ import { PublicArticlesController } from './public-articles.controller.js';
           port: config.get<number>('REDIS_PORT', 6379),
           lazyConnect: true,
         });
-        client.on('error', () => {});
+        const logger = new Logger('KnowledgeRedis');
+        client.on('error', (error) => logger.error(`Redis connection error: ${error.message}`));
         return client;
       },
     },

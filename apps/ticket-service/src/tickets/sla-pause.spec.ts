@@ -1,4 +1,4 @@
-import { computeSlaPauseUpdate } from './tickets.service.js';
+import { computeSlaPauseUpdate } from './tickets.service';
 
 describe('computeSlaPauseUpdate', () => {
   it('sets slaPausedAt when moving to an untracked non-closed status for the first time', () => {
@@ -10,7 +10,7 @@ describe('computeSlaPauseUpdate', () => {
 
     expect(result.pausedDurationMin).toBe(0);
     expect(result.slaPausedAt).toBeInstanceOf(Date);
-    expect(result.slaPausedAt!.getTime()).toBeGreaterThanOrEqual(before);
+    expect(result.slaPausedAt?.getTime()).toBeGreaterThanOrEqual(before);
   });
 
   it('preserves existing slaPausedAt when staying in an untracked status', () => {
