@@ -44,14 +44,14 @@
   },
   "ticketStatus": {
     "open": "В роботі",
-    "unassigned": "Нові",
+    "unassigned": "Непризначена",
     "pending": "Очікування",
     "resolved": "Передано розробникам",
     "closed": "Завершено"
   },
   "ticketStatusFolder": {
     "open": "В роботі",
-    "unassigned": "Нові",
+    "unassigned": "Непризначені",
     "pending": "Очікування",
     "resolved": "Передано розробникам",
     "closed": "Завершено"

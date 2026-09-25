@@ -15,7 +15,9 @@ export interface PublicUser {
   position: string | null;
   department: string | null;
   company: string | null;
+  companyId?: string | null;
   city: string | null;
+  cityId?: string | null;
   phone: string | null;
   // Deactivated (soft-deleted, see UsersRepository.deactivate) rather than
   // actually missing — null means active. Every admin-facing user list
@@ -26,6 +28,8 @@ export interface PublicUser {
   // — computed here (not stored) since it depends on the group, not the user
   // row itself. Assignee pickers filter on this.
   canBeAssignee: boolean;
+  canViewReports: boolean;
+  canExportReports: boolean;
   // Real team membership (TeamMemberEntity), not a stored column — resolved
   // per-user (or batched, for a list) via TeamsService. A user can technically
   // belong to several teams, but EditUserModal's single-select «Отдел»
@@ -66,7 +70,13 @@ export interface PublicUserPage {
   nextCursor: string | null;
 }
 
-export function toPublicUser(user: UserEntity, groupCannotBeAssignee = false, teamId: string | null = null): PublicUser {
+export function toPublicUser(
+  user: UserEntity,
+  groupCannotBeAssignee = false,
+  teamId: string | null = null,
+  canViewReports = true,
+  canExportReports = true,
+): PublicUser {
   return {
     id: user.id,
     email: user.email,
@@ -78,12 +88,16 @@ export function toPublicUser(user: UserEntity, groupCannotBeAssignee = false, te
     computerName: user.computerName ?? null,
     position: user.position ?? null,
     department: user.department ?? null,
-    company: user.company ?? null,
-    city: user.city ?? null,
+    company: user.companyEntity?.name ?? user.company ?? null,
+    companyId: user.companyId ?? null,
+    city: user.cityEntity?.name ?? user.city ?? null,
+    cityId: user.cityId ?? null,
     phone: user.phone ?? null,
     deactivatedAt: user.deletedAt ?? null,
     permissionGroupId: user.permissionGroupId ?? null,
     canBeAssignee: !user.permissionGroupId || !groupCannotBeAssignee,
+    canViewReports: user.role === UserRole.ADMIN ? true : canViewReports,
+    canExportReports: user.role === UserRole.ADMIN ? true : canExportReports,
     twoFactorEnabled: user.twoFactorEnabled,
     telegramLinked: !!user.telegramChatId,
     currentStatusId: user.currentStatusId ?? null,

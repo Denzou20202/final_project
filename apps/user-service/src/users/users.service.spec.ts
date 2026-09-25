@@ -88,7 +88,7 @@ describe('UsersService.resetPasswordByAdmin', () => {
       usersRepository.findById.mockResolvedValue(makeUser({ id: 'admin-1' }) as never);
       await expect(
         service.resetPasswordByAdmin('admin-1', 'a-strong-password', makeActor() as never),
-      ).rejects.toThrow('Неверный текущий пароль');
+      ).rejects.toThrow('Invalid current password');
       expect(usersRepository.updatePasswordHash).not.toHaveBeenCalled();
     });
 
@@ -97,7 +97,7 @@ describe('UsersService.resetPasswordByAdmin', () => {
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
       await expect(
         service.resetPasswordByAdmin('admin-1', 'a-strong-password', makeActor() as never, 'wrong-password'),
-      ).rejects.toThrow('Неверный текущий пароль');
+      ).rejects.toThrow('Invalid current password');
       expect(usersRepository.updatePasswordHash).not.toHaveBeenCalled();
     });
 
@@ -120,7 +120,7 @@ describe('UsersService.resetPasswordByAdmin', () => {
 
       await expect(
         service.resetPasswordByAdmin('admin-1', 'a-strong-password', makeActor() as never, 'correct-password', '000000'),
-      ).rejects.toThrow('Неверный код подтверждения');
+      ).rejects.toThrow('Invalid confirmation code');
       expect(usersRepository.updatePasswordHash).not.toHaveBeenCalled();
 
       totpService.verifyCode.mockReturnValue(true);
@@ -179,7 +179,7 @@ describe('UsersService.resetTwoFactorByAdmin', () => {
       makeUser({ id: 'admin-1', twoFactorEnabled: true, totpSecretEncrypted: 'enc-secret' }) as never,
     );
     await expect(service.resetTwoFactorByAdmin('admin-1', makeActor() as never)).rejects.toThrow(
-      'Неверный текущий пароль',
+      'Invalid current password',
     );
     expect(usersRepository.setTwoFactor).not.toHaveBeenCalled();
   });
@@ -194,7 +194,7 @@ describe('UsersService.resetTwoFactorByAdmin', () => {
 
     await expect(
       service.resetTwoFactorByAdmin('admin-1', makeActor() as never, 'correct-password', '000000'),
-    ).rejects.toThrow('Неверный код подтверждения');
+    ).rejects.toThrow('Invalid confirmation code');
     expect(usersRepository.setTwoFactor).not.toHaveBeenCalled();
   });
 
@@ -265,7 +265,7 @@ describe('UsersService.changeOwnPassword', () => {
   it('rejects with no currentPassword', async () => {
     usersRepository.findById.mockResolvedValue(makeUser({ id: 'admin-1' }) as never);
     await expect(service.changeOwnPassword(makeActor() as never, '', 'a-strong-password')).rejects.toThrow(
-      'Неверный текущий пароль',
+      'Invalid current password',
     );
     expect(usersRepository.updatePasswordHash).not.toHaveBeenCalled();
   });
@@ -275,7 +275,7 @@ describe('UsersService.changeOwnPassword', () => {
     jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
     await expect(
       service.changeOwnPassword(makeActor() as never, 'wrong-password', 'a-strong-password'),
-    ).rejects.toThrow('Неверный текущий пароль');
+    ).rejects.toThrow('Invalid current password');
     expect(usersRepository.updatePasswordHash).not.toHaveBeenCalled();
   });
 
@@ -298,7 +298,7 @@ describe('UsersService.changeOwnPassword', () => {
 
     await expect(
       service.changeOwnPassword(makeActor({ sub: 'client-1' }) as never, 'correct-password', 'a-strong-password', '000000'),
-    ).rejects.toThrow('Неверный код подтверждения');
+    ).rejects.toThrow('Invalid confirmation code');
     expect(usersRepository.updatePasswordHash).not.toHaveBeenCalled();
 
     totpService.verifyCode.mockReturnValue(true);
@@ -704,9 +704,9 @@ describe('UsersService — restricted admin (cannotManageAdmins)', () => {
   it('blocks self-resetting password/2FA without the current password', async () => {
     await expect(
       service.resetPasswordByAdmin('restricted-admin', 'a-strong-password', restrictedActor as never),
-    ).rejects.toThrow('Неверный текущий пароль');
+    ).rejects.toThrow('Invalid current password');
     await expect(service.resetTwoFactorByAdmin('restricted-admin', restrictedActor as never)).rejects.toThrow(
-      'Неверный текущий пароль',
+      'Invalid current password',
     );
   });
 

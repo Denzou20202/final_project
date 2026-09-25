@@ -18,7 +18,7 @@ export class PermissionGroupsRepository {
     private readonly dataSource: DataSource,
   ) {}
 
-  create(dto: Pick<CreatePermissionGroupDto, 'name' | 'restrictToDepartments' | 'restrictToOwnTickets' | 'cannotBeAssignee' | 'requireTwoFactor' | 'ipWhitelist'>): Promise<PermissionGroupEntity> {
+  create(dto: Pick<CreatePermissionGroupDto, 'name' | 'restrictToDepartments' | 'restrictToOwnTickets' | 'cannotBeAssignee' | 'requireTwoFactor' | 'ipWhitelist' | 'canViewReports' | 'canExportReports'>): Promise<PermissionGroupEntity> {
     return this.repository.save(
       this.repository.create({
         name: dto.name,
@@ -26,6 +26,8 @@ export class PermissionGroupsRepository {
         restrictToOwnTickets: dto.restrictToOwnTickets ?? false,
         cannotBeAssignee: dto.cannotBeAssignee ?? false,
         requireTwoFactor: dto.requireTwoFactor ?? false,
+        canViewReports: dto.canViewReports ?? true,
+        canExportReports: dto.canExportReports ?? true,
         ipWhitelist: dto.ipWhitelist ?? [],
       }),
     );
@@ -115,7 +117,7 @@ export class PermissionGroupsRepository {
   // filtering by permission_group_id after delete() would match nothing.
   async clearRefreshTokensForUserIds(userIds: string[]): Promise<void> {
     if (userIds.length === 0) return;
-    await this.usersRepository.update({ id: In(userIds) }, { refreshTokenHash: null });
+    await this.usersRepository.update({ id: In(userIds) }, { refreshTokenHash: null, refreshTokenHashes: [] });
   }
 
   async countMembersByGroupIds(groupIds: string[]): Promise<Map<string, number>> {

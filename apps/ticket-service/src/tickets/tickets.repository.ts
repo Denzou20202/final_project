@@ -132,7 +132,13 @@ export class TicketsRepository {
       }
       typeId = defaultType.id;
     }
-    const ticket = manager.create(TicketEntity, { ...data, typeId, statusId: defaultStatus.id });
+    const ticket = manager.create(TicketEntity, {
+      ...data,
+      typeId,
+      statusId: defaultStatus.id,
+      pausedDurationMin: 0,
+      slaPausedAt: !defaultStatus.tracksSla && !defaultStatus.isClosed ? new Date() : null,
+    });
     return manager.save(TicketEntity, ticket);
   }
 

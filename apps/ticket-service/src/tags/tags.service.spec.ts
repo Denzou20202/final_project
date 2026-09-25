@@ -86,4 +86,66 @@ describe('TagsService.rename', () => {
     expect(tagsRepository.updateName).toHaveBeenCalledWith('tag-1', 'Очень срочно', null, null);
     expect(result.name).toBe('Очень срочно');
   });
+
+  it('allows renaming when collision returns the same tag id (case-only change)', async () => {
+    tagsRepository.findById.mockResolvedValue({ id: 'tag-1', name: 'admin-tag', createdAt: new Date() } as never);
+    tagsRepository.findByName.mockResolvedValue({ id: 'tag-1', name: 'admin-tag', createdAt: new Date() } as never);
+
+    const result = await service.rename('tag-1', 'Admin-Tag');
+
+    expect(tagsRepository.updateName).toHaveBeenCalledWith('tag-1', 'Admin-Tag', null, null);
+    expect(result.name).toBe('Admin-Tag');
+  });
+});
+
+describe('TagsService.addToTicket case-insensitivity', () => {
+  let tagsRepository: {
+    findByName: jest.Mock;
+    findOrCreateByName: jest.Mock;
+    isLinked: jest.Mock;
+    linkToTicket: jest.Mock;
+  };
+  let ticketsService: { assertAccess: jest.Mock };
+  let activityRepository: { log: jest.Mock };
+  let searchIndexProducer: { enqueueTicket: jest.Mock };
+  let service: TagsService;
+
+  beforeEach(() => {
+    tagsRepository = {
+      findByName: jest.fn(),
+      findOrCreateByName: jest.fn(),
+      isLinked: jest.fn().mockResolvedValue(false),
+      linkToTicket: jest.fn().mockResolvedValue(undefined),
+    };
+    ticketsService = { assertAccess: jest.fn().mockResolvedValue(undefined) };
+    activityRepository = { log: jest.fn().mockResolvedValue(undefined) };
+    searchIndexProducer = { enqueueTicket: jest.fn().mockResolvedValue(undefined) };
+
+    service = new TagsService(
+      tagsRepository as never,
+      ticketsService as never,
+      activityRepository as never,
+      searchIndexProducer as never,
+    );
+  });
+
+  it('allows operator to attach existing tag when entered in uppercase (ADMIN-TAG vs admin-tag)', async () => {
+    const existingTag = { id: 'tag-1', name: 'admin-tag', createdAt: new Date() };
+    tagsRepository.findByName.mockResolvedValue(existingTag);
+
+    const actor = { sub: 'op-1', email: 'op@example.com', role: 'operator' as never };
+    const result = await service.addToTicket('ticket-1', 'ADMIN-TAG', actor);
+
+    expect(tagsRepository.findByName).toHaveBeenCalledWith('ADMIN-TAG');
+    expect(tagsRepository.findOrCreateByName).not.toHaveBeenCalled();
+    expect(tagsRepository.linkToTicket).toHaveBeenCalledWith('ticket-1', 'tag-1');
+    expect(result.name).toBe('admin-tag');
+  });
+
+  it('rejects operator trying to create a genuinely new tag', async () => {
+    tagsRepository.findByName.mockResolvedValue(null);
+
+    const actor = { sub: 'op-1', email: 'op@example.com', role: 'operator' as never };
+    await expect(service.addToTicket('ticket-1', 'NON-EXISTENT', actor)).rejects.toThrow(BadRequestException);
+  });
 });

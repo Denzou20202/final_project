@@ -11,12 +11,10 @@ interface AuthState {
   clear: () => void;
 }
 
-// Same storage key as client-portal's auth store, deliberately — both apps
-// are served from the same origin (just different path prefixes, / vs
-// /staff/), so the shared login page (client-portal's /login) can write a
-// session here and a full browser navigation into this app picks it up
-// already authenticated, no second login prompt. See ProtectedRoute in
-// both apps for the role-based redirect this enables.
+export const STAFF_AUTH_STORAGE_KEY = 'veloxdesk-staff-auth';
+
+// Operator app uses its own distinct localStorage key to prevent session collisions
+// with client-portal when accessed from the same origin (e.g. https://localhost:8443).
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -27,6 +25,6 @@ export const useAuthStore = create<AuthState>()(
       setAccessToken: (accessToken) => set({ accessToken }),
       clear: () => set({ accessToken: null, refreshToken: null, user: null }),
     }),
-    { name: 'veloxdesk-auth' },
+    { name: STAFF_AUTH_STORAGE_KEY },
   ),
 );

@@ -80,8 +80,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
-  logout(@CurrentUser() user: JwtPayload) {
-    return this.authService.logout(user.sub);
+  logout(@CurrentUser() user: JwtPayload, @Body() body?: { refreshToken?: string }) {
+    return this.authService.logout(user.sub, body?.refreshToken);
   }
 
   // ===== 2FA: self-service, requires an existing session =====

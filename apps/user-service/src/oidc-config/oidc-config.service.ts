@@ -53,11 +53,11 @@ export class OidcConfigService {
     const lastTestSuccessAt = connectionChanged ? null : (existing?.lastTestSuccessAt ?? null);
     if (enabled && !lastTestSuccessAt) {
       throw new BadRequestException(
-        'Перед включением проверьте подключение (Test connection) — тест обязателен после любого изменения параметров',
+        'Test connection is required after changing parameters before enabling OIDC',
       );
     }
     if (enabled && !clientSecretEncrypted) {
-      throw new BadRequestException('Укажите client secret перед включением');
+      throw new BadRequestException('Client secret must be provided before enabling OIDC');
     }
 
     const saved = await this.repository.save(
@@ -101,7 +101,7 @@ export class OidcConfigService {
       throw new NotFoundException('OIDC config not found — save it first');
     }
     if (!config.clientSecretEncrypted) {
-      throw new BadRequestException('Укажите client secret перед проверкой подключения');
+      throw new BadRequestException('Client secret must be provided before testing connection');
     }
 
     const result = await this.probeDiscovery(config);
@@ -151,8 +151,8 @@ export class OidcConfigService {
     if (!allowed.includes(defaultRole)) {
       throw new BadRequestException(
         audience === AuthAudience.CLIENT
-          ? 'Для клиентской аудитории роль по умолчанию должна быть «Клиент»'
-          : 'Для сотрудников роль по умолчанию должна быть «Оператор» или «Администратор»',
+          ? 'Default role for client audience must be Client'
+          : 'Default role for staff audience must be Operator or Administrator',
       );
     }
   }

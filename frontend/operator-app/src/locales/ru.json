@@ -266,6 +266,7 @@
     "deactivatedSuffix": " (деактивирован)",
     "responseBy": "Ответ до {{date}}",
     "resolutionBy": "Решение до {{date}}",
+    "slaPaused": " (на паузе)",
     "deletedBanner": "Тикет в корзине — сначала восстановите, чтобы изменить"
   },
   "tags": {
@@ -681,6 +682,10 @@
       "observerHint": "Нельзя назначать исполнителем тикетов",
       "require2faLabel": "Обязательная 2FA",
       "require2faHint": "При следующем входе участник обязан настроить двухфакторную аутентификацию",
+      "canViewReportsLabel": "Просмотр отчётов",
+      "canViewReportsHint": "Разрешает просмотр аналитики и дашбордов",
+      "canExportReportsLabel": "Экспорт в CSV",
+      "canExportReportsHint": "Разрешает выгрузку отчётов в файл CSV",
       "ipWhitelistLabel": "IP-whitelist для входа",
       "ipWhitelistHint": "По одному диапазону на строку. Пусто — вход не ограничен по IP.",
       "ipInvalid": "«{{value}}» — не похоже на CIDR (пример: 203.0.113.0/24)"

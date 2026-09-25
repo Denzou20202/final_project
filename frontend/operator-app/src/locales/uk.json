@@ -266,6 +266,7 @@
     "deactivatedSuffix": " (деактивовано)",
     "responseBy": "Відповідь до {{date}}",
     "resolutionBy": "Рішення до {{date}}",
+    "slaPaused": " (на паузі)",
     "deletedBanner": "Тікет в кошику — спершу відновіть, щоб змінити"
   },
   "tags": {
@@ -681,6 +682,10 @@
       "observerHint": "Не можна призначати виконавцем тікетів",
       "require2faLabel": "Обов'язкова 2FA",
       "require2faHint": "Під час наступного входу учасник зобов'язаний налаштувати двофакторну автентифікацію",
+      "canViewReportsLabel": "Перегляд звітів",
+      "canViewReportsHint": "Дозволяє перегляд аналітики та дашбордів",
+      "canExportReportsLabel": "Експорт в CSV",
+      "canExportReportsHint": "Дозволяє вивантаження звітів у файл CSV",
       "ipWhitelistLabel": "IP-whitelist для входу",
       "ipWhitelistHint": "По одному діапазону на рядок. Порожньо — вхід не обмежений за IP.",
       "ipInvalid": "«{{value}}» — не схоже на CIDR (приклад: 203.0.113.0/24)"

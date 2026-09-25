@@ -14,7 +14,7 @@ import {
 } from '../lib/api/auth.api.js';
 import { completeProfile, createTelegramLinkToken, fetchMe, updateOwnProfile } from '../lib/api/users.api.js';
 import { disconnectChatSocket } from '../lib/socket.js';
-import { useAuthStore } from '../store/auth.store.js';
+import { saveStaffSessionToLocalStorage, useAuthStore } from '../store/auth.store.js';
 import { useRecentActivityStore } from '../store/recent-activity.store.js';
 import { useSidebarHighlightStore } from '../store/sidebar-highlight.store.js';
 
@@ -106,6 +106,14 @@ export function useLogin() {
     }) => loginRequest(email, password, audience, captchaToken),
     onSuccess: (result, variables) => {
       if ('accessToken' in result) {
+        if (result.user.role === 'operator' || result.user.role === 'admin') {
+          saveStaffSessionToLocalStorage(result.accessToken, result.refreshToken, result.user);
+          syncPickedLocale(updateProfile, variables.locale, result.user.locale);
+          if (window.location.pathname !== '/staff/tickets') {
+            window.location.href = '/staff/tickets';
+          }
+          return;
+        }
         setSession(result.accessToken, result.refreshToken, result.user);
         syncPickedLocale(updateProfile, variables.locale, result.user.locale);
       }
@@ -132,6 +140,14 @@ export function useVerifyTwoFactor() {
     mutationFn: ({ challengeToken, token }: { challengeToken: string; token: string; locale?: Locale }) =>
       verifyTwoFactor(challengeToken, token),
     onSuccess: (data, variables) => {
+      if (data.user.role === 'operator' || data.user.role === 'admin') {
+        saveStaffSessionToLocalStorage(data.accessToken, data.refreshToken, data.user);
+        syncPickedLocale(updateProfile, variables.locale, data.user.locale);
+        if (window.location.pathname !== '/staff/tickets') {
+          window.location.href = '/staff/tickets';
+        }
+        return;
+      }
       setSession(data.accessToken, data.refreshToken, data.user);
       syncPickedLocale(updateProfile, variables.locale, data.user.locale);
     },
@@ -162,6 +178,14 @@ export function useConfirmTwoFactorRequired() {
       locale?: Locale;
     }) => confirmTwoFactorRequired(setupToken, secret, token),
     onSuccess: (data, variables) => {
+      if (data.user.role === 'operator' || data.user.role === 'admin') {
+        saveStaffSessionToLocalStorage(data.accessToken, data.refreshToken, data.user);
+        syncPickedLocale(updateProfile, variables.locale, data.user.locale);
+        if (window.location.pathname !== '/staff/tickets') {
+          window.location.href = '/staff/tickets';
+        }
+        return;
+      }
       setSession(data.accessToken, data.refreshToken, data.user);
       syncPickedLocale(updateProfile, variables.locale, data.user.locale);
     },

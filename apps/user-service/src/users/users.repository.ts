@@ -12,7 +12,9 @@ export interface UpdateUserProfileData {
   position?: string | null;
   department?: string | null;
   company?: string | null;
+  companyId?: string | null;
   city?: string | null;
+  cityId?: string | null;
   phone?: string | null;
   locale?: Locale;
   profileCompletedAt?: Date;
@@ -31,11 +33,19 @@ export class UsersRepository {
   // lookups should treat a deactivated account as gone. Only the admin
   // management list (findPage) and reactivate() need to see past it.
   findByEmail(email: string, options: { withDeleted?: boolean } = {}): Promise<UserEntity | null> {
-    return this.repository.findOne({ where: { email }, withDeleted: options.withDeleted });
+    return this.repository.findOne({
+      where: { email },
+      withDeleted: options.withDeleted,
+      relations: { companyEntity: true, cityEntity: true },
+    });
   }
 
   findById(id: string, options: { withDeleted?: boolean } = {}): Promise<UserEntity | null> {
-    return this.repository.findOne({ where: { id }, withDeleted: options.withDeleted });
+    return this.repository.findOne({
+      where: { id },
+      withDeleted: options.withDeleted,
+      relations: { companyEntity: true, cityEntity: true },
+    });
   }
 
   // Fetches `limit + 1` rows so the caller can tell whether a next page
@@ -51,7 +61,12 @@ export class UsersRepository {
   // order — see NameCursor's own comment for why it's a separate cursor
   // shape instead of reusing `KeysetCursor`.
   findPage(limit: number, after?: KeysetCursor, search?: string, searchAfter?: NameCursor): Promise<UserEntity[]> {
-    const qb = this.repository.createQueryBuilder('user').withDeleted().take(limit + 1);
+    const qb = this.repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.companyEntity', 'companyEntity')
+      .leftJoinAndSelect('user.cityEntity', 'cityEntity')
+      .withDeleted()
+      .take(limit + 1);
 
     if (search) {
       qb.where('(user.fullName ILIKE :search OR user.email ILIKE :search)', { search: `%${search}%` });
@@ -107,26 +122,72 @@ export class UsersRepository {
   }
 
   async setRefreshTokenHash(id: string, refreshTokenHash: string | null): Promise<void> {
-    await this.repository.update({ id }, { refreshTokenHash });
+    if (refreshTokenHash === null) {
+      await this.repository.update({ id }, { refreshTokenHash: null, refreshTokenHashes: [] });
+    } else {
+      await this.addRefreshTokenHash(id, refreshTokenHash);
+    }
+  }
+
+  async addRefreshTokenHash(id: string, newHash: string, maxSessions = 10): Promise<void> {
+    const user = await this.repository.findOne({ where: { id } });
+    if (!user) return;
+    const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
+      ? user.refreshTokenHashes
+      : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
+    const updated = [...current.filter((h) => h !== newHash), newHash].slice(-maxSessions);
+    await this.repository.update({ id }, {
+      refreshTokenHash: newHash,
+      refreshTokenHashes: updated,
+    });
+  }
+
+  async removeRefreshTokenHash(id: string, hashToRemove: string): Promise<void> {
+    const user = await this.repository.findOne({ where: { id } });
+    if (!user) return;
+    const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
+      ? user.refreshTokenHashes
+      : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
+    const updated = current.filter((h) => h !== hashToRemove);
+    const latest = updated.length > 0 ? updated[updated.length - 1] : null;
+    await this.repository.update({ id }, {
+      refreshTokenHash: latest,
+      refreshTokenHashes: updated,
+    });
   }
 
   async setTelegramLinkToken(id: string, telegramLinkToken: string, telegramLinkTokenExpiresAt: Date): Promise<void> {
     await this.repository.update({ id }, { telegramLinkToken, telegramLinkTokenExpiresAt });
   }
 
-  // Conditioned on the hash still being what the caller last read (not a
-  // plain `WHERE id = ...`) — same CAS shape as setApprovedAtIfPending, for
-  // the same reason: two concurrent /auth/refresh calls presenting the same
-  // still-valid token can both pass the read-side check before either
-  // writes, and an unconditional update would let the second write silently
-  // clobber the first, stranding whichever caller got the first response
-  // with a refreshToken the DB no longer recognizes. Whichever request wins
-  // the race gets affected=1; the loser gets 0 and must tell its caller the
-  // token was already rotated, instead of returning a token pair that looks
-  // valid but isn't.
+  // Rotates a specific device's refresh token hash in the array while preserving
+  // other active sessions for this account.
   async rotateRefreshTokenHash(id: string, previousHash: string, newHash: string): Promise<boolean> {
-    const result = await this.repository.update({ id, refreshTokenHash: previousHash }, { refreshTokenHash: newHash });
-    return (result.affected ?? 0) > 0;
+    const user = await this.repository.findOne({ where: { id } });
+    if (!user) return false;
+    const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
+      ? user.refreshTokenHashes
+      : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
+
+    const index = current.indexOf(previousHash);
+    if (index === -1) {
+      if (user.refreshTokenHash === previousHash) {
+        await this.repository.update({ id }, {
+          refreshTokenHash: newHash,
+          refreshTokenHashes: [newHash],
+        });
+        return true;
+      }
+      return false;
+    }
+
+    const updated = [...current];
+    updated[index] = newHash;
+    await this.repository.update({ id }, {
+      refreshTokenHash: newHash,
+      refreshTokenHashes: updated,
+    });
+    return true;
   }
 
   async updateRole(id: string, role: UserRole): Promise<void> {

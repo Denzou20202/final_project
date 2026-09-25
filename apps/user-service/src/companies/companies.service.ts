@@ -23,7 +23,7 @@ export class CompaniesService {
     const trimmed = name.trim();
     const collision = await this.companiesRepository.findByName(trimmed);
     if (collision) {
-      throw new ConflictException(`Компания «${trimmed}» уже существует`);
+      throw new ConflictException(`Company "${trimmed}" already exists`);
     }
     try {
       const company = await this.companiesRepository.create(trimmed);
@@ -50,7 +50,7 @@ export class CompaniesService {
 
     const collision = await this.companiesRepository.findByName(trimmed);
     if (collision) {
-      throw new ConflictException(`Компания «${trimmed}» уже существует`);
+      throw new ConflictException(`Company "${trimmed}" already exists`);
     }
 
     try {
@@ -63,7 +63,7 @@ export class CompaniesService {
 
   private translateUniqueViolation(error: unknown, name: string): unknown {
     if (error instanceof QueryFailedError && (error as unknown as { code?: string }).code === UNIQUE_VIOLATION) {
-      return new ConflictException(`Компания «${name}» уже существует`);
+      return new ConflictException(`Company "${name}" already exists`);
     }
     return error;
   }
@@ -79,7 +79,7 @@ export class CompaniesService {
     const userCount = await this.companiesRepository.countUsersWithCompany(company.name);
     if (userCount > 0) {
       throw new BadRequestException(
-        `Нельзя удалить компанию «${company.name}» — она указана у клиентов (${userCount}). Сначала смените компанию в их профилях.`,
+        `Cannot delete company "${company.name}" — it is referenced by ${userCount} client(s). Reassign them first.`,
       );
     }
     await this.companiesRepository.delete(id);

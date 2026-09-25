@@ -81,33 +81,58 @@ export class UsersService {
     return { link: `https://t.me/${botUsername}?start=${token}`, expiresAt };
   }
 
-  // Shared by completeProfile/updateProfile — a company/city value is only
-  // ever meaningful if it's a real catalog entry (see CompanyEntity/
-  // CityEntity's own comments on why the column itself stays a plain
-  // string). The frontend already only offers a <select> sourced from these
-  // same catalogs, but that alone doesn't stop a direct API call from
-  // sending arbitrary text — this closes that gap server-side, the same
-  // defense-in-depth reasoning already applied to the KB-article link
-  // sanitizer earlier in this project.
+  // Shared by completeProfile/updateProfile — resolves company and city names against
+  // relational CompanyEntity and CityEntity catalogs, persisting foreign keys (companyId, cityId)
+  // while preserving backwards-compatible string columns.
+  private async resolveCompanyAndCity(
+    company?: string | null,
+    city?: string | null,
+  ): Promise<{ companyId?: string | null; company?: string | null; cityId?: string | null; city?: string | null }> {
+    const result: { companyId?: string | null; company?: string | null; cityId?: string | null; city?: string | null } = {};
+
+    if (company !== undefined) {
+      if (!company) {
+        result.company = null;
+        result.companyId = null;
+      } else {
+        const companiesCount = await this.companiesRepository.count();
+        if (companiesCount > 0) {
+          const match = await this.companiesRepository.findByName(company);
+          if (!match) {
+            throw new BadRequestException(`Company "${company}" does not exist in catalog`);
+          }
+          result.company = match.name;
+          result.companyId = match.id;
+        } else {
+          result.company = company;
+        }
+      }
+    }
+
+    if (city !== undefined) {
+      if (!city) {
+        result.city = null;
+        result.cityId = null;
+      } else {
+        const citiesCount = await this.citiesRepository.count();
+        if (citiesCount > 0) {
+          const match = await this.citiesRepository.findByName(city);
+          if (!match) {
+            throw new BadRequestException(`City "${city}" does not exist in catalog`);
+          }
+          result.city = match.name;
+          result.cityId = match.id;
+        } else {
+          result.city = city;
+        }
+      }
+    }
+
+    return result;
+  }
+
   private async assertKnownCompanyAndCity(company?: string | null, city?: string | null): Promise<void> {
-    if (company) {
-      const companiesCount = await this.companiesRepository.count();
-      if (companiesCount > 0) {
-        const match = await this.companiesRepository.findByName(company);
-        if (!match) {
-          throw new BadRequestException(`Компания «${company}» отсутствует в справочнике`);
-        }
-      }
-    }
-    if (city) {
-      const citiesCount = await this.citiesRepository.count();
-      if (citiesCount > 0) {
-        const match = await this.citiesRepository.findByName(city);
-        if (!match) {
-          throw new BadRequestException(`Город «${city}» отсутствует в справочнике`);
-        }
-      }
-    }
+    await this.resolveCompanyAndCity(company, city);
   }
 
   // canBeAssignee depends on the user's GROUP, not the user row — resolved
@@ -115,15 +140,21 @@ export class UsersService {
   // is similarly resolved from TeamMemberEntity rather than stored on the
   // user row (see toPublicUser's own comment).
   private async toPublicUserWithGroup(user: UserEntity): Promise<PublicUser> {
-    const [groupCannotBeAssignee, teamId] = await Promise.all([
+    const [group, teamId] = await Promise.all([
       user.permissionGroupId
         ? this.permissionGroupsRepository
             .findFlagsByGroupIds([user.permissionGroupId])
-            .then((groups) => groups.get(user.permissionGroupId as string)?.cannotBeAssignee ?? false)
-        : Promise.resolve(false),
+            .then((groups) => groups.get(user.permissionGroupId as string) ?? null)
+        : Promise.resolve(null),
       this.teamsService.getTeamIdForUser(user.id),
     ]);
-    return toPublicUser(user, groupCannotBeAssignee, teamId);
+    return toPublicUser(
+      user,
+      group?.cannotBeAssignee ?? false,
+      teamId,
+      group ? (group.canViewReports ?? true) : true,
+      group ? (group.canExportReports ?? true) : true,
+    );
   }
 
   private async toPublicUsersWithGroups(users: UserEntity[]): Promise<PublicUser[]> {
@@ -132,13 +163,16 @@ export class UsersService {
       this.permissionGroupsRepository.findFlagsByGroupIds(groupIds),
       this.teamsService.getTeamIdsForUsers(users.map((u) => u.id)),
     ]);
-    return users.map((user) =>
-      toPublicUser(
+    return users.map((user) => {
+      const group = user.permissionGroupId ? groups.get(user.permissionGroupId) : null;
+      return toPublicUser(
         user,
-        user.permissionGroupId ? (groups.get(user.permissionGroupId)?.cannotBeAssignee ?? false) : false,
+        group?.cannotBeAssignee ?? false,
         teamIds.get(user.id) ?? null,
-      ),
-    );
+        group ? (group.canViewReports ?? true) : true,
+        group ? (group.canExportReports ?? true) : true,
+      );
+    });
   }
 
   // Enforces the "restricted admin" rule (see UserEntity.cannotManageAdmins):
@@ -168,7 +202,7 @@ export class UsersService {
       return;
     }
     if (target?.role === UserRole.ADMIN || newRole === UserRole.ADMIN) {
-      throw new ForbiddenException('Ограниченный администратор не может управлять учётными записями администраторов');
+      throw new ForbiddenException('Scoped administrator cannot manage administrator accounts');
     }
   }
 
@@ -194,6 +228,14 @@ export class UsersService {
 
   setRefreshTokenHash(id: string, refreshTokenHash: string | null): Promise<void> {
     return this.usersRepository.setRefreshTokenHash(id, refreshTokenHash);
+  }
+
+  addRefreshTokenHash(id: string, hash: string): Promise<void> {
+    return this.usersRepository.addRefreshTokenHash(id, hash);
+  }
+
+  removeRefreshTokenHash(id: string, hash: string): Promise<void> {
+    return this.usersRepository.removeRefreshTokenHash(id, hash);
   }
 
   // Shared by updateRole/setAdminRestriction/assignPermissionGroup — a
@@ -441,30 +483,28 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     await this.assertAdminActionAllowed(actor, user);
-    // Only re-validate a value that's actually changing. EditUserModal always
-    // submits every field, including a company/city that predates the catalog
-    // (or whose matching entry was since renamed/removed) — the select keeps
-    // that stale value visible rather than silently discarding it. Without
-    // this guard, saving an unrelated field (phone, role, …) on such a user
-    // would be rejected by the catalog check even though nothing about
-    // company/city was touched.
-    await this.assertKnownCompanyAndCity(
-      dto.company !== undefined && dto.company !== user.company ? dto.company : undefined,
-      dto.city !== undefined && dto.city !== user.city ? dto.city : undefined,
-    );
 
-    // Only fields actually present in the request are touched — an omitted
-    // key leaves the existing value alone, an explicit empty string clears
-    // it to null. The edit modal always sends every field, so in practice
-    // this just means "clear" works the way an admin would expect.
     const data: UpdateUserProfileData = {};
     if (dto.fullName !== undefined) data.fullName = dto.fullName;
     if (dto.computerName !== undefined) data.computerName = dto.computerName || null;
     if (dto.position !== undefined) data.position = dto.position || null;
     if (dto.department !== undefined) data.department = dto.department || null;
-    if (dto.company !== undefined) data.company = dto.company || null;
-    if (dto.city !== undefined) data.city = dto.city || null;
     if (dto.phone !== undefined) data.phone = dto.phone || null;
+
+    if (dto.company !== undefined) {
+      if (dto.company !== user.company) {
+        const resolved = await this.resolveCompanyAndCity(dto.company, undefined);
+        data.company = resolved.company ?? null;
+        data.companyId = resolved.companyId ?? null;
+      }
+    }
+    if (dto.city !== undefined) {
+      if (dto.city !== user.city) {
+        const resolved = await this.resolveCompanyAndCity(undefined, dto.city);
+        data.city = resolved.city ?? null;
+        data.cityId = resolved.cityId ?? null;
+      }
+    }
 
     await this.usersRepository.updateProfile(id, data);
     return this.toPublicUserWithGroup({ ...user, ...data });
@@ -483,10 +523,10 @@ export class UsersService {
     }
 
     if (dto.computerName === '' && user.computerName) {
-      throw new BadRequestException('Имя компьютера нельзя очистить, если оно уже указано');
+      throw new BadRequestException('Computer name cannot be cleared once set');
     }
     if (dto.phone === '' && user.phone) {
-      throw new BadRequestException('Телефон нельзя очистить, если он уже указан');
+      throw new BadRequestException('Phone cannot be cleared once set');
     }
 
     const data: UpdateUserProfileData = {};
@@ -509,13 +549,15 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    await this.assertKnownCompanyAndCity(dto.company, dto.city);
+    const resolved = await this.resolveCompanyAndCity(dto.company, dto.city);
 
     const data: UpdateUserProfileData = {
       position: dto.position,
       department: dto.department,
-      company: dto.company,
-      city: dto.city,
+      company: resolved.company ?? dto.company,
+      companyId: resolved.companyId ?? null,
+      city: resolved.city ?? dto.city,
+      cityId: resolved.cityId ?? null,
       phone: dto.phone,
       computerName: dto.computerName || null,
       profileCompletedAt: new Date(),
@@ -603,7 +645,7 @@ export class UsersService {
     }
     await this.assertAdminActionAllowed(actor, user);
     if (user.role === UserRole.ADMIN && !user.cannotManageAdmins) {
-      throw new ForbiddenException('Полноправного администратора нельзя удалить — только деактивировать');
+      throw new ForbiddenException('Full administrator cannot be deleted — only deactivated');
     }
 
     await this.dataSource.transaction(async (manager) => {
@@ -724,19 +766,19 @@ export class UsersService {
   ): Promise<void> {
     if (user.passwordHash) {
       if (!currentPassword || !(await bcrypt.compare(currentPassword, user.passwordHash))) {
-        throw new UnauthorizedException('Неверный текущий пароль');
+        throw new UnauthorizedException('Invalid current password');
       }
     } else if (!user.twoFactorEnabled) {
       // Directory-provisioned/linked account (authProvider !== LOCAL) with
       // no local password and no 2FA — there's no factor this self-service
       // check can verify. Only a different admin acting on this account can
       // proceed from here (assertAdminActionAllowed's non-self branch).
-      throw new UnauthorizedException('Самостоятельное подтверждение недоступно для этой учётной записи');
+      throw new UnauthorizedException('Self-service confirmation is not available for this account');
     }
     if (user.twoFactorEnabled) {
       const secret = user.totpSecretEncrypted ? this.totpEncryptionService.decrypt(user.totpSecretEncrypted) : null;
       if (!secret || !totpCode || !this.totpService.verifyCode(secret, totpCode)) {
-        throw new UnauthorizedException('Неверный код подтверждения');
+        throw new UnauthorizedException('Invalid confirmation code');
       }
     }
   }
@@ -835,7 +877,7 @@ export class UsersService {
   // local" flow, so this is a hard stop, not a warning.
   private assertLocalAuthProvider(user: UserEntity): void {
     if (user.authProvider !== AuthProvider.LOCAL) {
-      throw new BadRequestException('Эта учётная запись управляется через AD/SSO — пароль задаётся не в VeloxDesk');
+      throw new BadRequestException('This account is managed via AD/SSO — password cannot be changed locally');
     }
   }
 

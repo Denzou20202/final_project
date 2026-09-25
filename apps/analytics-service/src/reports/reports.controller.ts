@@ -1,7 +1,7 @@
 import { CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '@veloxdesk/common';
 import type { JwtPayload } from '@veloxdesk/common';
 import { UserRole } from '@veloxdesk/types';
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AuditReportQueryDto } from './dto/audit-report-query.dto.js';
@@ -30,16 +30,25 @@ export class ReportsController {
 
   @Get('dashboard')
   getDashboard(@Query() query: ReportPeriodQueryDto, @CurrentUser() actor: JwtPayload) {
+    if (actor.role !== UserRole.ADMIN && actor.canViewReports === false) {
+      throw new ForbiddenException('Access to view reports is forbidden for your permission group');
+    }
     return this.reportsService.getDashboard(query, actor);
   }
 
   @Get('team-load')
   getTeamLoad(@Query() query: ReportPeriodQueryDto, @CurrentUser() actor: JwtPayload) {
+    if (actor.role !== UserRole.ADMIN && actor.canViewReports === false) {
+      throw new ForbiddenException('Access to view reports is forbidden for your permission group');
+    }
     return this.reportsService.getTeamLoad(query, actor);
   }
 
   @Get('export')
   async exportCsv(@Query() query: ReportPeriodQueryDto, @CurrentUser() actor: JwtPayload, @Res() res: Response): Promise<void> {
+    if (actor.role !== UserRole.ADMIN && (actor.canViewReports === false || actor.canExportReports === false)) {
+      throw new ForbiddenException('Report export is forbidden for your permission group');
+    }
     const csv = await this.reportsService.exportCsv(query, actor);
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="veloxdesk-report-${Date.now()}.csv"`);

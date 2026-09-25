@@ -7,6 +7,8 @@ export interface PermissionGroupInput {
   departmentIds?: string[];
   restrictToOwnTickets?: boolean;
   cannotBeAssignee?: boolean;
+  canViewReports?: boolean;
+  canExportReports?: boolean;
   requireTwoFactor?: boolean;
   ipWhitelist?: string[];
 }

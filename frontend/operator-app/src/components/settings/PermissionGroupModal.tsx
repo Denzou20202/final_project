@@ -28,6 +28,8 @@ export function PermissionGroupModal({
   const [departmentIds, setDepartmentIds] = useState<Set<string>>(new Set(existing?.departmentIds ?? []));
   const [restrictToOwnTickets, setRestrictToOwnTickets] = useState(existing?.restrictToOwnTickets ?? false);
   const [cannotBeAssignee, setCannotBeAssignee] = useState(existing?.cannotBeAssignee ?? false);
+  const [canViewReports, setCanViewReports] = useState(existing?.canViewReports ?? true);
+  const [canExportReports, setCanExportReports] = useState(existing?.canExportReports ?? true);
   const [requireTwoFactor, setRequireTwoFactor] = useState(existing?.requireTwoFactor ?? false);
   const [ipWhitelistText, setIpWhitelistText] = useState((existing?.ipWhitelist ?? []).join('\n'));
   const [ipError, setIpError] = useState<string | undefined>(undefined);
@@ -68,6 +70,8 @@ export function PermissionGroupModal({
       departmentIds: [...departmentIds],
       restrictToOwnTickets,
       cannotBeAssignee,
+      canViewReports,
+      canExportReports,
       requireTwoFactor,
       ipWhitelist,
     };
@@ -168,6 +172,30 @@ export function PermissionGroupModal({
             <span>
               <span className="block text-sm font-medium">{t('admin.permissionGroups.require2faLabel')}</span>
               <span className="block text-[11.5px] text-ink-faint">{t('admin.permissionGroups.require2faHint')}</span>
+            </span>
+          </label>
+
+          <label htmlFor="group-can-view-reports" className="flex items-start gap-2">
+            <Checkbox
+              id="group-can-view-reports"
+              checked={canViewReports}
+              onChange={(e) => setCanViewReports(e.target.checked)}
+            />
+            <span>
+              <span className="block text-sm font-medium">{t('admin.permissionGroups.canViewReportsLabel')}</span>
+              <span className="block text-[11.5px] text-ink-faint">{t('admin.permissionGroups.canViewReportsHint')}</span>
+            </span>
+          </label>
+
+          <label htmlFor="group-can-export-reports" className="flex items-start gap-2">
+            <Checkbox
+              id="group-can-export-reports"
+              checked={canExportReports}
+              onChange={(e) => setCanExportReports(e.target.checked)}
+            />
+            <span>
+              <span className="block text-sm font-medium">{t('admin.permissionGroups.canExportReportsLabel')}</span>
+              <span className="block text-[11.5px] text-ink-faint">{t('admin.permissionGroups.canExportReportsHint')}</span>
             </span>
           </label>
 

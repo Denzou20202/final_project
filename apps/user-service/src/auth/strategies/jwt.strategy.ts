@@ -49,7 +49,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.users.findOne({ where: { id: payload.sub }, select: ['id'] });
     if (!user) {
       this.validUserCache.delete(payload.sub);
-      throw new UnauthorizedException('Учётная запись деактивирована');
+      throw new UnauthorizedException('Account is deactivated');
     }
 
     this.validUserCache.set(payload.sub, Date.now() + VALID_USER_CACHE_TTL_MS);

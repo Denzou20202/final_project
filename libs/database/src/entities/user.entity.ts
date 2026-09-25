@@ -10,6 +10,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CityEntity } from './city.entity.js';
+import { CompanyEntity } from './company.entity.js';
 
 @Entity('users')
 // Prevents duplicate JIT-provisioned accounts on repeat directory logins —
@@ -95,8 +97,24 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   company?: string | null;
 
+  @Index()
+  @Column({ name: 'company_id', type: 'uuid', nullable: true })
+  companyId?: string | null;
+
+  @ManyToOne(() => CompanyEntity, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'company_id' })
+  companyEntity?: CompanyEntity | null;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   city?: string | null;
+
+  @Index()
+  @Column({ name: 'city_id', type: 'uuid', nullable: true })
+  cityId?: string | null;
+
+  @ManyToOne(() => CityEntity, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'city_id' })
+  cityEntity?: CityEntity | null;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   phone?: string | null;
@@ -163,6 +181,9 @@ export class UserEntity {
 
   @Column({ name: 'refresh_token_hash', type: 'varchar', length: 255, nullable: true })
   refreshTokenHash?: string | null;
+
+  @Column({ name: 'refresh_token_hashes', type: 'text', array: true, default: '{}' })
+  refreshTokenHashes!: string[];
 
   // Self-service interface language — see UsersController PATCH /users/me.
   // Defaults to 'ru' since that's what the UI was hardcoded to before this

@@ -50,6 +50,8 @@ export interface PublicUser {
   // False only when the user's group has «наблюдатель» (cannotBeAssignee)
   // set — assignee pickers must filter these out.
   canBeAssignee: boolean;
+  canViewReports?: boolean;
+  canExportReports?: boolean;
   // Real team membership (see PublicTeam) — resolved, not stored; a user
   // can technically belong to several teams, but EditUserModal's Отдел
   // dropdown (operator role) only shows/sets one.
@@ -153,6 +155,8 @@ export interface PublicTicket {
   updatedAt: string;
   closedAt: string | null;
   deletedAt: string | null;
+  pausedDurationMin?: number;
+  slaPausedAt?: string | null;
 }
 
 export interface PublicTicketPage {
@@ -337,6 +341,8 @@ export interface PublicPermissionGroup {
   departmentIds: string[];
   restrictToOwnTickets: boolean;
   cannotBeAssignee: boolean;
+  canViewReports: boolean;
+  canExportReports: boolean;
   requireTwoFactor: boolean;
   ipWhitelist: string[];
   memberCount: number;

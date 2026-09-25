@@ -82,7 +82,7 @@ export class TeamsService {
       await this.getTeamOrThrow(teamId);
       const user = await this.usersRepository.findOne({ where: { id: userId } });
       if (!user || ![UserRole.OPERATOR, UserRole.ADMIN].includes(user.role)) {
-        throw new BadRequestException('Только сотрудники (операторы/администраторы) могут быть добавлены в отдел');
+        throw new BadRequestException('Only staff members (operators/administrators) can be assigned to a department');
       }
     }
     await this.teamsRepository.setUserTeam(userId, teamId);
@@ -93,7 +93,7 @@ export class TeamsService {
     const ticketCount = await this.teamsRepository.countTicketsForTeam(id);
     if (ticketCount > 0) {
       throw new BadRequestException(
-        `Нельзя удалить отдел «${team.name}» — на него ссылаются тикеты (${ticketCount}). Сначала перенесите их в другой отдел.`,
+        `Cannot delete department «${team.name}» — it is referenced by ${ticketCount} ticket(s). Reassign them first.`,
       );
     }
     await this.teamsRepository.delete(id);
@@ -118,7 +118,7 @@ export class TeamsService {
       where: { id: In(unique), role: In([UserRole.OPERATOR, UserRole.ADMIN]) },
     });
     if (users.length !== unique.length) {
-      throw new BadRequestException('Один или несколько выбранных пользователей недоступны для назначения в отдел');
+      throw new BadRequestException('One or more selected users are unavailable for department assignment');
     }
     return unique;
   }

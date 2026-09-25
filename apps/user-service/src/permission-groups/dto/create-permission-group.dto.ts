@@ -38,6 +38,16 @@ export class CreatePermissionGroupDto {
   @IsBoolean()
   requireTwoFactor?: boolean;
 
+  @ApiPropertyOptional({ default: true, description: 'Разрешён ли просмотр отчётов' })
+  @IsOptional()
+  @IsBoolean()
+  canViewReports?: boolean;
+
+  @ApiPropertyOptional({ default: true, description: 'Разрешён ли экспорт отчётов в CSV' })
+  @IsOptional()
+  @IsBoolean()
+  canExportReports?: boolean;
+
   @ApiPropertyOptional({ type: [String], example: ['203.0.113.0/24'], description: 'Пусто = вход не ограничен по IP' })
   @IsOptional()
   @IsArray()

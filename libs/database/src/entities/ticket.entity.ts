@@ -127,6 +127,14 @@ export class TicketEntity {
   @JoinColumn({ name: 'sla_policy_id' })
   slaPolicy?: SlaPolicyEntity;
 
+  // Accumulated time in minutes spent in statuses where tracksSla = false
+  @Column({ name: 'paused_duration_min', type: 'int', default: 0 })
+  pausedDurationMin!: number;
+
+  // Timestamp when the ticket entered a status with tracksSla = false
+  @Column({ name: 'sla_paused_at', type: 'timestamptz', nullable: true })
+  slaPausedAt?: Date | null;
+
   // Default sort field for the ticket list — indexed so that common case
   // isn't a sequential scan + sort once the table has real volume.
   @Index()

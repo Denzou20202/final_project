@@ -84,7 +84,9 @@ export function IconRail({
   return (
     <aside className="flex h-full w-20 flex-none flex-col items-center border-r border-border bg-surface-sidebar/85 backdrop-blur-xl py-4">
       <div className="flex flex-1 flex-col items-center gap-2">
-        {CATEGORIES.map(({ path, labelKey, Icon }) => (
+        {CATEGORIES.filter(
+          (c) => c.path !== '/analytics' || isAdmin || me?.canViewReports !== false,
+        ).map(({ path, labelKey, Icon }) => (
           <RailButton
             key={path}
             Icon={Icon}

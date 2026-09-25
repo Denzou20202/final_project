@@ -15,7 +15,7 @@ export class TicketCategoriesService {
     const trimmed = name.trim();
     const collision = await this.categoriesRepository.findByName(trimmed);
     if (collision) {
-      throw new ConflictException(`Категория «${trimmed}» уже существует`);
+      throw new ConflictException(`Category "${trimmed}" already exists`);
     }
     const category = await this.categoriesRepository.create(
       trimmed,
@@ -42,7 +42,7 @@ export class TicketCategoriesService {
     if (nameChanged) {
       const collision = await this.categoriesRepository.findByName(trimmed);
       if (collision) {
-        throw new ConflictException(`Категория «${trimmed}» уже существует`);
+        throw new ConflictException(`Category "${trimmed}" already exists`);
       }
     }
 

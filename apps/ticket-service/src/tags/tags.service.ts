@@ -36,8 +36,8 @@ export class TagsService {
 
     if (nameChanged) {
       const collision = await this.tagsRepository.findByName(trimmed);
-      if (collision) {
-        throw new BadRequestException(`Метка с названием «${trimmed}» уже существует`);
+      if (collision && collision.id !== id) {
+        throw new BadRequestException(`Tag "${trimmed}" already exists`);
       }
     }
 
@@ -64,7 +64,7 @@ export class TagsService {
     let tag = await this.tagsRepository.findByName(trimmed);
     if (!tag) {
       if (actor.role !== UserRole.ADMIN) {
-        throw new BadRequestException('Тільки адміністратор може створювати нові мітки');
+        throw new BadRequestException('Only administrators can create new tags');
       }
       tag = await this.tagsRepository.findOrCreateByName(trimmed);
     }

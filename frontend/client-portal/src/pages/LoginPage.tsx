@@ -184,6 +184,21 @@ export default function LoginPage() {
   // fires once verifyTwoFactor/confirmTwoFactorRequired set a session below.
   const isStaff = role === 'operator' || role === 'admin';
   useEffect(() => {
+    if (audience === AuthAudience.STAFF) {
+      try {
+        const raw = localStorage.getItem('veloxdesk-staff-auth');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed?.state?.accessToken && (parsed?.state?.user?.role === 'operator' || parsed?.state?.user?.role === 'admin')) {
+            if (window.location.pathname !== '/staff/tickets') {
+              window.location.href = '/staff/tickets';
+              return;
+            }
+          }
+        }
+      } catch {}
+    }
+
     if (!accessToken) return;
     // Same re-assignment-loop guard as ProtectedRoute/api/client.ts — see
     // ProtectedRoute.tsx's comment for why this matters even though the URL
@@ -195,7 +210,7 @@ export default function LoginPage() {
     } else {
       navigate('/tickets', { replace: true });
     }
-  }, [accessToken, isStaff, navigate]);
+  }, [accessToken, audience, isStaff, navigate]);
 
   const onSubmit = (values: LoginFormValues) => {
     if (requiresCaptcha && !captchaToken) return;

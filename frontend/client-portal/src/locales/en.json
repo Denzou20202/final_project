@@ -44,14 +44,14 @@
   },
   "ticketStatus": {
     "open": "Open",
-    "unassigned": "New",
+    "unassigned": "Unassigned",
     "pending": "Pending",
     "resolved": "Handed off to developers",
     "closed": "Closed"
   },
   "ticketStatusFolder": {
     "open": "Open",
-    "unassigned": "New",
+    "unassigned": "Unassigned",
     "pending": "Pending",
     "resolved": "Handed off to developers",
     "closed": "Closed"

@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import { useEffect, useMemo, useState } from 'react';
 import Tilt from 'react-parallax-tilt';
 import { useTranslation } from 'react-i18next';
+import { useCurrentUser } from '../hooks/useAuth.js';
 import { useDashboard, useDownloadReportCsv, useTeamLoad } from '../hooks/useReports.js';
 import { useTicketStatuses } from '../hooks/useTicketStatuses.js';
 import { getErrorMessage } from '../lib/errors.js';
@@ -40,8 +41,12 @@ export default function AnalyticsPage() {
     return { from: from.toISOString(), to: to.toISOString() };
   }, [periodDays, refreshedAt]);
 
-  const { data: dashboard, isLoading: isDashboardLoading, error: dashboardError } = useDashboard(period);
-  const { data: teamLoad, isLoading: isTeamLoadLoading, error: teamLoadError } = useTeamLoad(period);
+  const { data: me } = useCurrentUser();
+  const canViewReports = me?.role === 'admin' || me?.canViewReports !== false;
+  const canExportReports = me?.role === 'admin' || me?.canExportReports !== false;
+
+  const { data: dashboard, isLoading: isDashboardLoading, error: dashboardError } = useDashboard(period, { enabled: canViewReports });
+  const { data: teamLoad, isLoading: isTeamLoadLoading, error: teamLoadError } = useTeamLoad(period, { enabled: canViewReports });
   const { data: statuses } = useTicketStatuses();
   const downloadCsv = useDownloadReportCsv();
   const loadError = dashboardError
@@ -78,14 +83,16 @@ export default function AnalyticsPage() {
               </option>
             ))}
           </select>
-          <button
-            type="button"
-            onClick={() => downloadCsv.mutate(period)}
-            disabled={downloadCsv.isPending}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-hover disabled:opacity-60"
-          >
-            {downloadCsv.isPending ? t('analytics.preparing') : t('analytics.exportCsv')}
-          </button>
+          {canExportReports && (
+            <button
+              type="button"
+              onClick={() => downloadCsv.mutate(period)}
+              disabled={downloadCsv.isPending}
+              className="rounded-lg bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-hover disabled:opacity-60"
+            >
+              {downloadCsv.isPending ? t('analytics.preparing') : t('analytics.exportCsv')}
+            </button>
+          )}
         </div>
       </div>
 

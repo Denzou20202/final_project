@@ -25,6 +25,12 @@ export class PermissionGroupEntity {
   @Column({ name: 'require_two_factor', type: 'boolean', default: false })
   requireTwoFactor!: boolean;
 
+  @Column({ name: 'can_view_reports', type: 'boolean', default: true })
+  canViewReports!: boolean;
+
+  @Column({ name: 'can_export_reports', type: 'boolean', default: true })
+  canExportReports!: boolean;
+
   // CIDR ranges (e.g. "203.0.113.0/24"); empty array = login not IP-restricted.
   @Column({ name: 'ip_whitelist', type: 'text', array: true, default: '{}' })
   ipWhitelist!: string[];

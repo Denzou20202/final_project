@@ -228,24 +228,34 @@ export function TicketAttributesPanel({ ticket }: { ticket: PublicTicket }) {
 
       <CustomFieldsSection ticketId={ticket.id} />
 
-      {slaPolicy && (
-        <div className="border-b border-border p-4">
-          <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-ink-faint">{t('ticketFields.sla')}</div>
-          <div className="text-[13px] text-ink-muted">{slaPolicy.name}</div>
-          <div className="mt-1 flex flex-col gap-0.5 text-[12px] text-ink-faint">
-            <span>
-              {t('ticketFields.responseBy', {
-                date: formatDateTime(addMinutes(ticket.createdAt, slaPolicy.responseTimeMin), i18n.language),
-              })}
-            </span>
-            <span>
-              {t('ticketFields.resolutionBy', {
-                date: formatDateTime(addMinutes(ticket.createdAt, slaPolicy.resolutionTimeMin), i18n.language),
-              })}
-            </span>
+      {slaPolicy && (() => {
+        const isSlaPaused = Boolean(ticket.slaPausedAt);
+        const effectivePausedMin =
+          (ticket.pausedDurationMin ?? 0) +
+          (ticket.slaPausedAt
+            ? Math.max(0, Math.floor((Date.now() - new Date(ticket.slaPausedAt).getTime()) / 60_000))
+            : 0);
+        return (
+          <div className="border-b border-border p-4">
+            <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-ink-faint">{t('ticketFields.sla')}</div>
+            <div className="text-[13px] text-ink-muted">{slaPolicy.name}</div>
+            <div className="mt-1 flex flex-col gap-0.5 text-[12px] text-ink-faint">
+              <span>
+                {t('ticketFields.responseBy', {
+                  date: formatDateTime(addMinutes(ticket.createdAt, slaPolicy.responseTimeMin + effectivePausedMin), i18n.language),
+                })}
+                {isSlaPaused && <span className="ml-1 font-medium text-amber-600 dark:text-amber-400">{t('ticketFields.slaPaused')}</span>}
+              </span>
+              <span>
+                {t('ticketFields.resolutionBy', {
+                  date: formatDateTime(addMinutes(ticket.createdAt, slaPolicy.resolutionTimeMin + effectivePausedMin), i18n.language),
+                })}
+                {isSlaPaused && <span className="ml-1 font-medium text-amber-600 dark:text-amber-400">{t('ticketFields.slaPaused')}</span>}
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <TagsSection ticketId={ticket.id} />
 

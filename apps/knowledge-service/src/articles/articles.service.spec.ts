@@ -1,5 +1,5 @@
 import { KnowledgeArticleStatus } from '@veloxdesk/types';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ArticlesService } from './articles.service.js';
 
 function makeArticle(overrides: Record<string, unknown> = {}) {
@@ -135,6 +135,31 @@ describe('ArticlesService.rate', () => {
     );
     await service.rate('article-1', { helpful: true }, true);
     expect(articlesRepository.incrementHelpful).toHaveBeenCalledWith('article-1');
+  });
+
+  it('records vote in Redis on first attempt and prevents repeat voting', async () => {
+    const redis = {
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue('OK'),
+    };
+    service = new ArticlesService(articlesRepository as never, {} as never, {} as never, redis as never);
+
+    articlesRepository.findById.mockResolvedValue(
+      makeArticle({ status: KnowledgeArticleStatus.PUBLISHED, isPublic: true }),
+    );
+
+    // First vote succeeds
+    await service.rate('article-1', { helpful: true }, false, 'ip:1.2.3.4');
+    expect(articlesRepository.incrementHelpful).toHaveBeenCalledWith('article-1');
+    expect(redis.set).toHaveBeenCalledWith('kb:vote:article-1:ip:1.2.3.4', '1', 'EX', 86400);
+
+    // Second vote with same voter key throws BadRequestException
+    redis.get.mockResolvedValue('1');
+    await expect(service.rate('article-1', { helpful: true }, false, 'ip:1.2.3.4')).rejects.toThrow(
+      BadRequestException,
+    );
+    // incrementHelpful should not have been called a second time
+    expect(articlesRepository.incrementHelpful).toHaveBeenCalledTimes(1);
   });
 });
 

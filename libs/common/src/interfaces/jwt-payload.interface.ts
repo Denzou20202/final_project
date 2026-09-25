@@ -16,4 +16,6 @@ export interface JwtPayload {
   departmentIds?: string[];
   restrictToOwnTickets?: boolean;
   cannotBeAssignee?: boolean;
+  canViewReports?: boolean;
+  canExportReports?: boolean;
 }

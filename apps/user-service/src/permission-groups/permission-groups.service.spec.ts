@@ -150,7 +150,7 @@ describe('PermissionGroupsService — self-escalation guard', () => {
 
   it('rejects update() when the actor is themselves a member of the target group', async () => {
     await expect(service.update('group-1', { requireTwoFactor: false }, actor as never)).rejects.toThrow(
-      'Нельзя изменить или удалить группу прав, в которую входите вы сами',
+      'You cannot modify or delete a permission group that you belong to',
     );
     expect(repository.update).not.toHaveBeenCalled();
     expect(repository.clearRefreshTokensForUserIds).not.toHaveBeenCalled();
@@ -158,7 +158,7 @@ describe('PermissionGroupsService — self-escalation guard', () => {
 
   it('rejects remove() when the actor is themselves a member of the target group', async () => {
     await expect(service.remove('group-1', actor as never)).rejects.toThrow(
-      'Нельзя изменить или удалить группу прав, в которую входите вы сами',
+      'You cannot modify or delete a permission group that you belong to',
     );
     expect(repository.delete).not.toHaveBeenCalled();
   });
@@ -169,7 +169,7 @@ describe('PermissionGroupsService — self-escalation guard', () => {
     repository.isRestrictedAdmin.mockResolvedValue(true);
 
     await expect(service.update('group-1', { requireTwoFactor: false }, actor as never)).rejects.toThrow(
-      'Ограниченный администратор не может управлять учётными записями администраторов',
+      'Scoped administrator cannot manage administrator accounts',
     );
     expect(repository.update).not.toHaveBeenCalled();
   });

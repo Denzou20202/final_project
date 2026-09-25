@@ -1,5 +1,6 @@
 import { CurrentUser, OptionalJwtAuthGuard } from '@veloxdesk/common';
 import type { JwtPayload } from '@veloxdesk/common';
+import type { Request } from 'express';
 import {
   Body,
   Controller,
@@ -10,6 +11,7 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -49,7 +51,13 @@ export class PublicArticlesController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post(':id/rate')
-  rate(@Param('id', ParseUUIDPipe) id: string, @Body() dto: RateArticleDto, @CurrentUser() actor?: JwtPayload) {
-    return this.articlesService.rate(id, dto, !!actor);
+  rate(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: RateArticleDto,
+    @CurrentUser() actor?: JwtPayload,
+    @Req() req?: Request,
+  ) {
+    const voterKey = actor?.sub ? `user:${actor.sub}` : `ip:${req?.ip || 'anonymous'}`;
+    return this.articlesService.rate(id, dto, !!actor, voterKey);
   }
 }

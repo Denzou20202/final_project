@@ -34,7 +34,7 @@ cp frontend/operator-app/.env.example frontend/operator-app/.env
 docker compose -f docker-compose.yml up -d
 ```
 
-Поднимет: Postgres, Redis, Elasticsearch, MinIO, тестовый SMTP/IMAP (Greenmail), nginx (с сертификатом из шага 3) для `https://localhost/`.
+Поднимет: Postgres, Redis, Elasticsearch, MinIO, тестовый SMTP/IMAP (Greenmail), nginx (с сертификатом из шага 3) для `https://localhost:8443/`.
 
 ## 5. Бакет для вложений (один раз)
 
@@ -69,8 +69,8 @@ npx nx run-many -t serve --all --parallel=9
 
 | Что | Адрес |
 |---|---|
-| Клиентский портал | `https://localhost/` |
-| Панель оператора | `https://localhost/staff/` |
+| Клиентский портал | `https://localhost:8443/` |
+| Панель оператора | `https://localhost:8443/staff/` |
 
 Браузер предупредит о небезопасном соединении (самоподписанный сертификат для локальной проверки) — это ожидаемо, нажмите "Продолжить" / "Advanced → Proceed".
 

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { fetchMe } from '../lib/api/users.api.js';
 import { getErrorMessage } from '../lib/errors.js';
-import { useAuthStore } from '../store/auth.store.js';
+import { saveStaffSessionToLocalStorage, useAuthStore } from '../store/auth.store.js';
 
 // Landing point for BOTH the client and staff OIDC flows (see
 // oidc-auth.controller.ts's callback — it always redirects here, to THIS
@@ -67,10 +67,12 @@ export default function OidcCallbackPage() {
         // the real user once known.
         useAuthStore.setState({ accessToken, refreshToken });
         const user = await fetchMe();
-        setSession(accessToken, refreshToken, user);
         if (user.role === 'operator' || user.role === 'admin') {
+          useAuthStore.getState().clear();
+          saveStaffSessionToLocalStorage(accessToken, refreshToken, user);
           window.location.href = '/staff/tickets';
         } else {
+          setSession(accessToken, refreshToken, user);
           navigate('/tickets', { replace: true });
         }
       } catch (err) {

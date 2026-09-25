@@ -18,16 +18,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const isHttpException = exception instanceof HttpException;
+    const rawStatus = (exception as { status?: unknown; statusCode?: unknown })?.status ??
+      (exception as { status?: unknown; statusCode?: unknown })?.statusCode;
+    const hasNumericStatus = typeof rawStatus === 'number' && rawStatus >= 400 && rawStatus < 600;
     const statusCode = isHttpException
       ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
+      : hasNumericStatus
+        ? rawStatus
+        : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const exceptionResponse = isHttpException ? exception.getResponse() : null;
+    const rawMessage = (exception as { message?: unknown })?.message;
     const message =
       typeof exceptionResponse === 'string'
         ? exceptionResponse
         : ((exceptionResponse as { message?: string | string[] })?.message ??
-          'Internal server error');
+          (typeof rawMessage === 'string' ? rawMessage : 'Internal server error'));
     // Optional, additive — most exceptions never set this and the response
     // shape is unchanged for them. Lets a specific endpoint (e.g. attachment
     // upload validation) attach a stable, language-independent identifier
@@ -37,7 +43,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const code =
       typeof exceptionResponse === 'string' ? undefined : (exceptionResponse as { code?: string })?.code;
 
-    if (!isHttpException) {
+    if (!isHttpException && statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
         `Unhandled exception on ${request.method} ${request.url}`,
         exception instanceof Error ? exception.stack : String(exception),

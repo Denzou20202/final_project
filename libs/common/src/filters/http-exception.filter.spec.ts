@@ -38,4 +38,22 @@ describe('HttpExceptionFilter', () => {
     expect(body).not.toHaveProperty('code');
     expect(body.message).toBe('plain message');
   });
+
+  it('maps raw Error with status/statusCode 413 to HTTP 413 instead of 500', () => {
+    const filter = new HttpExceptionFilter();
+    const { host, status, json } = createHost();
+
+    const rawError = new Error('request entity too large') as Error & { status: number };
+    rawError.status = 413;
+
+    filter.catch(rawError, host);
+
+    expect(status).toHaveBeenCalledWith(413);
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 413,
+        message: 'request entity too large',
+      }),
+    );
+  });
 });

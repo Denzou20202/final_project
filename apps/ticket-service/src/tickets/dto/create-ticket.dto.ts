@@ -14,6 +14,7 @@ export class CreateTicketDto {
   @ApiProperty({ example: 'Оформил заказ №1234, письмо с подтверждением не пришло' })
   @IsString()
   @MinLength(1)
+  @MaxLength(50000)
   description!: string;
 
   @ApiPropertyOptional({ enum: TicketPriority, default: TicketPriority.MEDIUM })

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsOptional, IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
 
 export class UpdateTicketDto {
   @ApiPropertyOptional()
@@ -12,6 +12,7 @@ export class UpdateTicketDto {
   @IsOptional()
   @IsString()
   @MinLength(1)
+  @MaxLength(50000)
   description?: string;
 
   @ApiPropertyOptional({ description: 'Ticket type id (see GET /ticket-types)' })

@@ -54,11 +54,11 @@ export class LdapConfigService {
     const lastTestSuccessAt = connectionChanged ? null : (existing?.lastTestSuccessAt ?? null);
     if (enabled && !lastTestSuccessAt) {
       throw new BadRequestException(
-        'Перед включением проверьте подключение (Test connection) — тест обязателен после любого изменения параметров',
+        'Test connection is required after changing parameters before enabling LDAP',
       );
     }
     if (enabled && !bindPasswordEncrypted) {
-      throw new BadRequestException('Укажите пароль служебной учётной записи перед включением');
+      throw new BadRequestException('Service account password must be provided before enabling LDAP');
     }
 
     const saved = await this.repository.save(
@@ -102,7 +102,7 @@ export class LdapConfigService {
       throw new NotFoundException('LDAP config not found — save it first');
     }
     if (!config.bindPasswordEncrypted) {
-      throw new BadRequestException('Укажите пароль служебной учётной записи перед проверкой подключения');
+      throw new BadRequestException('Service account password must be provided before testing connection');
     }
 
     const result = await testLdapConnection(this.toConnectionParams(config, config.bindPasswordEncrypted));
@@ -149,8 +149,8 @@ export class LdapConfigService {
     if (!allowed.includes(defaultRole)) {
       throw new BadRequestException(
         audience === AuthAudience.CLIENT
-          ? 'Для клиентской аудитории роль по умолчанию должна быть «Клиент»'
-          : 'Для сотрудников роль по умолчанию должна быть «Оператор» или «Администратор»',
+          ? 'Default role for client audience must be Client'
+          : 'Default role for staff audience must be Operator or Administrator',
       );
     }
   }

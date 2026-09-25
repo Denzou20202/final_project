@@ -1,6 +1,7 @@
 import { decodeCursor, encodeCursor, JwtPayload, sanitizeArticleBody } from '@veloxdesk/common';
 import { KnowledgeArticleStatus } from '@veloxdesk/types';
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Optional } from '@nestjs/common';
+import { Redis } from 'ioredis';
 import { S3Service } from '../article-images/s3.service.js';
 import { ARTICLES_INDEX, ElasticsearchService } from '../elasticsearch/elasticsearch.service.js';
 import { ArticlesRepository } from './articles.repository.js';
@@ -44,6 +45,7 @@ export class ArticlesService {
     private readonly articlesRepository: ArticlesRepository,
     private readonly elasticsearch: ElasticsearchService,
     private readonly s3: S3Service,
+    @Optional() @Inject('REDIS_CLIENT') private readonly redis?: Redis,
   ) {}
 
   async create(dto: CreateArticleDto, actor: JwtPayload): Promise<PublicArticle> {
@@ -180,7 +182,7 @@ export class ArticlesService {
   // (see the entity's own comment). Same published+visibility guard as
   // reading the article, so a rating can't be recorded against a
   // draft/private/removed one via a guessed id.
-  async rate(id: string, dto: RateArticleDto, includePrivate = false): Promise<void> {
+  async rate(id: string, dto: RateArticleDto, includePrivate = false, voterKey?: string): Promise<void> {
     const article = await this.getArticleOrThrow(id);
     if (article.status !== KnowledgeArticleStatus.PUBLISHED) {
       throw new NotFoundException('Article not found');
@@ -188,10 +190,33 @@ export class ArticlesService {
     if (!article.isPublic && !includePrivate) {
       throw new NotFoundException('Article not found');
     }
+
+    if (voterKey && this.redis) {
+      const redisKey = `kb:vote:${id}:${voterKey}`;
+      let alreadyVoted: string | null = null;
+      try {
+        alreadyVoted = await this.redis.get(redisKey);
+      } catch (err) {
+        this.logger.warn(`Redis vote check failed for ${redisKey}: ${err instanceof Error ? err.message : err}`);
+      }
+      if (alreadyVoted) {
+        throw new BadRequestException('You have already voted on this article');
+      }
+    }
+
     if (dto.helpful) {
       await this.articlesRepository.incrementHelpful(id);
     } else {
       await this.articlesRepository.incrementNotHelpful(id);
+    }
+
+    if (voterKey && this.redis) {
+      const redisKey = `kb:vote:${id}:${voterKey}`;
+      try {
+        await this.redis.set(redisKey, '1', 'EX', 86400);
+      } catch (err) {
+        this.logger.warn(`Failed to record vote key in Redis: ${err instanceof Error ? err.message : err}`);
+      }
     }
   }
 

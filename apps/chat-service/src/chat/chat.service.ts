@@ -22,7 +22,7 @@ import { AutomationTrigger, Locale, NotificationType, TicketActivityType, UserRo
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException } from '@nestjs/websockets';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { PublicComment, toPublicComment } from './comment.public.js';
 import { TelegramOutboundService } from './telegram-outbound.service.js';
 
@@ -111,12 +111,12 @@ export class ChatService {
     // editing a past message included. Reopening (status back to OPEN) is
     // the only way back in, same escape hatch for every role.
     if (ticket.status.isClosed) {
-      throw new WsException('Тикет завершён — изменение сообщений недоступно');
+      throw new WsException('Ticket is closed — message editing is not allowed');
     }
     // A trashed ticket is readable (getTicketForParticipant resolves it with
     // withDeleted) but frozen — restore it first to edit a message.
     if (ticket.deletedAt) {
-      throw new WsException('Тикет в корзине — сначала восстановите его');
+      throw new WsException('Ticket is in trash — restore it first');
     }
 
     const comment = await this.commentsRepository.findOne({
@@ -166,11 +166,11 @@ export class ChatService {
     // way back in; this rule applies uniformly rather than carving out an
     // admin/internal-note exception, so it stays simple to reason about.
     if (ticket.status.isClosed) {
-      throw new WsException('Тикет завершён — новые сообщения недоступны');
+      throw new WsException('Ticket is closed — new messages are not allowed');
     }
     // Same reasoning as editMessage above.
     if (ticket.deletedAt) {
-      throw new WsException('Тикет в корзине — сначала восстановите его');
+      throw new WsException('Ticket is in trash — restore it first');
     }
 
     // Same gap as ticket-service's create() — the mandatory onboarding form
@@ -183,7 +183,7 @@ export class ChatService {
         select: ['id', 'profileCompletedAt'],
       });
       if (!client?.profileCompletedAt) {
-        throw new WsException('Перед отправкой сообщения необходимо заполнить профиль');
+        throw new WsException('Profile completion is required before sending messages');
       }
     }
 
@@ -191,6 +191,33 @@ export class ChatService {
     // hidden in the UI, regardless of what a raw socket call claims.
     const internal = isInternal && actor.role !== UserRole.CLIENT;
     const sanitizedBody = sanitizeCommentBody(body);
+
+    // Operator or admin reply to an unassigned ticket auto-assigns the ticket
+    // to the operator.
+    if (actor.role !== UserRole.CLIENT && !ticket.assignedTo) {
+      if (this.ticketsRepository?.update) {
+        try {
+          await this.ticketsRepository.update(
+            { id: ticket.id, assignedTo: IsNull() },
+            { assignedTo: actor.sub },
+          );
+          if (this.activityRepository?.insert) {
+            await this.activityRepository.insert({
+              ticketId: ticket.id,
+              actorId: actor.sub,
+              type: TicketActivityType.ASSIGNED,
+              fromValue: null,
+              toValue: actor.sub,
+            });
+          }
+          ticket.assignedTo = actor.sub;
+        } catch (error) {
+          this.logger.warn(
+            `Failed to auto-assign ticket ${ticket.id} to ${actor.sub}: ${error instanceof Error ? error.message : error}`,
+          );
+        }
+      }
+    }
 
     const comment = this.commentsRepository.create({
       ticketId: ticket.id,

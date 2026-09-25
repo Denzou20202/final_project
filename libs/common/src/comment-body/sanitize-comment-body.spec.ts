@@ -80,18 +80,30 @@ describe('sanitizeCommentBody', () => {
     expect(sanitizeCommentBody(html)).toBe('<table><tbody><tr><td>x</td></tr></tbody></table>');
   });
 
-  it('allows an img with an http(s) src, same shape as sanitizeArticleBody', () => {
-    const html = '<p><img src="https://example.com/screenshot.png" alt="скрин"></p>';
-    expect(sanitizeCommentBody(html)).toBe('<p><img src="https://example.com/screenshot.png" alt="скрин" /></p>');
+  it('allows an img with an internal relative path (/api/public/images/...)', () => {
+    const html = '<p><img src="/api/public/images/screenshot-123.png" alt="скрин"></p>';
+    expect(sanitizeCommentBody(html)).toBe('<p><img src="/api/public/images/screenshot-123.png" alt="скрин" /></p>');
   });
 
-  it('strips a data: src off an img, keeping only alt', () => {
+  it('allows an img with an internal attachment path (/api/attachments/...)', () => {
+    const html = '<p><img src="/api/attachments/3fa85f64-5717-4562-b3fc-2c963f66afa6" alt="вложение"></p>';
+    expect(sanitizeCommentBody(html)).toBe('<p><img src="/api/attachments/3fa85f64-5717-4562-b3fc-2c963f66afa6" alt="вложение" /></p>');
+  });
+
+  it('neutralizes an external http(s) img into a safe link to prevent tracking pixels', () => {
+    const html = '<p><img src="https://example.com/pixel.png" alt="трекер"></p>';
+    expect(sanitizeCommentBody(html)).toBe(
+      '<p><a href="https://example.com/pixel.png" target="_blank" rel="noopener noreferrer">[Изображение: трекер]</a></p>',
+    );
+  });
+
+  it('strips a data: src off an img to prevent payload injection', () => {
     const html = '<p><img src="data:image/png;base64,aaaa" alt="x"></p>';
-    expect(sanitizeCommentBody(html)).toBe('<p><img alt="x" /></p>');
+    expect(sanitizeCommentBody(html)).toBe('<p><span></span></p>');
   });
 
-  it('strips a javascript: src off an img, keeping only alt', () => {
+  it('strips a javascript: src off an img', () => {
     const html = '<p><img src="javascript:alert(1)" alt="x"></p>';
-    expect(sanitizeCommentBody(html)).toBe('<p><img alt="x" /></p>');
+    expect(sanitizeCommentBody(html)).toBe('<p><span></span></p>');
   });
 });

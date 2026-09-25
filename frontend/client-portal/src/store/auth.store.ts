@@ -11,12 +11,25 @@ interface AuthState {
   clear: () => void;
 }
 
-// Same storage key as operator-app's auth store, deliberately — both apps
-// are served from the same origin (just different path prefixes, / vs
-// /staff/), so one shared login page can write a session here and a full
-// browser navigation into the other app picks it up already authenticated,
-// with no second login prompt. See ProtectedRoute in both apps for the
-// role-based redirect this enables.
+export const CLIENT_AUTH_STORAGE_KEY = 'veloxdesk-client-auth';
+export const STAFF_AUTH_STORAGE_KEY = 'veloxdesk-staff-auth';
+
+export function saveStaffSessionToLocalStorage(accessToken: string, refreshToken: string, user: PublicUser) {
+  try {
+    localStorage.setItem(
+      STAFF_AUTH_STORAGE_KEY,
+      JSON.stringify({
+        state: { accessToken, refreshToken, user },
+        version: 0,
+      }),
+    );
+  } catch (err) {
+    console.error('Failed to save staff session to storage', err);
+  }
+}
+
+// Client portal uses a distinct localStorage key to prevent session collisions
+// with operator-app on the same origin (e.g. https://localhost:8443).
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -27,6 +40,7 @@ export const useAuthStore = create<AuthState>()(
       setAccessToken: (accessToken) => set({ accessToken }),
       clear: () => set({ accessToken: null, refreshToken: null, user: null }),
     }),
-    { name: 'veloxdesk-auth' },
+    { name: CLIENT_AUTH_STORAGE_KEY },
   ),
 );
+

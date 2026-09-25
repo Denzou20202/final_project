@@ -41,6 +41,16 @@ export class UpdatePermissionGroupDto {
   @IsBoolean()
   requireTwoFactor?: boolean;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  canViewReports?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  canExportReports?: boolean;
+
   @ApiPropertyOptional({ type: [String], example: ['203.0.113.0/24'] })
   @IsOptional()
   @IsArray()

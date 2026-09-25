@@ -42,6 +42,13 @@ const EXTERNAL_HTTP_HREF_RE = /^https?:\/\//i;
 // Also reused by ticket-service for the ticket-creation description, which
 // is now real Tiptap HTML too (NewTicketPage/CreateTicketModal both moved
 // off a plain <textarea>), same safety boundary as any other comment body.
+// Only local relative image endpoints served by the application
+// (/api/public/images/ for KB/chat inline images, /api/attachments/ for
+// ticket file attachments). Any external http/https image src is a potential
+// tracking pixel (or IP-leak vector) and is downgraded to a safe <a> link
+// instead of letting the browser silently fetch it.
+const INTERNAL_IMG_SRC_RE = /^\/api\/(public\/images|attachments)\/[\w.-]+(\/download)?$/i;
+
 export function sanitizeCommentBody(html: string): string {
   return sanitizeHtml(html, {
     allowedTags: [
@@ -71,7 +78,7 @@ export function sanitizeCommentBody(html: string): string {
       th: ['colspan', 'rowspan'],
       td: ['colspan', 'rowspan'],
     },
-    allowedSchemesByTag: { img: ['http', 'https'] },
+    allowedSchemesByTag: { img: [] },
     transformTags: {
       a: (_tagName, attribs): sanitizeHtml.Tag => {
         const href = attribs['href'] ?? '';
@@ -79,6 +86,26 @@ export function sanitizeCommentBody(html: string): string {
           return { tagName: 'span', attribs: {} };
         }
         return { tagName: 'a', attribs: { href, target: '_blank', rel: 'noopener noreferrer' } };
+      },
+      img: (_tagName, attribs): sanitizeHtml.Tag => {
+        const src = attribs['src'] ?? '';
+        if (INTERNAL_IMG_SRC_RE.test(src)) {
+          return {
+            tagName: 'img',
+            attribs: {
+              src,
+              ...(attribs['alt'] ? { alt: attribs['alt'] } : {}),
+            },
+          };
+        }
+        if (EXTERNAL_HTTP_HREF_RE.test(src)) {
+          return {
+            tagName: 'a',
+            attribs: { href: src, target: '_blank', rel: 'noopener noreferrer' },
+            text: attribs['alt'] ? `[Изображение: ${attribs['alt']}]` : '[Внешнее изображение]',
+          };
+        }
+        return { tagName: 'span', attribs: {} };
       },
     },
   });

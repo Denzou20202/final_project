@@ -7,6 +7,8 @@ export interface PublicPermissionGroup {
   departmentIds: string[];
   restrictToOwnTickets: boolean;
   cannotBeAssignee: boolean;
+  canViewReports: boolean;
+  canExportReports: boolean;
   requireTwoFactor: boolean;
   ipWhitelist: string[];
   memberCount: number;
@@ -25,6 +27,8 @@ export function toPublicPermissionGroup(
     departmentIds,
     restrictToOwnTickets: group.restrictToOwnTickets,
     cannotBeAssignee: group.cannotBeAssignee,
+    canViewReports: group.canViewReports ?? true,
+    canExportReports: group.canExportReports ?? true,
     requireTwoFactor: group.requireTwoFactor,
     ipWhitelist: group.ipWhitelist,
     memberCount,

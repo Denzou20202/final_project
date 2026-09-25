@@ -260,6 +260,7 @@
     "deactivatedSuffix": " (deactivated)",
     "responseBy": "Response by {{date}}",
     "resolutionBy": "Resolution by {{date}}",
+    "slaPaused": " (paused)",
     "deletedBanner": "This ticket is in Trash — restore it first to make changes"
   },
   "tags": {
@@ -675,6 +676,10 @@
       "observerHint": "Can't be assigned as a ticket's owner",
       "require2faLabel": "2FA required",
       "require2faHint": "Members must set up two-factor authentication at their next sign-in",
+      "canViewReportsLabel": "View reports",
+      "canViewReportsHint": "Allows viewing analytics and dashboards",
+      "canExportReportsLabel": "Export to CSV",
+      "canExportReportsHint": "Allows exporting reports to CSV",
       "ipWhitelistLabel": "IP whitelist for sign-in",
       "ipWhitelistHint": "One range per line. Empty means sign-in isn't restricted by IP.",
       "ipInvalid": "\"{{value}}\" doesn't look like CIDR (example: 203.0.113.0/24)"

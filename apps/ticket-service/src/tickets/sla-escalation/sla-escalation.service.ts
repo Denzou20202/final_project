@@ -30,15 +30,6 @@ export class SlaEscalationService {
     const candidates = await this.slaEscalationRepository.findResponseBreachCandidates();
 
     for (const ticket of candidates) {
-      const alreadyEscalated = await this.activityRepository.existsOfType(
-        ticket.id,
-        TicketActivityType.SLA_RESPONSE_BREACHED,
-      );
-      if (alreadyEscalated) continue;
-
-      const hasResponded = await this.slaEscalationRepository.hasOperatorResponse(ticket.id, ticket.createdBy);
-      if (hasResponded) continue;
-
       // Isolated per ticket — escalatePriority throws on a priority value it
       // doesn't recognize (stale/legacy data), and this loop must not let one
       // bad ticket abort the whole minute's batch (including the resolution
@@ -56,12 +47,6 @@ export class SlaEscalationService {
     const candidates = await this.slaEscalationRepository.findResolutionBreachCandidates();
 
     for (const ticket of candidates) {
-      const alreadyEscalated = await this.activityRepository.existsOfType(
-        ticket.id,
-        TicketActivityType.SLA_RESOLUTION_BREACHED,
-      );
-      if (alreadyEscalated) continue;
-
       try {
         await this.ticketsService.applySlaEscalation(ticket.id, TicketActivityType.SLA_RESOLUTION_BREACHED);
         this.logger.warn(`Resolution SLA breached for ticket ${ticket.id}`);

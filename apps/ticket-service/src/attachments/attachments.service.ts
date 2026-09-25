@@ -51,7 +51,7 @@ export class AttachmentsService {
     // new ticket content, whether it's being attached to an existing
     // comment or uploaded standalone, so this check applies either way.
     if (ticket.status.isClosed) {
-      throw new BadRequestException('Тикет завершён — новые сообщения недоступны');
+      throw new BadRequestException('Ticket is closed — new attachments are not allowed');
     }
 
     let internalComment = false;

@@ -19,6 +19,8 @@ export interface PublicTicket {
   categoryId: string | null;
   slaPolicyId: string | null;
   mergedIntoId: string | null;
+  pausedDurationMin: number;
+  slaPausedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   closedAt: Date | null;
@@ -82,6 +84,8 @@ export function toPublicTicket(ticket: TicketEntity): PublicTicket {
     categoryId: ticket.categoryId ?? null,
     slaPolicyId: ticket.slaPolicyId ?? null,
     mergedIntoId: ticket.mergedIntoId ?? null,
+    pausedDurationMin: ticket.pausedDurationMin ?? 0,
+    slaPausedAt: ticket.slaPausedAt ?? null,
     createdAt: ticket.createdAt,
     updatedAt: ticket.updatedAt,
     closedAt: ticket.closedAt ?? null,

@@ -30,17 +30,19 @@ import {
 } from '../lib/api/reports.api.js';
 import type { ReportFilters } from '../lib/types.js';
 
-export function useDashboard(period: ReportPeriod) {
+export function useDashboard(period: ReportPeriod, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['reports', 'dashboard', period],
     queryFn: () => fetchDashboard(period),
+    enabled: options?.enabled,
   });
 }
 
-export function useTeamLoad(period: ReportPeriod) {
+export function useTeamLoad(period: ReportPeriod, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['reports', 'team-load', period],
     queryFn: () => fetchTeamLoad(period),
+    enabled: options?.enabled,
   });
 }
 

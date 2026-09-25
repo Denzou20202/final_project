@@ -20,7 +20,7 @@ export class CitiesService {
     const trimmed = name.trim();
     const collision = await this.citiesRepository.findByName(trimmed);
     if (collision) {
-      throw new ConflictException(`Город «${trimmed}» уже существует`);
+      throw new ConflictException(`City "${trimmed}" already exists`);
     }
     try {
       const city = await this.citiesRepository.create(trimmed);
@@ -45,7 +45,7 @@ export class CitiesService {
 
     const collision = await this.citiesRepository.findByName(trimmed);
     if (collision) {
-      throw new ConflictException(`Город «${trimmed}» уже существует`);
+      throw new ConflictException(`City "${trimmed}" already exists`);
     }
 
     try {
@@ -58,7 +58,7 @@ export class CitiesService {
 
   private translateUniqueViolation(error: unknown, name: string): unknown {
     if (error instanceof QueryFailedError && (error as unknown as { code?: string }).code === UNIQUE_VIOLATION) {
-      return new ConflictException(`Город «${name}» уже существует`);
+      return new ConflictException(`City "${name}" already exists`);
     }
     return error;
   }
@@ -71,7 +71,7 @@ export class CitiesService {
     const userCount = await this.citiesRepository.countUsersWithCity(city.name);
     if (userCount > 0) {
       throw new BadRequestException(
-        `Нельзя удалить город «${city.name}» — он указан у клиентов (${userCount}). Сначала смените город в их профилях.`,
+        `Cannot delete city "${city.name}" — it is referenced by ${userCount} client(s). Reassign them first.`,
       );
     }
     await this.citiesRepository.delete(id);

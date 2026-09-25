@@ -105,7 +105,7 @@ export class AuthService {
     // case, and it's the one that generated the actual admin-facing spam
     // (fake pending-approval notifications) on 2026-08-26.
     if (!(await this.turnstileService.verify(dto.captchaToken, ip))) {
-      throw new BadRequestException({ message: 'Проверка на робота не пройдена', code: 'CAPTCHA_REQUIRED' });
+      throw new BadRequestException({ message: 'Captcha verification failed', code: 'CAPTCHA_REQUIRED' });
     }
     // Once AD/SSO is enabled for the client audience, local email+password
     // login is disabled outright for that group (no dual-mode fallback) —
@@ -116,7 +116,7 @@ export class AuthService {
       this.oidcConfigService.findEnabledForAudience(AuthAudience.CLIENT),
     ]);
     if (ldapConfig || oidcConfig) {
-      throw new BadRequestException('Регистрация недоступна — вход выполняется через AD/SSO вашей организации');
+      throw new BadRequestException('Registration is disabled — please sign in via your organization AD/SSO');
     }
 
     // withDeleted: email has a plain global unique index, not partial on
@@ -234,7 +234,7 @@ export class AuthService {
     // credential work, same principle as assertIpAllowed further down.
     if (await this.loginLockout.isBanned(ip)) {
       if (!(await this.turnstileService.verify(dto.captchaToken, ip))) {
-        throw new BadRequestException({ message: 'Подтвердите, что вы не робот', code: 'CAPTCHA_REQUIRED' });
+        throw new BadRequestException({ message: 'Captcha verification required', code: 'CAPTCHA_REQUIRED' });
       }
     }
     const audience = dto.audience ?? AuthAudience.CLIENT;
@@ -265,7 +265,7 @@ export class AuthService {
     ip: string,
   ): Promise<LoginResult> {
     if (user.deletedAt) {
-      throw new UnauthorizedException('Учётная запись деактивирована');
+      throw new UnauthorizedException('Account is deactivated');
     }
     // Self-registration (AuthService.register) leaves this null until an
     // admin approves it — every admin-created account already has it set
@@ -274,7 +274,7 @@ export class AuthService {
     // password could log straight in, bypassing the waiting screen (which
     // was only ever enforced client-side, by the registration page itself).
     if (!user.approvedAt) {
-      throw new UnauthorizedException('Регистрация ещё не одобрена администратором');
+      throw new UnauthorizedException('Registration is not approved by administrator yet');
     }
 
     // IP is checked once here, right after credentials are verified —
@@ -310,7 +310,7 @@ export class AuthService {
 
     const oidcConfig = await this.oidcConfigService.findEnabledForAudience(audience);
     if (oidcConfig) {
-      throw new UnauthorizedException('Вход по паролю недоступен — используйте вход через SSO');
+      throw new UnauthorizedException('Password login is disabled — please sign in via SSO');
     }
 
     const user = await this.localAuthProvider.validate(email, password);
@@ -349,18 +349,28 @@ export class AuthService {
     // simply can't mint a new access token once the current one expires,
     // no separate message needed here since this path isn't user-facing.
     const user = await this.usersService.findById(payload.sub);
-    if (!user?.refreshTokenHash || !refreshTokenMatches(refreshToken, user.refreshTokenHash)) {
+    const hashes = user?.refreshTokenHashes && user.refreshTokenHashes.length > 0
+      ? user.refreshTokenHashes
+      : (user?.refreshTokenHash ? [user.refreshTokenHash] : []);
+
+    const matchedHash = hashes.find((h) => refreshTokenMatches(refreshToken, h));
+    if (!matchedHash) {
       throw new UnauthorizedException('Refresh token has been revoked');
     }
 
-    const context = await this.resolvePermissionContext(user);
+    const context = await this.resolvePermissionContext(user!);
     this.assertIpAllowed(ip, context.group);
 
-    return this.issueTokens(user, context, user.refreshTokenHash);
+    return this.issueTokens(user!, context, matchedHash);
   }
 
-  async logout(userId: string): Promise<void> {
-    await this.usersService.setRefreshTokenHash(userId, null);
+  async logout(userId: string, refreshToken?: string): Promise<void> {
+    if (refreshToken) {
+      const hash = hashRefreshToken(refreshToken);
+      await this.usersService.removeRefreshTokenHash(userId, hash);
+    } else {
+      await this.usersService.setRefreshTokenHash(userId, null);
+    }
   }
 
   // ===== 2FA: self-service (already logged in) =====
@@ -379,7 +389,7 @@ export class AuthService {
 
   async confirmTwoFactor(userId: string, secret: string, token: string): Promise<void> {
     if (!this.totpService.verifyCode(secret, token)) {
-      throw new UnauthorizedException('Неверный код');
+      throw new UnauthorizedException('Invalid code');
     }
     await this.usersService.enableTwoFactor(userId, this.totpEncryptionService.encrypt(secret));
   }
@@ -387,23 +397,23 @@ export class AuthService {
   async disableTwoFactor(userId: string, password: string, token: string): Promise<void> {
     const user = await this.usersService.findById(userId);
     if (!user) {
-      throw new UnauthorizedException('Неверный пароль');
+      throw new UnauthorizedException('Invalid password');
     }
     if (user.passwordHash) {
       if (!(await bcrypt.compare(password, user.passwordHash))) {
-        throw new UnauthorizedException('Неверный пароль');
+        throw new UnauthorizedException('Invalid password');
       }
     } else if (!user.twoFactorEnabled) {
       // Directory-provisioned/linked account with no local password and no
       // 2FA to prove — mirrors UsersService.assertSelfReauth's same guard.
-      throw new UnauthorizedException('Самостоятельное отключение недоступно для этой учётной записи');
+      throw new UnauthorizedException('Self-service disable is not available for this account');
     }
     if (!user.twoFactorEnabled || !user.totpSecretEncrypted) {
-      throw new BadRequestException('2FA не включена');
+      throw new BadRequestException('Two-factor authentication is not enabled');
     }
     const secret = this.totpEncryptionService.decrypt(user.totpSecretEncrypted);
     if (!this.totpService.verifyCode(secret, token)) {
-      throw new UnauthorizedException('Неверный код');
+      throw new UnauthorizedException('Invalid code');
     }
     await this.usersService.disableTwoFactor(userId);
   }
@@ -443,11 +453,11 @@ export class AuthService {
     const userId = await this.verifyTwoFactorToken(challengeToken, TWO_FACTOR_CHALLENGE_PURPOSE);
     const user = await this.usersService.findById(userId);
     if (!user?.totpSecretEncrypted) {
-      throw new UnauthorizedException('2FA не настроена');
+      throw new UnauthorizedException('Two-factor authentication is not configured');
     }
     const secret = this.totpEncryptionService.decrypt(user.totpSecretEncrypted);
     if (!this.totpService.verifyCode(secret, token)) {
-      throw new UnauthorizedException('Неверный код');
+      throw new UnauthorizedException('Invalid code');
     }
     return this.issueTokens(user);
   }
@@ -478,7 +488,7 @@ export class AuthService {
   private assertIpAllowed(ip: string, group: PermissionGroupEntity | null): void {
     if (!group || group.ipWhitelist.length === 0) return;
     if (!isIpAllowed(ip, group.ipWhitelist)) {
-      throw new ForbiddenException('Вход с этого IP-адреса запрещён');
+      throw new ForbiddenException('Sign in from this IP address is forbidden');
     }
   }
 
@@ -528,6 +538,8 @@ export class AuthService {
         departmentIds,
         restrictToOwnTickets: group.restrictToOwnTickets,
         cannotBeAssignee: group.cannotBeAssignee,
+        canViewReports: group.canViewReports,
+        canExportReports: group.canExportReports,
       }),
     };
 
@@ -536,7 +548,7 @@ export class AuthService {
         secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
         expiresIn: this.configService.get<string>(
           'JWT_ACCESS_EXPIRES_IN',
-          '7d',
+          '15m',
         ) as JwtSignOptions['expiresIn'],
       }),
       this.jwtService.signAsync(payload, {
@@ -559,7 +571,7 @@ export class AuthService {
         throw new UnauthorizedException('Refresh token has been revoked');
       }
     } else {
-      await this.usersService.setRefreshTokenHash(user.id, newHash);
+      await this.usersService.addRefreshTokenHash(user.id, newHash);
     }
 
     return { accessToken, refreshToken, user: toPublicUser(user, group?.cannotBeAssignee ?? false) };

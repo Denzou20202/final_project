@@ -52,6 +52,9 @@ describe('AuthService', () => {
       | 'findByEmail'
       | 'findById'
       | 'setRefreshTokenHash'
+      | 'addRefreshTokenHash'
+      | 'removeRefreshTokenHash'
+      | 'rotateRefreshTokenHash'
       | 'enableTwoFactor'
       | 'disableTwoFactor'
       | 'create'
@@ -77,6 +80,9 @@ describe('AuthService', () => {
       findByEmail: jest.fn(),
       findById: jest.fn(),
       setRefreshTokenHash: jest.fn(),
+      addRefreshTokenHash: jest.fn(),
+      removeRefreshTokenHash: jest.fn(),
+      rotateRefreshTokenHash: jest.fn(),
       enableTwoFactor: jest.fn(),
       disableTwoFactor: jest.fn(),
       create: jest.fn(),
@@ -310,7 +316,7 @@ describe('AuthService', () => {
       turnstileService.verify.mockResolvedValue(false);
       await expect(
         service.login({ email: 'op@veloxdesk.local', password: 'correct-password', audience: AuthAudience.STAFF }, '1.2.3.4'),
-      ).rejects.toThrow('Подтвердите, что вы не робот');
+      ).rejects.toThrow('Captcha verification required');
       expect(usersService.findByEmail).not.toHaveBeenCalled();
     });
 
@@ -375,7 +381,7 @@ describe('AuthService', () => {
 
       await expect(
         service.register({ email: 'new@example.com', password: 'a-strong-password', fullName: 'Новый клиент', captchaToken: 'bad-token' }, '1.2.3.4'),
-      ).rejects.toThrow('Проверка на робота не пройдена');
+      ).rejects.toThrow('Captcha verification failed');
       expect(usersService.create).not.toHaveBeenCalled();
       expect(turnstileService.verify).toHaveBeenCalledWith('bad-token', '1.2.3.4');
     });
@@ -497,4 +503,54 @@ describe('AuthService', () => {
       expect(result).toHaveProperty('accessToken');
     });
   });
+
+  describe('multi-device refresh tokens', () => {
+    it('rotates matched token hash when user has multiple active devices', async () => {
+      const crypto = await import('crypto');
+      const token1 = 'refresh-token-phone';
+      const token2 = 'refresh-token-laptop';
+      const hash1 = crypto.createHash('sha256').update(token1).digest('hex');
+      const hash2 = crypto.createHash('sha256').update(token2).digest('hex');
+
+      jwtService.verifyAsync.mockResolvedValue({ sub: 'user-1' });
+      usersService.findById.mockResolvedValue(
+        makeUser({
+          refreshTokenHashes: [hash1, hash2],
+        }) as never,
+      );
+      usersService.rotateRefreshTokenHash.mockResolvedValue(true);
+
+      const result = await service.refresh(token2, '1.2.3.4');
+      expect(result).toHaveProperty('accessToken');
+      expect(usersService.rotateRefreshTokenHash).toHaveBeenCalledWith('user-1', hash2, expect.any(String));
+    });
+
+    it('rejects a revoked or unknown refresh token against multi-device hashes', async () => {
+      jwtService.verifyAsync.mockResolvedValue({ sub: 'user-1' });
+      usersService.findById.mockResolvedValue(
+        makeUser({
+          refreshTokenHashes: ['hash-a', 'hash-b'],
+        }) as never,
+      );
+
+      await expect(service.refresh('token-c', '1.2.3.4')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('removes only the current device hash on targeted logout', async () => {
+      const crypto = await import('crypto');
+      const token = 'token-to-revoke';
+      const hash = crypto.createHash('sha256').update(token).digest('hex');
+
+      await service.logout('user-1', token);
+      expect(usersService.removeRefreshTokenHash).toHaveBeenCalledWith('user-1', hash);
+      expect(usersService.setRefreshTokenHash).not.toHaveBeenCalled();
+    });
+
+    it('clears all device hashes on global logout', async () => {
+      await service.logout('user-1');
+      expect(usersService.setRefreshTokenHash).toHaveBeenCalledWith('user-1', null);
+      expect(usersService.removeRefreshTokenHash).not.toHaveBeenCalled();
+    });
+  });
 });
+

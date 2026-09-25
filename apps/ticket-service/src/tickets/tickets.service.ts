@@ -63,6 +63,34 @@ import { ticketSortValue, TicketFilters, TicketsRepository } from './tickets.rep
 
 const DEFAULT_PAGE_SIZE = 20;
 
+export function computeSlaPauseUpdate(
+  current: { pausedDurationMin?: number; slaPausedAt?: Date | null },
+  targetStatus: { tracksSla: boolean; isClosed: boolean },
+): { pausedDurationMin: number; slaPausedAt: Date | null } {
+  const currentDuration = current.pausedDurationMin ?? 0;
+  const wasPaused = !!current.slaPausedAt;
+
+  if (!targetStatus.tracksSla && !targetStatus.isClosed) {
+    return {
+      pausedDurationMin: currentDuration,
+      slaPausedAt: current.slaPausedAt ?? new Date(),
+    };
+  }
+
+  if (wasPaused && current.slaPausedAt) {
+    const elapsedMinutes = Math.max(0, Math.round((Date.now() - new Date(current.slaPausedAt).getTime()) / 60_000));
+    return {
+      pausedDurationMin: currentDuration + elapsedMinutes,
+      slaPausedAt: null,
+    };
+  }
+
+  return {
+    pausedDurationMin: currentDuration,
+    slaPausedAt: null,
+  };
+}
+
 @Injectable()
 export class TicketsService {
   private readonly logger = new Logger(TicketsService.name);
@@ -107,7 +135,7 @@ export class TicketsService {
         select: ['id', 'profileCompletedAt'],
       });
       if (!client?.profileCompletedAt) {
-        throw new BadRequestException('Перед созданием обращения необходимо заполнить профиль');
+        throw new BadRequestException('Profile completion is required before creating a ticket');
       }
     }
 
@@ -185,21 +213,12 @@ export class TicketsService {
 
       // Log creation activity within the same transaction so if activity logging fails,
       // the whole ticket creation rolls back atomically without leaving orphaned rows or 500 duplicates
-      if (this.activityRepository.logWithManager) {
-        await this.activityRepository.logWithManager(manager, {
-          ticketId: ticket.id,
-          actorId: actor.sub,
-          type: TicketActivityType.CREATED,
-          toValue: defaultStatus?.name ?? null,
-        });
-      } else {
-        await this.activityRepository.log({
-          ticketId: ticket.id,
-          actorId: actor.sub,
-          type: TicketActivityType.CREATED,
-          toValue: defaultStatus?.name ?? null,
-        });
-      }
+      await this.activityRepository.logWithManager(manager, {
+        ticketId: ticket.id,
+        actorId: actor.sub,
+        type: TicketActivityType.CREATED,
+        toValue: defaultStatus?.name ?? null,
+      });
 
       return { ticket, descriptionComment };
     });
@@ -458,10 +477,20 @@ export class TicketsService {
       });
     }
 
+    const sanitizedDescription = dto.description !== undefined ? sanitizeCommentBody(dto.description) : undefined;
+
     // The ticket write and its activity-log entries land atomically — same
     // reasoning as assign()/updateStatus() above.
     await this.dataSource.transaction(async (manager) => {
-      await manager.update(TicketEntity, { id }, { title: dto.title, description: dto.description, typeId: dto.typeId });
+      await manager.update(
+        TicketEntity,
+        { id },
+        {
+          title: dto.title,
+          ...(sanitizedDescription !== undefined && { description: sanitizedDescription }),
+          typeId: dto.typeId,
+        },
+      );
       if (edits.length > 0) {
         await manager.insert(TicketActivityEntity, edits);
       }
@@ -544,7 +573,17 @@ export class TicketsService {
         }
       }
 
-      await manager.update(TicketEntity, { id }, { statusId: targetStatus.id, closedAt });
+      const slaPause = computeSlaPauseUpdate(locked, targetStatus);
+      await manager.update(
+        TicketEntity,
+        { id },
+        {
+          statusId: targetStatus.id,
+          closedAt,
+          pausedDurationMin: slaPause.pausedDurationMin,
+          slaPausedAt: slaPause.slaPausedAt,
+        },
+      );
       // Status ID, not the display name — a name is a single fixed string,
       // so it could never translate for the audit log (TicketAuditModal's
       // ticketStatus.<key> lookup only ever matches the 4 seed statuses'
@@ -654,7 +693,7 @@ export class TicketsService {
     if (assignee.permissionGroupId) {
       const group = await this.permissionGroupsRepository.findOne({ where: { id: assignee.permissionGroupId } });
       if (group?.cannotBeAssignee) {
-        throw new BadRequestException('Пользователь не может быть назначен исполнителем — роль наблюдателя');
+        throw new BadRequestException('User cannot be assigned as assignee — observer role');
       }
     }
 
@@ -842,7 +881,7 @@ export class TicketsService {
     // several isClosed=true rows exist.
     const closedStatus = await this.ticketStatusesRepository.findClosedForSystemActions();
     if (!closedStatus) {
-      throw new BadRequestException('Нет доступного статуса «закрыт» — обратитесь к администратору.');
+      throw new BadRequestException('No closed status is available — please contact an administrator.');
     }
 
     await this.dataSource.transaction(async (manager) => {
@@ -1224,8 +1263,18 @@ export class TicketsService {
         ? null
         : (ticket.closedAt ?? null);
 
+    const slaPause = computeSlaPauseUpdate(ticket, targetStatus);
     await this.dataSource.transaction(async (manager) => {
-      await manager.update(TicketEntity, { id }, { statusId: targetStatus.id, closedAt });
+      await manager.update(
+        TicketEntity,
+        { id },
+        {
+          statusId: targetStatus.id,
+          closedAt,
+          pausedDurationMin: slaPause.pausedDurationMin,
+          slaPausedAt: slaPause.slaPausedAt,
+        },
+      );
       // Status ID, not the display name — see the same change in
       // updateStatus() above for why.
       await manager.insert(TicketActivityEntity, {

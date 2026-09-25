@@ -85,6 +85,8 @@ export class PermissionGroupsService {
     if (dto.restrictToDepartments !== undefined) patch.restrictToDepartments = dto.restrictToDepartments;
     if (dto.restrictToOwnTickets !== undefined) patch.restrictToOwnTickets = dto.restrictToOwnTickets;
     if (dto.cannotBeAssignee !== undefined) patch.cannotBeAssignee = dto.cannotBeAssignee;
+    if (dto.canViewReports !== undefined) patch.canViewReports = dto.canViewReports;
+    if (dto.canExportReports !== undefined) patch.canExportReports = dto.canExportReports;
     if (dto.requireTwoFactor !== undefined) patch.requireTwoFactor = dto.requireTwoFactor;
     if (dto.ipWhitelist !== undefined) patch.ipWhitelist = dto.ipWhitelist;
     if (Object.keys(patch).length > 0) {
@@ -168,12 +170,12 @@ export class PermissionGroupsService {
   private async assertGroupMutationAllowed(groupId: string, memberIds: string[], actor: JwtPayload): Promise<void> {
     if (memberIds.includes(actor.sub)) {
       throw new ForbiddenException(
-        'Нельзя изменить или удалить группу прав, в которую входите вы сами — это должен сделать другой администратор',
+        'You cannot modify or delete a permission group that you belong to — another administrator must perform this action',
       );
     }
     if (await this.permissionGroupsRepository.hasAdminMember(groupId)) {
       if (await this.permissionGroupsRepository.isRestrictedAdmin(actor.sub)) {
-        throw new ForbiddenException('Ограниченный администратор не может управлять учётными записями администраторов');
+        throw new ForbiddenException('Scoped administrator cannot manage administrator accounts');
       }
     }
   }
@@ -191,7 +193,7 @@ export class PermissionGroupsService {
     const unique = [...new Set(departmentIds)];
     const teams = await this.teamsRepository.find({ where: { id: In(unique) } });
     if (teams.length !== unique.length) {
-      throw new BadRequestException('Один или несколько выбранных отделов не найдены');
+      throw new BadRequestException('One or more selected departments were not found');
     }
     return unique;
   }

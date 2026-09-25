@@ -141,6 +141,8 @@ export interface PublicTicket {
   updatedAt: string;
   closedAt: string | null;
   deletedAt: string | null;
+  pausedDurationMin?: number;
+  slaPausedAt?: string | null;
   // Set once this ticket has been merged into another one (see
   // TicketsService.merge in ticket-service) — points at the surviving
   // ticket. TicketDetailPage redirects there automatically when set.
