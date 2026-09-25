@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict gJSg3J2sECoLd2jZkCuLvMulQGlRdcJAveyV1H9pjA67WiK88i23745vAYyCHoQ
+\restrict WakLLdZ66h9z6P1ELHxVHBXn6h82Qg5tARKDws90SqhACgdJPZ3TkhRjBOZ9ehj
 
 -- Dumped from database version 16.14 (Debian 16.14-1.pgdg13+1)
 -- Dumped by pg_dump version 16.14 (Debian 16.14-1.pgdg13+1)
@@ -26,14 +26,14 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
 
 --
--- Name: automation_rules_trigger_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: automation_rules_trigger_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.automation_rules_trigger_enum AS ENUM (
@@ -45,10 +45,8 @@ CREATE TYPE public.automation_rules_trigger_enum AS ENUM (
 );
 
 
-ALTER TYPE public.automation_rules_trigger_enum OWNER TO veloxdesk;
-
 --
--- Name: custom_field_definitions_field_type_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: custom_field_definitions_field_type_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.custom_field_definitions_field_type_enum AS ENUM (
@@ -63,10 +61,8 @@ CREATE TYPE public.custom_field_definitions_field_type_enum AS ENUM (
 );
 
 
-ALTER TYPE public.custom_field_definitions_field_type_enum OWNER TO veloxdesk;
-
 --
--- Name: knowledge_articles_status_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: knowledge_articles_status_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.knowledge_articles_status_enum AS ENUM (
@@ -75,10 +71,8 @@ CREATE TYPE public.knowledge_articles_status_enum AS ENUM (
 );
 
 
-ALTER TYPE public.knowledge_articles_status_enum OWNER TO veloxdesk;
-
 --
--- Name: ldap_configs_audience_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: ldap_configs_audience_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.ldap_configs_audience_enum AS ENUM (
@@ -87,10 +81,8 @@ CREATE TYPE public.ldap_configs_audience_enum AS ENUM (
 );
 
 
-ALTER TYPE public.ldap_configs_audience_enum OWNER TO veloxdesk;
-
 --
--- Name: ldap_configs_default_role_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: ldap_configs_default_role_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.ldap_configs_default_role_enum AS ENUM (
@@ -100,10 +92,8 @@ CREATE TYPE public.ldap_configs_default_role_enum AS ENUM (
 );
 
 
-ALTER TYPE public.ldap_configs_default_role_enum OWNER TO veloxdesk;
-
 --
--- Name: notifications_channel_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: notifications_channel_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.notifications_channel_enum AS ENUM (
@@ -113,10 +103,8 @@ CREATE TYPE public.notifications_channel_enum AS ENUM (
 );
 
 
-ALTER TYPE public.notifications_channel_enum OWNER TO veloxdesk;
-
 --
--- Name: notifications_type_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: notifications_type_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.notifications_type_enum AS ENUM (
@@ -129,10 +117,8 @@ CREATE TYPE public.notifications_type_enum AS ENUM (
 );
 
 
-ALTER TYPE public.notifications_type_enum OWNER TO veloxdesk;
-
 --
--- Name: oidc_configs_audience_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: oidc_configs_audience_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.oidc_configs_audience_enum AS ENUM (
@@ -141,10 +127,8 @@ CREATE TYPE public.oidc_configs_audience_enum AS ENUM (
 );
 
 
-ALTER TYPE public.oidc_configs_audience_enum OWNER TO veloxdesk;
-
 --
--- Name: oidc_configs_default_role_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: oidc_configs_default_role_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.oidc_configs_default_role_enum AS ENUM (
@@ -154,10 +138,8 @@ CREATE TYPE public.oidc_configs_default_role_enum AS ENUM (
 );
 
 
-ALTER TYPE public.oidc_configs_default_role_enum OWNER TO veloxdesk;
-
 --
--- Name: saved_reports_group_by_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: saved_reports_group_by_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.saved_reports_group_by_enum AS ENUM (
@@ -176,10 +158,8 @@ CREATE TYPE public.saved_reports_group_by_enum AS ENUM (
 );
 
 
-ALTER TYPE public.saved_reports_group_by_enum OWNER TO veloxdesk;
-
 --
--- Name: settings_audit_log_event_type_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: settings_audit_log_event_type_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.settings_audit_log_event_type_enum AS ENUM (
@@ -189,10 +169,8 @@ CREATE TYPE public.settings_audit_log_event_type_enum AS ENUM (
 );
 
 
-ALTER TYPE public.settings_audit_log_event_type_enum OWNER TO veloxdesk;
-
 --
--- Name: settings_audit_log_module_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: settings_audit_log_module_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.settings_audit_log_module_enum AS ENUM (
@@ -205,10 +183,8 @@ CREATE TYPE public.settings_audit_log_module_enum AS ENUM (
 );
 
 
-ALTER TYPE public.settings_audit_log_module_enum OWNER TO veloxdesk;
-
 --
--- Name: sla_policies_priority_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: sla_policies_priority_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.sla_policies_priority_enum AS ENUM (
@@ -219,10 +195,8 @@ CREATE TYPE public.sla_policies_priority_enum AS ENUM (
 );
 
 
-ALTER TYPE public.sla_policies_priority_enum OWNER TO veloxdesk;
-
 --
--- Name: ticket_activities_type_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: ticket_activities_type_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.ticket_activities_type_enum AS ENUM (
@@ -247,10 +221,8 @@ CREATE TYPE public.ticket_activities_type_enum AS ENUM (
 );
 
 
-ALTER TYPE public.ticket_activities_type_enum OWNER TO veloxdesk;
-
 --
--- Name: tickets_channel_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: tickets_channel_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.tickets_channel_enum AS ENUM (
@@ -260,10 +232,8 @@ CREATE TYPE public.tickets_channel_enum AS ENUM (
 );
 
 
-ALTER TYPE public.tickets_channel_enum OWNER TO veloxdesk;
-
 --
--- Name: tickets_priority_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: tickets_priority_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.tickets_priority_enum AS ENUM (
@@ -274,10 +244,8 @@ CREATE TYPE public.tickets_priority_enum AS ENUM (
 );
 
 
-ALTER TYPE public.tickets_priority_enum OWNER TO veloxdesk;
-
 --
--- Name: users_auth_provider_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: users_auth_provider_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.users_auth_provider_enum AS ENUM (
@@ -287,10 +255,8 @@ CREATE TYPE public.users_auth_provider_enum AS ENUM (
 );
 
 
-ALTER TYPE public.users_auth_provider_enum OWNER TO veloxdesk;
-
 --
--- Name: users_locale_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: users_locale_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.users_locale_enum AS ENUM (
@@ -300,10 +266,8 @@ CREATE TYPE public.users_locale_enum AS ENUM (
 );
 
 
-ALTER TYPE public.users_locale_enum OWNER TO veloxdesk;
-
 --
--- Name: users_role_enum; Type: TYPE; Schema: public; Owner: veloxdesk
+-- Name: users_role_enum; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.users_role_enum AS ENUM (
@@ -313,14 +277,12 @@ CREATE TYPE public.users_role_enum AS ENUM (
 );
 
 
-ALTER TYPE public.users_role_enum OWNER TO veloxdesk;
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: attachments; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: attachments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.attachments (
@@ -335,10 +297,8 @@ CREATE TABLE public.attachments (
 );
 
 
-ALTER TABLE public.attachments OWNER TO veloxdesk;
-
 --
--- Name: automation_rules; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: automation_rules; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.automation_rules (
@@ -354,10 +314,8 @@ CREATE TABLE public.automation_rules (
 );
 
 
-ALTER TABLE public.automation_rules OWNER TO veloxdesk;
-
 --
--- Name: cities; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: cities; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.cities (
@@ -367,10 +325,8 @@ CREATE TABLE public.cities (
 );
 
 
-ALTER TABLE public.cities OWNER TO veloxdesk;
-
 --
--- Name: comments; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: comments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.comments (
@@ -384,10 +340,8 @@ CREATE TABLE public.comments (
 );
 
 
-ALTER TABLE public.comments OWNER TO veloxdesk;
-
 --
--- Name: companies; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: companies; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.companies (
@@ -397,10 +351,8 @@ CREATE TABLE public.companies (
 );
 
 
-ALTER TABLE public.companies OWNER TO veloxdesk;
-
 --
--- Name: csat_answers; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: csat_answers; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.csat_answers (
@@ -414,10 +366,8 @@ CREATE TABLE public.csat_answers (
 );
 
 
-ALTER TABLE public.csat_answers OWNER TO veloxdesk;
-
 --
--- Name: csat_questions; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: csat_questions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.csat_questions (
@@ -430,10 +380,8 @@ CREATE TABLE public.csat_questions (
 );
 
 
-ALTER TABLE public.csat_questions OWNER TO veloxdesk;
-
 --
--- Name: csat_surveys; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: csat_surveys; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.csat_surveys (
@@ -444,10 +392,8 @@ CREATE TABLE public.csat_surveys (
 );
 
 
-ALTER TABLE public.csat_surveys OWNER TO veloxdesk;
-
 --
--- Name: custom_field_definitions; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: custom_field_definitions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.custom_field_definitions (
@@ -465,10 +411,8 @@ CREATE TABLE public.custom_field_definitions (
 );
 
 
-ALTER TABLE public.custom_field_definitions OWNER TO veloxdesk;
-
 --
--- Name: employee_status_history; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: employee_status_history; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.employee_status_history (
@@ -481,10 +425,8 @@ CREATE TABLE public.employee_status_history (
 );
 
 
-ALTER TABLE public.employee_status_history OWNER TO veloxdesk;
-
 --
--- Name: employee_statuses; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: employee_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.employee_statuses (
@@ -498,10 +440,8 @@ CREATE TABLE public.employee_statuses (
 );
 
 
-ALTER TABLE public.employee_statuses OWNER TO veloxdesk;
-
 --
--- Name: knowledge_articles; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: knowledge_articles; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.knowledge_articles (
@@ -522,10 +462,8 @@ CREATE TABLE public.knowledge_articles (
 );
 
 
-ALTER TABLE public.knowledge_articles OWNER TO veloxdesk;
-
 --
--- Name: knowledge_theme; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: knowledge_theme; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.knowledge_theme (
@@ -535,10 +473,8 @@ CREATE TABLE public.knowledge_theme (
 );
 
 
-ALTER TABLE public.knowledge_theme OWNER TO veloxdesk;
-
 --
--- Name: ldap_configs; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ldap_configs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ldap_configs (
@@ -562,10 +498,8 @@ CREATE TABLE public.ldap_configs (
 );
 
 
-ALTER TABLE public.ldap_configs OWNER TO veloxdesk;
-
 --
--- Name: macros; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: macros; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.macros (
@@ -578,10 +512,8 @@ CREATE TABLE public.macros (
 );
 
 
-ALTER TABLE public.macros OWNER TO veloxdesk;
-
 --
--- Name: migrations; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.migrations (
@@ -591,10 +523,8 @@ CREATE TABLE public.migrations (
 );
 
 
-ALTER TABLE public.migrations OWNER TO veloxdesk;
-
 --
--- Name: migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: veloxdesk
+-- Name: migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.migrations_id_seq
@@ -606,17 +536,15 @@ CREATE SEQUENCE public.migrations_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.migrations_id_seq OWNER TO veloxdesk;
-
 --
--- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: veloxdesk
+-- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.migrations_id_seq OWNED BY public.migrations.id;
 
 
 --
--- Name: notifications; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: notifications; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.notifications (
@@ -630,10 +558,8 @@ CREATE TABLE public.notifications (
 );
 
 
-ALTER TABLE public.notifications OWNER TO veloxdesk;
-
 --
--- Name: oidc_configs; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: oidc_configs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.oidc_configs (
@@ -655,10 +581,8 @@ CREATE TABLE public.oidc_configs (
 );
 
 
-ALTER TABLE public.oidc_configs OWNER TO veloxdesk;
-
 --
--- Name: permission_group_departments; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: permission_group_departments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.permission_group_departments (
@@ -667,10 +591,8 @@ CREATE TABLE public.permission_group_departments (
 );
 
 
-ALTER TABLE public.permission_group_departments OWNER TO veloxdesk;
-
 --
--- Name: permission_groups; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: permission_groups; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.permission_groups (
@@ -682,14 +604,14 @@ CREATE TABLE public.permission_groups (
     require_two_factor boolean DEFAULT false NOT NULL,
     ip_whitelist text[] DEFAULT '{}'::text[] NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    can_view_reports boolean DEFAULT true NOT NULL,
+    can_export_reports boolean DEFAULT true NOT NULL
 );
 
 
-ALTER TABLE public.permission_groups OWNER TO veloxdesk;
-
 --
--- Name: presence_settings; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: presence_settings; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.presence_settings (
@@ -698,10 +620,8 @@ CREATE TABLE public.presence_settings (
 );
 
 
-ALTER TABLE public.presence_settings OWNER TO veloxdesk;
-
 --
--- Name: saved_reports; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: saved_reports; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.saved_reports (
@@ -716,10 +636,8 @@ CREATE TABLE public.saved_reports (
 );
 
 
-ALTER TABLE public.saved_reports OWNER TO veloxdesk;
-
 --
--- Name: settings_audit_log; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: settings_audit_log; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.settings_audit_log (
@@ -734,10 +652,8 @@ CREATE TABLE public.settings_audit_log (
 );
 
 
-ALTER TABLE public.settings_audit_log OWNER TO veloxdesk;
-
 --
--- Name: sla_policies; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: sla_policies; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.sla_policies (
@@ -749,10 +665,8 @@ CREATE TABLE public.sla_policies (
 );
 
 
-ALTER TABLE public.sla_policies OWNER TO veloxdesk;
-
 --
--- Name: tags; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: tags; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.tags (
@@ -764,10 +678,8 @@ CREATE TABLE public.tags (
 );
 
 
-ALTER TABLE public.tags OWNER TO veloxdesk;
-
 --
--- Name: team_members; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: team_members; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.team_members (
@@ -777,10 +689,8 @@ CREATE TABLE public.team_members (
 );
 
 
-ALTER TABLE public.team_members OWNER TO veloxdesk;
-
 --
--- Name: teams; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: teams; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.teams (
@@ -792,10 +702,8 @@ CREATE TABLE public.teams (
 );
 
 
-ALTER TABLE public.teams OWNER TO veloxdesk;
-
 --
--- Name: ticket_activities; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ticket_activities; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ticket_activities (
@@ -811,10 +719,8 @@ CREATE TABLE public.ticket_activities (
 );
 
 
-ALTER TABLE public.ticket_activities OWNER TO veloxdesk;
-
 --
--- Name: ticket_categories; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ticket_categories; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ticket_categories (
@@ -826,10 +732,8 @@ CREATE TABLE public.ticket_categories (
 );
 
 
-ALTER TABLE public.ticket_categories OWNER TO veloxdesk;
-
 --
--- Name: ticket_custom_field_values; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ticket_custom_field_values; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ticket_custom_field_values (
@@ -840,10 +744,8 @@ CREATE TABLE public.ticket_custom_field_values (
 );
 
 
-ALTER TABLE public.ticket_custom_field_values OWNER TO veloxdesk;
-
 --
--- Name: ticket_mentions; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ticket_mentions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ticket_mentions (
@@ -854,10 +756,8 @@ CREATE TABLE public.ticket_mentions (
 );
 
 
-ALTER TABLE public.ticket_mentions OWNER TO veloxdesk;
-
 --
--- Name: ticket_statuses; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ticket_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ticket_statuses (
@@ -876,10 +776,8 @@ CREATE TABLE public.ticket_statuses (
 );
 
 
-ALTER TABLE public.ticket_statuses OWNER TO veloxdesk;
-
 --
--- Name: ticket_tags; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ticket_tags; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ticket_tags (
@@ -889,10 +787,8 @@ CREATE TABLE public.ticket_tags (
 );
 
 
-ALTER TABLE public.ticket_tags OWNER TO veloxdesk;
-
 --
--- Name: ticket_types; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ticket_types; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ticket_types (
@@ -910,10 +806,8 @@ CREATE TABLE public.ticket_types (
 );
 
 
-ALTER TABLE public.ticket_types OWNER TO veloxdesk;
-
 --
--- Name: ticket_watchers; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: ticket_watchers; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ticket_watchers (
@@ -924,10 +818,8 @@ CREATE TABLE public.ticket_watchers (
 );
 
 
-ALTER TABLE public.ticket_watchers OWNER TO veloxdesk;
-
 --
--- Name: tickets; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: tickets; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.tickets (
@@ -950,14 +842,14 @@ CREATE TABLE public.tickets (
     category_id uuid,
     channel public.tickets_channel_enum DEFAULT 'portal'::public.tickets_channel_enum NOT NULL,
     status_id uuid NOT NULL,
-    type_id uuid NOT NULL
+    type_id uuid NOT NULL,
+    paused_duration_min integer DEFAULT 0 NOT NULL,
+    sla_paused_at timestamp with time zone
 );
 
 
-ALTER TABLE public.tickets OWNER TO veloxdesk;
-
 --
--- Name: tickets_ticket_number_seq; Type: SEQUENCE; Schema: public; Owner: veloxdesk
+-- Name: tickets_ticket_number_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.tickets_ticket_number_seq
@@ -968,17 +860,15 @@ CREATE SEQUENCE public.tickets_ticket_number_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.tickets_ticket_number_seq OWNER TO veloxdesk;
-
 --
--- Name: tickets_ticket_number_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: veloxdesk
+-- Name: tickets_ticket_number_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.tickets_ticket_number_seq OWNED BY public.tickets.ticket_number;
 
 
 --
--- Name: user_extra_departments; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: user_extra_departments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.user_extra_departments (
@@ -987,10 +877,8 @@ CREATE TABLE public.user_extra_departments (
 );
 
 
-ALTER TABLE public.user_extra_departments OWNER TO veloxdesk;
-
 --
--- Name: users; Type: TABLE; Schema: public; Owner: veloxdesk
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.users (
@@ -1026,28 +914,29 @@ CREATE TABLE public.users (
     telegram_csat_draft text,
     telegram_pending_reply_to_ticket_id uuid,
     auth_provider public.users_auth_provider_enum DEFAULT 'local'::public.users_auth_provider_enum NOT NULL,
-    external_id character varying(255)
+    external_id character varying(255),
+    refresh_token_hashes text[] DEFAULT '{}'::text[] NOT NULL,
+    company_id uuid,
+    city_id uuid
 );
 
 
-ALTER TABLE public.users OWNER TO veloxdesk;
-
 --
--- Name: migrations id; Type: DEFAULT; Schema: public; Owner: veloxdesk
+-- Name: migrations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.migrations_id_seq'::regclass);
 
 
 --
--- Name: tickets ticket_number; Type: DEFAULT; Schema: public; Owner: veloxdesk
+-- Name: tickets ticket_number; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets ALTER COLUMN ticket_number SET DEFAULT nextval('public.tickets_ticket_number_seq'::regclass);
 
 
 --
--- Data for Name: attachments; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: attachments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.attachments (id, ticket_id, file_url, file_name, file_size, created_at, uploader_id, comment_id) FROM stdin;
@@ -1055,7 +944,7 @@ COPY public.attachments (id, ticket_id, file_url, file_name, file_size, created_
 
 
 --
--- Data for Name: automation_rules; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: automation_rules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.automation_rules (id, name, trigger, conditions, actions, is_enabled, sort_order, created_at, updated_at) FROM stdin;
@@ -1063,7 +952,7 @@ COPY public.automation_rules (id, name, trigger, conditions, actions, is_enabled
 
 
 --
--- Data for Name: cities; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: cities; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.cities (id, name, created_at) FROM stdin;
@@ -1072,7 +961,7 @@ COPY public.cities (id, name, created_at) FROM stdin;
 
 
 --
--- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.comments (id, ticket_id, author_id, body, is_internal, created_at, edited_at) FROM stdin;
@@ -1080,7 +969,7 @@ COPY public.comments (id, ticket_id, author_id, body, is_internal, created_at, e
 
 
 --
--- Data for Name: companies; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: companies; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.companies (id, name, created_at) FROM stdin;
@@ -1089,7 +978,7 @@ COPY public.companies (id, name, created_at) FROM stdin;
 
 
 --
--- Data for Name: csat_answers; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: csat_answers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.csat_answers (id, survey_id, ticket_id, question_id, question_text, score, created_at) FROM stdin;
@@ -1097,7 +986,7 @@ COPY public.csat_answers (id, survey_id, ticket_id, question_id, question_text, 
 
 
 --
--- Data for Name: csat_questions; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: csat_questions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.csat_questions (id, text, is_enabled, sort_order, created_at, updated_at) FROM stdin;
@@ -1105,7 +994,7 @@ COPY public.csat_questions (id, text, is_enabled, sort_order, created_at, update
 
 
 --
--- Data for Name: csat_surveys; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: csat_surveys; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.csat_surveys (id, ticket_id, submitted_at, created_at) FROM stdin;
@@ -1113,7 +1002,7 @@ COPY public.csat_surveys (id, ticket_id, submitted_at, created_at) FROM stdin;
 
 
 --
--- Data for Name: custom_field_definitions; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: custom_field_definitions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.custom_field_definitions (id, label, field_type, options, created_at, pattern, depends_on_field_id, condition_value, options_by_parent, label_uk, label_en) FROM stdin;
@@ -1121,7 +1010,7 @@ COPY public.custom_field_definitions (id, label, field_type, options, created_at
 
 
 --
--- Data for Name: employee_status_history; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: employee_status_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.employee_status_history (id, user_id, status_name, status_color, automatic, created_at) FROM stdin;
@@ -1129,7 +1018,7 @@ COPY public.employee_status_history (id, user_id, status_name, status_color, aut
 
 
 --
--- Data for Name: employee_statuses; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: employee_statuses; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.employee_statuses (id, name, color, created_at, updated_at, name_uk, name_en) FROM stdin;
@@ -1137,7 +1026,7 @@ COPY public.employee_statuses (id, name, color, created_at, updated_at, name_uk,
 
 
 --
--- Data for Name: knowledge_articles; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: knowledge_articles; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.knowledge_articles (id, title, content, author_id, status, published_at, created_at, updated_at, view_count, helpful_count, not_helpful_count, is_public, title_uk, title_en) FROM stdin;
@@ -1145,7 +1034,7 @@ COPY public.knowledge_articles (id, title, content, author_id, status, published
 
 
 --
--- Data for Name: knowledge_theme; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: knowledge_theme; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.knowledge_theme (id, custom_css, custom_js) FROM stdin;
@@ -1153,7 +1042,7 @@ COPY public.knowledge_theme (id, custom_css, custom_js) FROM stdin;
 
 
 --
--- Data for Name: ldap_configs; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ldap_configs; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ldap_configs (id, audience, enabled, url, bind_dn, bind_password_encrypted, search_base, user_filter_template, email_attribute, full_name_attribute, external_id_attribute, tls_reject_unauthorized, default_role, last_test_success_at, last_test_error, created_at, updated_at) FROM stdin;
@@ -1161,7 +1050,7 @@ COPY public.ldap_configs (id, audience, enabled, url, bind_dn, bind_password_enc
 
 
 --
--- Data for Name: macros; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: macros; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.macros (id, title, body, created_at, title_uk, title_en) FROM stdin;
@@ -1169,7 +1058,7 @@ COPY public.macros (id, title, body, created_at, title_uk, title_en) FROM stdin;
 
 
 --
--- Data for Name: migrations; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: migrations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.migrations (id, "timestamp", name) FROM stdin;
@@ -1237,11 +1126,15 @@ COPY public.migrations (id, "timestamp", name) FROM stdin;
 62	1788100000000	AddReportGroupByCategory1788100000000
 63	1788200000000	AddTicketActivityInternalFlag1788200000000
 64	1788300000000	AddCsatAnswersUniqueQuestionPerSurvey1788300000000
+65	1788400000000	AddTicketSlaPauseTracking1788400000000
+66	1788500000000	AddPermissionGroupReportFlags1788500000000
+67	1788600000000	AddUserRefreshTokenHashes1788600000000
+68	1788700000000	AddUserCompanyAndCityForeignKeys1788700000000
 \.
 
 
 --
--- Data for Name: notifications; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: notifications; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.notifications (id, user_id, type, channel, is_read, sent_at, ticket_id) FROM stdin;
@@ -1249,7 +1142,7 @@ COPY public.notifications (id, user_id, type, channel, is_read, sent_at, ticket_
 
 
 --
--- Data for Name: oidc_configs; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: oidc_configs; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.oidc_configs (id, audience, enabled, issuer_url, client_id, client_secret_encrypted, redirect_uri, scopes, email_claim, full_name_claim, default_role, last_test_success_at, last_test_error, created_at, updated_at) FROM stdin;
@@ -1257,7 +1150,7 @@ COPY public.oidc_configs (id, audience, enabled, issuer_url, client_id, client_s
 
 
 --
--- Data for Name: permission_group_departments; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: permission_group_departments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.permission_group_departments (permission_group_id, team_id) FROM stdin;
@@ -1265,15 +1158,15 @@ COPY public.permission_group_departments (permission_group_id, team_id) FROM std
 
 
 --
--- Data for Name: permission_groups; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: permission_groups; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.permission_groups (id, name, restrict_to_departments, restrict_to_own_tickets, cannot_be_assignee, require_two_factor, ip_whitelist, created_at, updated_at) FROM stdin;
+COPY public.permission_groups (id, name, restrict_to_departments, restrict_to_own_tickets, cannot_be_assignee, require_two_factor, ip_whitelist, created_at, updated_at, can_view_reports, can_export_reports) FROM stdin;
 \.
 
 
 --
--- Data for Name: presence_settings; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: presence_settings; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.presence_settings (id, inactivity_timeout_minutes) FROM stdin;
@@ -1281,7 +1174,7 @@ COPY public.presence_settings (id, inactivity_timeout_minutes) FROM stdin;
 
 
 --
--- Data for Name: saved_reports; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: saved_reports; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.saved_reports (id, name, group_by, filters, columns, created_by, created_at, updated_at) FROM stdin;
@@ -1289,7 +1182,7 @@ COPY public.saved_reports (id, name, group_by, filters, columns, created_by, cre
 
 
 --
--- Data for Name: settings_audit_log; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: settings_audit_log; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.settings_audit_log (id, actor_id, module, event_type, entity_id, entity_label, changes, created_at) FROM stdin;
@@ -1297,7 +1190,7 @@ COPY public.settings_audit_log (id, actor_id, module, event_type, entity_id, ent
 
 
 --
--- Data for Name: sla_policies; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: sla_policies; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.sla_policies (id, name, response_time_min, resolution_time_min, priority) FROM stdin;
@@ -1305,7 +1198,7 @@ COPY public.sla_policies (id, name, response_time_min, resolution_time_min, prio
 
 
 --
--- Data for Name: tags; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: tags; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.tags (id, name, created_at, name_uk, name_en) FROM stdin;
@@ -1313,7 +1206,7 @@ COPY public.tags (id, name, created_at, name_uk, name_en) FROM stdin;
 
 
 --
--- Data for Name: team_members; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: team_members; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.team_members (team_id, user_id, joined_at) FROM stdin;
@@ -1321,7 +1214,7 @@ COPY public.team_members (team_id, user_id, joined_at) FROM stdin;
 
 
 --
--- Data for Name: teams; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: teams; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.teams (id, name, created_at, name_uk, name_en) FROM stdin;
@@ -1329,7 +1222,7 @@ COPY public.teams (id, name, created_at, name_uk, name_en) FROM stdin;
 
 
 --
--- Data for Name: ticket_activities; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ticket_activities; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ticket_activities (id, ticket_id, actor_id, type, from_value, to_value, created_at, field, internal) FROM stdin;
@@ -1337,7 +1230,7 @@ COPY public.ticket_activities (id, ticket_id, actor_id, type, from_value, to_val
 
 
 --
--- Data for Name: ticket_categories; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ticket_categories; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ticket_categories (id, name, created_at, name_uk, name_en) FROM stdin;
@@ -1345,7 +1238,7 @@ COPY public.ticket_categories (id, name, created_at, name_uk, name_en) FROM stdi
 
 
 --
--- Data for Name: ticket_custom_field_values; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ticket_custom_field_values; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ticket_custom_field_values (id, ticket_id, field_id, value) FROM stdin;
@@ -1353,7 +1246,7 @@ COPY public.ticket_custom_field_values (id, ticket_id, field_id, value) FROM std
 
 
 --
--- Data for Name: ticket_mentions; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ticket_mentions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ticket_mentions (id, ticket_id, user_id, mentioned_at) FROM stdin;
@@ -1361,7 +1254,7 @@ COPY public.ticket_mentions (id, ticket_id, user_id, mentioned_at) FROM stdin;
 
 
 --
--- Data for Name: ticket_statuses; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ticket_statuses; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ticket_statuses (id, key, name, color, is_default, is_closed, tracks_sla, sort_order, created_at, updated_at, name_uk, name_en) FROM stdin;
@@ -1373,7 +1266,7 @@ COPY public.ticket_statuses (id, key, name, color, is_default, is_closed, tracks
 
 
 --
--- Data for Name: ticket_tags; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ticket_tags; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ticket_tags (id, ticket_id, tag_id) FROM stdin;
@@ -1381,7 +1274,7 @@ COPY public.ticket_tags (id, ticket_id, tag_id) FROM stdin;
 
 
 --
--- Data for Name: ticket_types; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ticket_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ticket_types (id, key, name, name_uk, name_en, color, is_default, weight, sort_order, created_at, updated_at) FROM stdin;
@@ -1393,7 +1286,7 @@ COPY public.ticket_types (id, key, name, name_uk, name_en, color, is_default, we
 
 
 --
--- Data for Name: ticket_watchers; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: ticket_watchers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.ticket_watchers (id, ticket_id, user_id, created_at) FROM stdin;
@@ -1401,15 +1294,15 @@ COPY public.ticket_watchers (id, ticket_id, user_id, created_at) FROM stdin;
 
 
 --
--- Data for Name: tickets; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: tickets; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.tickets (id, title, description, priority, created_by, assigned_to, team_id, sla_policy_id, created_at, updated_at, closed_at, deleted_at, external_thread_id, ticket_number, merged_into_id, created_on_behalf_by, category_id, channel, status_id, type_id) FROM stdin;
+COPY public.tickets (id, title, description, priority, created_by, assigned_to, team_id, sla_policy_id, created_at, updated_at, closed_at, deleted_at, external_thread_id, ticket_number, merged_into_id, created_on_behalf_by, category_id, channel, status_id, type_id, paused_duration_min, sla_paused_at) FROM stdin;
 \.
 
 
 --
--- Data for Name: user_extra_departments; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: user_extra_departments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.user_extra_departments (user_id, team_id) FROM stdin;
@@ -1417,31 +1310,31 @@ COPY public.user_extra_departments (user_id, team_id) FROM stdin;
 
 
 --
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: veloxdesk
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.users (id, email, password_hash, full_name, role, created_at, updated_at, deleted_at, refresh_token_hash, computer_name, "position", department, company, phone, city, permission_group_id, totp_secret_encrypted, two_factor_enabled, current_status_id, locale, merged_into_id, approved_at, cannot_manage_admins, profile_completed_at, is_vip, telegram_chat_id, telegram_link_token, telegram_link_token_expires_at, telegram_pending_new_ticket, telegram_csat_draft, telegram_pending_reply_to_ticket_id, auth_provider, external_id) FROM stdin;
-00000000-0000-4000-8000-000000000001	system@veloxdesk.local	$2b$10$o3OmjDELOzVHRodxUv6sk.NXLwr8OAnnxBMl3nC2xcZWPms.4mZH.	Автоответчик	operator	2026-08-25 05:11:37.41416+00	2026-08-25 05:11:37.41416+00	2026-08-25 05:11:37.41416+00	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	ru	\N	2026-08-25 05:11:37.41416+00	f	\N	f	\N	\N	\N	f	\N	\N	local	\N
-9b280da3-43a8-497b-80a0-bfb924d8dcd5	admin@veloxdesk.local	$2b$10$Zcky.tcoqJVAciT7XMgi.urMFmdvm48jw1io8cx0YLWzviitKNVNe	Admin	admin	2026-08-25 05:11:59.633695+00	2026-08-25 05:11:59.633695+00	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	ru	\N	2026-08-25 05:12:03.100211+00	f	\N	f	\N	\N	\N	f	\N	\N	local	\N
+COPY public.users (id, email, password_hash, full_name, role, created_at, updated_at, deleted_at, refresh_token_hash, computer_name, "position", department, company, phone, city, permission_group_id, totp_secret_encrypted, two_factor_enabled, current_status_id, locale, merged_into_id, approved_at, cannot_manage_admins, profile_completed_at, is_vip, telegram_chat_id, telegram_link_token, telegram_link_token_expires_at, telegram_pending_new_ticket, telegram_csat_draft, telegram_pending_reply_to_ticket_id, auth_provider, external_id, refresh_token_hashes, company_id, city_id) FROM stdin;
+00000000-0000-4000-8000-000000000001	system@veloxdesk.local	$2b$10$o3OmjDELOzVHRodxUv6sk.NXLwr8OAnnxBMl3nC2xcZWPms.4mZH.	Автоответчик	operator	2026-08-25 05:11:37.41416+00	2026-08-25 05:11:37.41416+00	2026-08-25 05:11:37.41416+00	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	ru	\N	2026-08-25 05:11:37.41416+00	f	\N	f	\N	\N	\N	f	\N	\N	local	\N	{}	\N	\N
+9b280da3-43a8-497b-80a0-bfb924d8dcd5	admin@veloxdesk.local	$2b$10$Zcky.tcoqJVAciT7XMgi.urMFmdvm48jw1io8cx0YLWzviitKNVNe	Admin	admin	2026-08-25 05:11:59.633695+00	2026-08-25 05:11:59.633695+00	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	\N	ru	\N	2026-08-25 05:12:03.100211+00	f	\N	f	\N	\N	\N	f	\N	\N	local	\N	{}	\N	\N
 \.
 
 
 --
--- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: veloxdesk
+-- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 62, true);
+SELECT pg_catalog.setval('public.migrations_id_seq', 68, true);
 
 
 --
--- Name: tickets_ticket_number_seq; Type: SEQUENCE SET; Schema: public; Owner: veloxdesk
+-- Name: tickets_ticket_number_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.tickets_ticket_number_seq', 1, false);
 
 
 --
--- Name: team_members PK_1d3c06a8217a8785e2af0ec4ab8; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: team_members PK_1d3c06a8217a8785e2af0ec4ab8; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.team_members
@@ -1449,7 +1342,7 @@ ALTER TABLE ONLY public.team_members
 
 
 --
--- Name: tickets PK_343bc942ae261cf7a1377f48fd0; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets PK_343bc942ae261cf7a1377f48fd0; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -1457,7 +1350,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: sla_policies PK_41b6803cef982534243a67b6302; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: sla_policies PK_41b6803cef982534243a67b6302; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sla_policies
@@ -1465,7 +1358,7 @@ ALTER TABLE ONLY public.sla_policies
 
 
 --
--- Name: knowledge_articles PK_4dff86fc9e08f53fe1d4cfe5fb1; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: knowledge_articles PK_4dff86fc9e08f53fe1d4cfe5fb1; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.knowledge_articles
@@ -1473,7 +1366,7 @@ ALTER TABLE ONLY public.knowledge_articles
 
 
 --
--- Name: attachments PK_5e1f050bcff31e3084a1d662412; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: attachments PK_5e1f050bcff31e3084a1d662412; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.attachments
@@ -1481,7 +1374,7 @@ ALTER TABLE ONLY public.attachments
 
 
 --
--- Name: notifications PK_6a72c3c0f683f6462415e653c3a; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: notifications PK_6a72c3c0f683f6462415e653c3a; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notifications
@@ -1489,7 +1382,7 @@ ALTER TABLE ONLY public.notifications
 
 
 --
--- Name: teams PK_7e5523774a38b08a6236d322403; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: teams PK_7e5523774a38b08a6236d322403; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.teams
@@ -1497,7 +1390,7 @@ ALTER TABLE ONLY public.teams
 
 
 --
--- Name: comments PK_8bf68bc960f2b69e818bdb90dcb; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: comments PK_8bf68bc960f2b69e818bdb90dcb; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.comments
@@ -1505,7 +1398,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- Name: migrations PK_8c82d7f526340ab734260ea46be; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: migrations PK_8c82d7f526340ab734260ea46be; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.migrations
@@ -1513,7 +1406,7 @@ ALTER TABLE ONLY public.migrations
 
 
 --
--- Name: users PK_a3ffb1c0c8416b9fc6f907b7433; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: users PK_a3ffb1c0c8416b9fc6f907b7433; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
@@ -1521,7 +1414,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: automation_rules PK_automation_rules_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: automation_rules PK_automation_rules_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.automation_rules
@@ -1529,7 +1422,7 @@ ALTER TABLE ONLY public.automation_rules
 
 
 --
--- Name: cities PK_cities_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: cities PK_cities_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.cities
@@ -1537,7 +1430,7 @@ ALTER TABLE ONLY public.cities
 
 
 --
--- Name: companies PK_companies_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: companies PK_companies_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.companies
@@ -1545,7 +1438,7 @@ ALTER TABLE ONLY public.companies
 
 
 --
--- Name: csat_answers PK_csat_answers_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: csat_answers PK_csat_answers_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.csat_answers
@@ -1553,7 +1446,7 @@ ALTER TABLE ONLY public.csat_answers
 
 
 --
--- Name: csat_questions PK_csat_questions_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: csat_questions PK_csat_questions_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.csat_questions
@@ -1561,7 +1454,7 @@ ALTER TABLE ONLY public.csat_questions
 
 
 --
--- Name: csat_surveys PK_csat_surveys_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: csat_surveys PK_csat_surveys_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.csat_surveys
@@ -1569,7 +1462,7 @@ ALTER TABLE ONLY public.csat_surveys
 
 
 --
--- Name: custom_field_definitions PK_custom_field_definitions_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: custom_field_definitions PK_custom_field_definitions_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.custom_field_definitions
@@ -1577,7 +1470,7 @@ ALTER TABLE ONLY public.custom_field_definitions
 
 
 --
--- Name: employee_status_history PK_employee_status_history_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: employee_status_history PK_employee_status_history_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.employee_status_history
@@ -1585,7 +1478,7 @@ ALTER TABLE ONLY public.employee_status_history
 
 
 --
--- Name: employee_statuses PK_employee_statuses_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: employee_statuses PK_employee_statuses_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.employee_statuses
@@ -1593,7 +1486,7 @@ ALTER TABLE ONLY public.employee_statuses
 
 
 --
--- Name: ticket_activities PK_fea672ec7d9867e390d5a153881; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_activities PK_fea672ec7d9867e390d5a153881; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_activities
@@ -1601,7 +1494,7 @@ ALTER TABLE ONLY public.ticket_activities
 
 
 --
--- Name: knowledge_theme PK_knowledge_theme_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: knowledge_theme PK_knowledge_theme_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.knowledge_theme
@@ -1609,7 +1502,7 @@ ALTER TABLE ONLY public.knowledge_theme
 
 
 --
--- Name: ldap_configs PK_ldap_configs_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ldap_configs PK_ldap_configs_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ldap_configs
@@ -1617,7 +1510,7 @@ ALTER TABLE ONLY public.ldap_configs
 
 
 --
--- Name: macros PK_macros_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: macros PK_macros_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.macros
@@ -1625,7 +1518,7 @@ ALTER TABLE ONLY public.macros
 
 
 --
--- Name: oidc_configs PK_oidc_configs_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: oidc_configs PK_oidc_configs_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.oidc_configs
@@ -1633,7 +1526,7 @@ ALTER TABLE ONLY public.oidc_configs
 
 
 --
--- Name: permission_group_departments PK_permission_group_departments; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: permission_group_departments PK_permission_group_departments; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.permission_group_departments
@@ -1641,7 +1534,7 @@ ALTER TABLE ONLY public.permission_group_departments
 
 
 --
--- Name: permission_groups PK_permission_groups_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: permission_groups PK_permission_groups_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.permission_groups
@@ -1649,7 +1542,7 @@ ALTER TABLE ONLY public.permission_groups
 
 
 --
--- Name: presence_settings PK_presence_settings_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: presence_settings PK_presence_settings_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.presence_settings
@@ -1657,7 +1550,7 @@ ALTER TABLE ONLY public.presence_settings
 
 
 --
--- Name: saved_reports PK_saved_reports_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: saved_reports PK_saved_reports_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.saved_reports
@@ -1665,7 +1558,7 @@ ALTER TABLE ONLY public.saved_reports
 
 
 --
--- Name: settings_audit_log PK_settings_audit_log_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: settings_audit_log PK_settings_audit_log_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.settings_audit_log
@@ -1673,7 +1566,7 @@ ALTER TABLE ONLY public.settings_audit_log
 
 
 --
--- Name: tags PK_tags_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tags PK_tags_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tags
@@ -1681,7 +1574,7 @@ ALTER TABLE ONLY public.tags
 
 
 --
--- Name: ticket_categories PK_ticket_categories_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_categories PK_ticket_categories_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_categories
@@ -1689,7 +1582,7 @@ ALTER TABLE ONLY public.ticket_categories
 
 
 --
--- Name: ticket_custom_field_values PK_ticket_custom_field_values_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_custom_field_values PK_ticket_custom_field_values_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_custom_field_values
@@ -1697,7 +1590,7 @@ ALTER TABLE ONLY public.ticket_custom_field_values
 
 
 --
--- Name: ticket_mentions PK_ticket_mentions_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_mentions PK_ticket_mentions_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_mentions
@@ -1705,7 +1598,7 @@ ALTER TABLE ONLY public.ticket_mentions
 
 
 --
--- Name: ticket_statuses PK_ticket_statuses_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_statuses PK_ticket_statuses_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_statuses
@@ -1713,7 +1606,7 @@ ALTER TABLE ONLY public.ticket_statuses
 
 
 --
--- Name: ticket_tags PK_ticket_tags_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_tags PK_ticket_tags_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_tags
@@ -1721,7 +1614,7 @@ ALTER TABLE ONLY public.ticket_tags
 
 
 --
--- Name: ticket_types PK_ticket_types_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_types PK_ticket_types_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_types
@@ -1729,7 +1622,7 @@ ALTER TABLE ONLY public.ticket_types
 
 
 --
--- Name: ticket_watchers PK_ticket_watchers_id; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_watchers PK_ticket_watchers_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_watchers
@@ -1737,7 +1630,7 @@ ALTER TABLE ONLY public.ticket_watchers
 
 
 --
--- Name: user_extra_departments PK_user_extra_departments; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: user_extra_departments PK_user_extra_departments; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_extra_departments
@@ -1745,7 +1638,7 @@ ALTER TABLE ONLY public.user_extra_departments
 
 
 --
--- Name: sla_policies UQ_sla_policies_priority; Type: CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: sla_policies UQ_sla_policies_priority; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sla_policies
@@ -1753,483 +1646,497 @@ ALTER TABLE ONLY public.sla_policies
 
 
 --
--- Name: IDX_2715f926ba0ddd73514eb0bef6; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_2715f926ba0ddd73514eb0bef6; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_2715f926ba0ddd73514eb0bef6" ON public.ticket_activities USING btree (ticket_id);
 
 
 --
--- Name: IDX_4099548d209f5ebbad2164ac56; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_4099548d209f5ebbad2164ac56; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_4099548d209f5ebbad2164ac56" ON public.knowledge_articles USING btree (author_id);
 
 
 --
--- Name: IDX_47c3fba35bfcbb08e3445f57d6; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_47c3fba35bfcbb08e3445f57d6; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_47c3fba35bfcbb08e3445f57d6" ON public.tickets USING btree (assigned_to);
 
 
 --
--- Name: IDX_5ac6c4969ef9eccf0dc4c9381f; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_5ac6c4969ef9eccf0dc4c9381f; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_5ac6c4969ef9eccf0dc4c9381f" ON public.tickets USING btree (external_thread_id);
 
 
 --
--- Name: IDX_6ceea364d29ac20cba4a38fa74; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_6ceea364d29ac20cba4a38fa74; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_6ceea364d29ac20cba4a38fa74" ON public.ticket_activities USING btree (actor_id);
 
 
 --
--- Name: IDX_73d871f247ffebda5dc3f0df8a; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_73d871f247ffebda5dc3f0df8a; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_73d871f247ffebda5dc3f0df8a" ON public.attachments USING btree (ticket_id);
 
 
 --
--- Name: IDX_8798a589dc4c71b6d0e8c2b9fc; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_8798a589dc4c71b6d0e8c2b9fc; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_8798a589dc4c71b6d0e8c2b9fc" ON public.tickets USING btree (created_by);
 
 
 --
--- Name: IDX_97672ac88f789774dd47f7c8be; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_97672ac88f789774dd47f7c8be; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_97672ac88f789774dd47f7c8be" ON public.users USING btree (email);
 
 
 --
--- Name: IDX_9a8a82462cab47c73d25f49261; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_9a8a82462cab47c73d25f49261; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_9a8a82462cab47c73d25f49261" ON public.notifications USING btree (user_id);
 
 
 --
--- Name: IDX_attachments_comment_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_attachments_comment_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_attachments_comment_id" ON public.attachments USING btree (comment_id);
 
 
 --
--- Name: IDX_attachments_uploader_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_attachments_uploader_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_attachments_uploader_id" ON public.attachments USING btree (uploader_id);
 
 
 --
--- Name: IDX_automation_rules_trigger_enabled; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_automation_rules_trigger_enabled; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_automation_rules_trigger_enabled" ON public.automation_rules USING btree (trigger, is_enabled);
 
 
 --
--- Name: IDX_be8180d9b44a05e449b85f5b77; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_be8180d9b44a05e449b85f5b77; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_be8180d9b44a05e449b85f5b77" ON public.comments USING btree (ticket_id);
 
 
 --
--- Name: IDX_c2bf4967c8c2a6b845dadfbf3d; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_c2bf4967c8c2a6b845dadfbf3d; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_c2bf4967c8c2a6b845dadfbf3d" ON public.team_members USING btree (user_id);
 
 
 --
--- Name: IDX_c360b09be17eb2e10280304f60; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_c360b09be17eb2e10280304f60; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_c360b09be17eb2e10280304f60" ON public.tickets USING btree (sla_policy_id);
 
 
 --
--- Name: IDX_cities_name; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_cities_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_cities_name" ON public.cities USING btree (name);
 
 
 --
--- Name: IDX_comments_created_at; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_comments_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_comments_created_at" ON public.comments USING btree (created_at);
 
 
 --
--- Name: IDX_companies_name; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_companies_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_companies_name" ON public.companies USING btree (name);
 
 
 --
--- Name: IDX_csat_answers_created_at; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_csat_answers_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_csat_answers_created_at" ON public.csat_answers USING btree (created_at);
 
 
 --
--- Name: IDX_csat_answers_survey_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_csat_answers_survey_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_csat_answers_survey_id" ON public.csat_answers USING btree (survey_id);
 
 
 --
--- Name: IDX_csat_answers_ticket_id; Type: INDEX; Schema: public; Owner: veloxdesk
---
-
-CREATE INDEX "IDX_csat_answers_ticket_id" ON public.csat_answers USING btree (ticket_id);
-
-
---
--- Name: IDX_csat_answers_survey_question; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_csat_answers_survey_question; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_csat_answers_survey_question" ON public.csat_answers USING btree (survey_id, question_id);
 
 
 --
--- Name: IDX_csat_surveys_ticket_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_csat_answers_ticket_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "IDX_csat_answers_ticket_id" ON public.csat_answers USING btree (ticket_id);
+
+
+--
+-- Name: IDX_csat_surveys_ticket_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_csat_surveys_ticket_id" ON public.csat_surveys USING btree (ticket_id);
 
 
 --
--- Name: IDX_e6d38899c31997c45d128a8973; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_e6d38899c31997c45d128a8973; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_e6d38899c31997c45d128a8973" ON public.comments USING btree (author_id);
 
 
 --
--- Name: IDX_ec5071f9de4677c9e8da947e14; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ec5071f9de4677c9e8da947e14; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_ec5071f9de4677c9e8da947e14" ON public.tickets USING btree (team_id);
 
 
 --
--- Name: IDX_employee_status_history_user_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_employee_status_history_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_employee_status_history_user_id" ON public.employee_status_history USING btree (user_id);
 
 
 --
--- Name: IDX_knowledge_articles_created_at; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_knowledge_articles_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_knowledge_articles_created_at" ON public.knowledge_articles USING btree (created_at);
 
 
 --
--- Name: IDX_knowledge_articles_status; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_knowledge_articles_status; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_knowledge_articles_status" ON public.knowledge_articles USING btree (status);
 
 
 --
--- Name: IDX_knowledge_articles_view_count; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_knowledge_articles_view_count; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_knowledge_articles_view_count" ON public.knowledge_articles USING btree (view_count);
 
 
 --
--- Name: IDX_ldap_configs_audience; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ldap_configs_audience; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ldap_configs_audience" ON public.ldap_configs USING btree (audience);
 
 
 --
--- Name: IDX_notifications_ticket_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_notifications_ticket_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_notifications_ticket_id" ON public.notifications USING btree (ticket_id);
 
 
 --
--- Name: IDX_oidc_configs_audience; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_oidc_configs_audience; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_oidc_configs_audience" ON public.oidc_configs USING btree (audience);
 
 
 --
--- Name: IDX_permission_group_departments_team_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_permission_group_departments_team_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_permission_group_departments_team_id" ON public.permission_group_departments USING btree (team_id);
 
 
 --
--- Name: IDX_saved_reports_created_by; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_saved_reports_created_by; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_saved_reports_created_by" ON public.saved_reports USING btree (created_by);
 
 
 --
--- Name: IDX_settings_audit_log_actor_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_settings_audit_log_actor_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_settings_audit_log_actor_id" ON public.settings_audit_log USING btree (actor_id);
 
 
 --
--- Name: IDX_settings_audit_log_created_at; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_settings_audit_log_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_settings_audit_log_created_at" ON public.settings_audit_log USING btree (created_at);
 
 
 --
--- Name: IDX_settings_audit_log_event_type; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_settings_audit_log_event_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_settings_audit_log_event_type" ON public.settings_audit_log USING btree (event_type);
 
 
 --
--- Name: IDX_settings_audit_log_module; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_settings_audit_log_module; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_settings_audit_log_module" ON public.settings_audit_log USING btree (module);
 
 
 --
--- Name: IDX_tags_name; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tags_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_tags_name" ON public.tags USING btree (name);
 
 
 --
--- Name: IDX_ticket_activities_created_at; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_activities_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_ticket_activities_created_at" ON public.ticket_activities USING btree (created_at);
 
 
 --
--- Name: IDX_ticket_categories_name; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_categories_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_categories_name" ON public.ticket_categories USING btree (name);
 
 
 --
--- Name: IDX_ticket_custom_field_values_ticket_field; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_custom_field_values_ticket_field; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_custom_field_values_ticket_field" ON public.ticket_custom_field_values USING btree (ticket_id, field_id);
 
 
 --
--- Name: IDX_ticket_mentions_ticket_user; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_mentions_ticket_user; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_mentions_ticket_user" ON public.ticket_mentions USING btree (ticket_id, user_id);
 
 
 --
--- Name: IDX_ticket_mentions_user_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_mentions_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_ticket_mentions_user_id" ON public.ticket_mentions USING btree (user_id);
 
 
 --
--- Name: IDX_ticket_statuses_key; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_statuses_key; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_statuses_key" ON public.ticket_statuses USING btree (key);
 
 
 --
--- Name: IDX_ticket_statuses_single_default; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_statuses_single_default; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_statuses_single_default" ON public.ticket_statuses USING btree (is_default) WHERE (is_default = true);
 
 
 --
--- Name: IDX_ticket_tags_tag_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_tags_tag_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_ticket_tags_tag_id" ON public.ticket_tags USING btree (tag_id);
 
 
 --
--- Name: IDX_ticket_tags_ticket_tag; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_tags_ticket_tag; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_tags_ticket_tag" ON public.ticket_tags USING btree (ticket_id, tag_id);
 
 
 --
--- Name: IDX_ticket_types_key; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_types_key; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_types_key" ON public.ticket_types USING btree (key);
 
 
 --
--- Name: IDX_ticket_types_single_default; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_types_single_default; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_types_single_default" ON public.ticket_types USING btree (is_default) WHERE (is_default = true);
 
 
 --
--- Name: IDX_ticket_watchers_ticket_user; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_watchers_ticket_user; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_ticket_watchers_ticket_user" ON public.ticket_watchers USING btree (ticket_id, user_id);
 
 
 --
--- Name: IDX_ticket_watchers_user_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_ticket_watchers_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_ticket_watchers_user_id" ON public.ticket_watchers USING btree (user_id);
 
 
 --
--- Name: IDX_tickets_category_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_category_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_tickets_category_id" ON public.tickets USING btree (category_id);
 
 
 --
--- Name: IDX_tickets_channel; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_channel; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_tickets_channel" ON public.tickets USING btree (channel);
 
 
 --
--- Name: IDX_tickets_created_at; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_tickets_created_at" ON public.tickets USING btree (created_at);
 
 
 --
--- Name: IDX_tickets_created_on_behalf_by; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_created_on_behalf_by; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_tickets_created_on_behalf_by" ON public.tickets USING btree (created_on_behalf_by);
 
 
 --
--- Name: IDX_tickets_merged_into_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_merged_into_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_tickets_merged_into_id" ON public.tickets USING btree (merged_into_id);
 
 
 --
--- Name: IDX_tickets_priority; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_priority; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_tickets_priority" ON public.tickets USING btree (priority);
 
 
 --
--- Name: IDX_tickets_status_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_status_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_tickets_status_id" ON public.tickets USING btree (status_id);
 
 
 --
--- Name: IDX_tickets_ticket_number; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_ticket_number; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_tickets_ticket_number" ON public.tickets USING btree (ticket_number);
 
 
 --
--- Name: IDX_tickets_type_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_tickets_type_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_tickets_type_id" ON public.tickets USING btree (type_id);
 
 
 --
--- Name: IDX_user_extra_departments_team_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_user_extra_departments_team_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_user_extra_departments_team_id" ON public.user_extra_departments USING btree (team_id);
 
 
 --
--- Name: IDX_users_auth_provider_external_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_users_auth_provider_external_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_users_auth_provider_external_id" ON public.users USING btree (auth_provider, external_id) WHERE (external_id IS NOT NULL);
 
 
 --
--- Name: IDX_users_merged_into_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_users_city_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "IDX_users_city_id" ON public.users USING btree (city_id);
+
+
+--
+-- Name: IDX_users_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "IDX_users_company_id" ON public.users USING btree (company_id);
+
+
+--
+-- Name: IDX_users_merged_into_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_users_merged_into_id" ON public.users USING btree (merged_into_id);
 
 
 --
--- Name: IDX_users_pending; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_users_pending; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_users_pending" ON public.users USING btree (created_at) WHERE (approved_at IS NULL);
 
 
 --
--- Name: IDX_users_permission_group_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_users_permission_group_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "IDX_users_permission_group_id" ON public.users USING btree (permission_group_id);
 
 
 --
--- Name: IDX_users_telegram_chat_id; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_users_telegram_chat_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_users_telegram_chat_id" ON public.users USING btree (telegram_chat_id);
 
 
 --
--- Name: IDX_users_telegram_link_token; Type: INDEX; Schema: public; Owner: veloxdesk
+-- Name: IDX_users_telegram_link_token; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX "IDX_users_telegram_link_token" ON public.users USING btree (telegram_link_token);
 
 
 --
--- Name: ticket_activities FK_2715f926ba0ddd73514eb0bef61; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_activities FK_2715f926ba0ddd73514eb0bef61; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_activities
@@ -2237,7 +2144,7 @@ ALTER TABLE ONLY public.ticket_activities
 
 
 --
--- Name: knowledge_articles FK_4099548d209f5ebbad2164ac562; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: knowledge_articles FK_4099548d209f5ebbad2164ac562; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.knowledge_articles
@@ -2245,7 +2152,7 @@ ALTER TABLE ONLY public.knowledge_articles
 
 
 --
--- Name: tickets FK_47c3fba35bfcbb08e3445f57d6e; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_47c3fba35bfcbb08e3445f57d6e; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2253,7 +2160,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: ticket_activities FK_6ceea364d29ac20cba4a38fa748; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_activities FK_6ceea364d29ac20cba4a38fa748; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_activities
@@ -2261,7 +2168,7 @@ ALTER TABLE ONLY public.ticket_activities
 
 
 --
--- Name: attachments FK_73d871f247ffebda5dc3f0df8a4; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: attachments FK_73d871f247ffebda5dc3f0df8a4; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.attachments
@@ -2269,7 +2176,7 @@ ALTER TABLE ONLY public.attachments
 
 
 --
--- Name: tickets FK_8798a589dc4c71b6d0e8c2b9fc3; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_8798a589dc4c71b6d0e8c2b9fc3; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2277,7 +2184,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: notifications FK_9a8a82462cab47c73d25f49261f; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: notifications FK_9a8a82462cab47c73d25f49261f; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notifications
@@ -2285,7 +2192,7 @@ ALTER TABLE ONLY public.notifications
 
 
 --
--- Name: attachments FK_attachments_comment; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: attachments FK_attachments_comment; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.attachments
@@ -2293,7 +2200,7 @@ ALTER TABLE ONLY public.attachments
 
 
 --
--- Name: attachments FK_attachments_uploader; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: attachments FK_attachments_uploader; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.attachments
@@ -2301,7 +2208,7 @@ ALTER TABLE ONLY public.attachments
 
 
 --
--- Name: comments FK_be8180d9b44a05e449b85f5b773; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: comments FK_be8180d9b44a05e449b85f5b773; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.comments
@@ -2309,7 +2216,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- Name: team_members FK_c2bf4967c8c2a6b845dadfbf3d4; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: team_members FK_c2bf4967c8c2a6b845dadfbf3d4; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.team_members
@@ -2317,7 +2224,7 @@ ALTER TABLE ONLY public.team_members
 
 
 --
--- Name: tickets FK_c360b09be17eb2e10280304f606; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_c360b09be17eb2e10280304f606; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2325,7 +2232,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: csat_answers FK_csat_answers_question; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: csat_answers FK_csat_answers_question; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.csat_answers
@@ -2333,7 +2240,7 @@ ALTER TABLE ONLY public.csat_answers
 
 
 --
--- Name: csat_answers FK_csat_answers_survey; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: csat_answers FK_csat_answers_survey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.csat_answers
@@ -2341,7 +2248,7 @@ ALTER TABLE ONLY public.csat_answers
 
 
 --
--- Name: csat_answers FK_csat_answers_ticket; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: csat_answers FK_csat_answers_ticket; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.csat_answers
@@ -2349,7 +2256,7 @@ ALTER TABLE ONLY public.csat_answers
 
 
 --
--- Name: csat_surveys FK_csat_surveys_ticket; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: csat_surveys FK_csat_surveys_ticket; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.csat_surveys
@@ -2357,7 +2264,7 @@ ALTER TABLE ONLY public.csat_surveys
 
 
 --
--- Name: custom_field_definitions FK_custom_field_definitions_depends_on; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: custom_field_definitions FK_custom_field_definitions_depends_on; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.custom_field_definitions
@@ -2365,7 +2272,7 @@ ALTER TABLE ONLY public.custom_field_definitions
 
 
 --
--- Name: comments FK_e6d38899c31997c45d128a8973b; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: comments FK_e6d38899c31997c45d128a8973b; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.comments
@@ -2373,7 +2280,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- Name: tickets FK_ec5071f9de4677c9e8da947e144; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_ec5071f9de4677c9e8da947e144; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2381,7 +2288,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: employee_status_history FK_employee_status_history_user; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: employee_status_history FK_employee_status_history_user; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.employee_status_history
@@ -2389,7 +2296,7 @@ ALTER TABLE ONLY public.employee_status_history
 
 
 --
--- Name: team_members FK_fdad7d5768277e60c40e01cdcea; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: team_members FK_fdad7d5768277e60c40e01cdcea; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.team_members
@@ -2397,7 +2304,7 @@ ALTER TABLE ONLY public.team_members
 
 
 --
--- Name: notifications FK_notifications_ticket; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: notifications FK_notifications_ticket; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notifications
@@ -2405,7 +2312,7 @@ ALTER TABLE ONLY public.notifications
 
 
 --
--- Name: permission_group_departments FK_permission_group_departments_group; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: permission_group_departments FK_permission_group_departments_group; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.permission_group_departments
@@ -2413,7 +2320,7 @@ ALTER TABLE ONLY public.permission_group_departments
 
 
 --
--- Name: permission_group_departments FK_permission_group_departments_team; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: permission_group_departments FK_permission_group_departments_team; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.permission_group_departments
@@ -2421,7 +2328,7 @@ ALTER TABLE ONLY public.permission_group_departments
 
 
 --
--- Name: saved_reports FK_saved_reports_created_by; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: saved_reports FK_saved_reports_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.saved_reports
@@ -2429,7 +2336,7 @@ ALTER TABLE ONLY public.saved_reports
 
 
 --
--- Name: settings_audit_log FK_settings_audit_log_actor_id; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: settings_audit_log FK_settings_audit_log_actor_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.settings_audit_log
@@ -2437,7 +2344,7 @@ ALTER TABLE ONLY public.settings_audit_log
 
 
 --
--- Name: ticket_custom_field_values FK_ticket_custom_field_values_field; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_custom_field_values FK_ticket_custom_field_values_field; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_custom_field_values
@@ -2445,7 +2352,7 @@ ALTER TABLE ONLY public.ticket_custom_field_values
 
 
 --
--- Name: ticket_custom_field_values FK_ticket_custom_field_values_ticket; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_custom_field_values FK_ticket_custom_field_values_ticket; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_custom_field_values
@@ -2453,7 +2360,7 @@ ALTER TABLE ONLY public.ticket_custom_field_values
 
 
 --
--- Name: ticket_mentions FK_ticket_mentions_ticket; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_mentions FK_ticket_mentions_ticket; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_mentions
@@ -2461,7 +2368,7 @@ ALTER TABLE ONLY public.ticket_mentions
 
 
 --
--- Name: ticket_mentions FK_ticket_mentions_user; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_mentions FK_ticket_mentions_user; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_mentions
@@ -2469,7 +2376,7 @@ ALTER TABLE ONLY public.ticket_mentions
 
 
 --
--- Name: ticket_tags FK_ticket_tags_tag; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_tags FK_ticket_tags_tag; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_tags
@@ -2477,7 +2384,7 @@ ALTER TABLE ONLY public.ticket_tags
 
 
 --
--- Name: ticket_tags FK_ticket_tags_ticket; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_tags FK_ticket_tags_ticket; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_tags
@@ -2485,7 +2392,7 @@ ALTER TABLE ONLY public.ticket_tags
 
 
 --
--- Name: ticket_watchers FK_ticket_watchers_ticket; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_watchers FK_ticket_watchers_ticket; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_watchers
@@ -2493,7 +2400,7 @@ ALTER TABLE ONLY public.ticket_watchers
 
 
 --
--- Name: ticket_watchers FK_ticket_watchers_user; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: ticket_watchers FK_ticket_watchers_user; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ticket_watchers
@@ -2501,7 +2408,7 @@ ALTER TABLE ONLY public.ticket_watchers
 
 
 --
--- Name: tickets FK_tickets_category; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_tickets_category; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2509,7 +2416,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: tickets FK_tickets_created_on_behalf_by; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_tickets_created_on_behalf_by; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2517,7 +2424,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: tickets FK_tickets_merged_into; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_tickets_merged_into; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2525,7 +2432,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: tickets FK_tickets_status; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_tickets_status; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2533,7 +2440,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: tickets FK_tickets_type; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: tickets FK_tickets_type; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tickets
@@ -2541,7 +2448,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: user_extra_departments FK_user_extra_departments_team; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: user_extra_departments FK_user_extra_departments_team; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_extra_departments
@@ -2549,7 +2456,7 @@ ALTER TABLE ONLY public.user_extra_departments
 
 
 --
--- Name: user_extra_departments FK_user_extra_departments_user; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: user_extra_departments FK_user_extra_departments_user; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_extra_departments
@@ -2557,7 +2464,23 @@ ALTER TABLE ONLY public.user_extra_departments
 
 
 --
--- Name: users FK_users_current_status; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: users FK_users_city_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT "FK_users_city_id" FOREIGN KEY (city_id) REFERENCES public.cities(id) ON DELETE SET NULL;
+
+
+--
+-- Name: users FK_users_company_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT "FK_users_company_id" FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE SET NULL;
+
+
+--
+-- Name: users FK_users_current_status; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
@@ -2565,7 +2488,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users FK_users_merged_into; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: users FK_users_merged_into; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
@@ -2573,7 +2496,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users FK_users_permission_group; Type: FK CONSTRAINT; Schema: public; Owner: veloxdesk
+-- Name: users FK_users_permission_group; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
@@ -2584,5 +2507,5 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict gJSg3J2sECoLd2jZkCuLvMulQGlRdcJAveyV1H9pjA67WiK88i23745vAYyCHoQ
+\unrestrict WakLLdZ66h9z6P1ELHxVHBXn6h82Qg5tARKDws90SqhACgdJPZ3TkhRjBOZ9ehj
 
