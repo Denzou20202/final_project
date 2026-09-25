@@ -4,18 +4,23 @@ export class AddUserCompanyAndCityForeignKeys1788700000000 implements MigrationI
   name = 'AddUserCompanyAndCityForeignKeys1788700000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "users" ADD "company_id" uuid NULL`);
-    await queryRunner.query(`ALTER TABLE "users" ADD "city_id" uuid NULL`);
+    await queryRunner.query(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "company_id" uuid NULL`);
+    await queryRunner.query(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "city_id" uuid NULL`);
 
-    await queryRunner.query(
-      `ALTER TABLE "users" ADD CONSTRAINT "FK_users_company_id" FOREIGN KEY ("company_id") REFERENCES "companies"("id") ON DELETE SET NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users" ADD CONSTRAINT "FK_users_city_id" FOREIGN KEY ("city_id") REFERENCES "cities"("id") ON DELETE SET NULL`,
-    );
+    await queryRunner.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'FK_users_company_id') THEN
+          ALTER TABLE "users" ADD CONSTRAINT "FK_users_company_id" FOREIGN KEY ("company_id") REFERENCES "companies"("id") ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'FK_users_city_id') THEN
+          ALTER TABLE "users" ADD CONSTRAINT "FK_users_city_id" FOREIGN KEY ("city_id") REFERENCES "cities"("id") ON DELETE SET NULL;
+        END IF;
+      END $$;
+    `);
 
-    await queryRunner.query(`CREATE INDEX "IDX_users_company_id" ON "users" ("company_id")`);
-    await queryRunner.query(`CREATE INDEX "IDX_users_city_id" ON "users" ("city_id")`);
+    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_users_company_id" ON "users" ("company_id")`);
+    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_users_city_id" ON "users" ("city_id")`);
 
     // Backfill relational FKs from existing company / city names
     await queryRunner.query(`

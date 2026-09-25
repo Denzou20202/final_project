@@ -4,9 +4,11 @@ export class AddUserRefreshTokenHashes1788600000000 implements MigrationInterfac
   name = 'AddUserRefreshTokenHashes1788600000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "users" ADD "refresh_token_hashes" text[] NOT NULL DEFAULT '{}'`);
     await queryRunner.query(
-      `UPDATE "users" SET "refresh_token_hashes" = ARRAY["refresh_token_hash"] WHERE "refresh_token_hash" IS NOT NULL AND "refresh_token_hash" != ''`,
+      `ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "refresh_token_hashes" text[] NOT NULL DEFAULT '{}'`,
+    );
+    await queryRunner.query(
+      `UPDATE "users" SET "refresh_token_hashes" = ARRAY["refresh_token_hash"] WHERE "refresh_token_hash" IS NOT NULL AND "refresh_token_hash" != '' AND cardinality("refresh_token_hashes") = 0`,
     );
   }
 
