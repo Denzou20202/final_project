@@ -54,6 +54,11 @@ export class EmailIngestionService implements OnApplicationBootstrap {
   ) {}
 
   onApplicationBootstrap(): void {
+    const host = this.config.get<string>('IMAP_HOST');
+    if (!host || host === 'CHANGE_ME') {
+      this.logger.log('Email ingestion is unconfigured (IMAP_HOST placeholder). Polling skipped until configured.');
+      return;
+    }
     // Also run once at startup rather than waiting for the first interval tick.
     void this.poll();
   }
@@ -67,16 +72,23 @@ export class EmailIngestionService implements OnApplicationBootstrap {
     if (this.isPolling) {
       return;
     }
+
+    const host = this.config.get<string>('IMAP_HOST');
+    const user = this.config.get<string>('IMAP_USER');
+    const pass = this.config.get<string>('IMAP_PASS');
+    const enabled = this.config.get<string>('EMAIL_INGESTION_ENABLED', 'true') !== 'false';
+
+    if (!enabled || !host || host === 'CHANGE_ME' || !user || user === 'CHANGE_ME' || !pass || pass === 'CHANGE_ME') {
+      return;
+    }
+
     this.isPolling = true;
 
     const client = new ImapFlow({
-      host: this.config.get<string>('IMAP_HOST', 'localhost'),
+      host,
       port: this.config.get<number>('IMAP_PORT', 3143),
       secure: this.config.get<string>('IMAP_SECURE', 'false') === 'true',
-      auth: {
-        user: this.config.getOrThrow<string>('IMAP_USER'),
-        pass: this.config.getOrThrow<string>('IMAP_PASS'),
-      },
+      auth: { user, pass },
       logger: false,
     });
 

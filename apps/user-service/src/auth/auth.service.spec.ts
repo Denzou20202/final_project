@@ -71,7 +71,7 @@ describe('AuthService', () => {
   let ldapAuthProvider: jest.Mocked<Pick<LdapAuthProvider, 'validate'>>;
   let ldapConfigService: jest.Mocked<Pick<LdapConfigService, 'findEnabledForAudience'>>;
   let oidcConfigService: jest.Mocked<Pick<OidcConfigService, 'findEnabledForAudience'>>;
-  let loginLockout: { isBanned: jest.Mock; recordFailure: jest.Mock };
+  let loginLockout: { isBanned: jest.Mock; recordFailure: jest.Mock; recordSuccess?: jest.Mock };
   let turnstileService: { verify: jest.Mock };
   let service: AuthService;
 
@@ -119,7 +119,11 @@ describe('AuthService', () => {
     ldapConfigService = { findEnabledForAudience: jest.fn().mockResolvedValue(null) };
     oidcConfigService = { findEnabledForAudience: jest.fn().mockResolvedValue(null) };
     ldapAuthProvider = { validate: jest.fn() };
-    loginLockout = { isBanned: jest.fn().mockResolvedValue(false), recordFailure: jest.fn().mockResolvedValue(undefined) };
+    loginLockout = {
+      isBanned: jest.fn().mockResolvedValue(false),
+      recordFailure: jest.fn().mockResolvedValue(undefined),
+      recordSuccess: jest.fn().mockResolvedValue(undefined),
+    };
     // Defaults to "verified" — only the dedicated captcha tests below care
     // about a false/rejected outcome; every other test's login/register
     // calls would otherwise all fail on an assertion they aren't about.
@@ -546,9 +550,15 @@ describe('AuthService', () => {
       expect(usersService.setRefreshTokenHash).not.toHaveBeenCalled();
     });
 
-    it('clears all device hashes on global logout', async () => {
-      await service.logout('user-1');
+    it('clears all device hashes when allDevices is true', async () => {
+      await service.logout('user-1', undefined, true);
       expect(usersService.setRefreshTokenHash).toHaveBeenCalledWith('user-1', null);
+      expect(usersService.removeRefreshTokenHash).not.toHaveBeenCalled();
+    });
+
+    it('does not clear all device hashes when no token and allDevices is not set', async () => {
+      await service.logout('user-1');
+      expect(usersService.setRefreshTokenHash).not.toHaveBeenCalled();
       expect(usersService.removeRefreshTokenHash).not.toHaveBeenCalled();
     });
   });

@@ -1,29 +1,69 @@
 import sanitizeHtml from 'sanitize-html';
 
-// Same allowlist as sanitizeCommentBody (which also allows the table tag
-// set below — see that function's own comment), plus <img> for pasted
-// screenshots — kept as a SEPARATE function rather than widening
-// sanitizeCommentBody itself: chat/ticket comments deliberately keep images
-// out of the text body (attachments are their own linked mechanism, see
-// AttachmentEntity), while knowledge-base articles embed pasted screenshots
-// inline via Tiptap's Image extension. allowedSchemesByTag blocks a
-// javascript:/data: src from sneaking in as an img source.
-//
-// Table shape is Tiptap's exact renderHTML output (@tiptap/extension-table,
-// verified against its dist source): `<table style="..."><colgroup>...
-// </colgroup><tbody><tr><td colspan rowspan>...</td></tr></tbody></table>`
-// — no <thead>, header cells are plain <th> rows inside the same <tbody>.
-// `style`/`colgroup`/`col` are deliberately NOT allowed: they only ever
-// carry Tiptap's auto column-width styling (this editor has resizing
-// disabled, so nothing meaningful would survive anyway) — dropping them
-// leaves a clean `<table><tbody><tr>...</tr></tbody></table>` and layout is
-// handled by the reader's own CSS instead. colspan/rowspan ARE kept so a
-// merged cell (Tiptap's default table selection/merge behavior, reachable
-// without a dedicated toolbar button) round-trips correctly.
+// Only local relative image endpoints served by the application
+// (/api/public/images/ for KB/chat inline images, /api/attachments/ for
+// ticket file attachments). Any external http/https image src is a potential
+// tracking pixel (or IP-leak vector) and is downgraded to a safe <a> link
+// instead of letting the browser silently fetch it.
+const INTERNAL_IMG_SRC_RE = /^\/api\/(public\/images|attachments)\/[\w.-]+(\/download)?$/i;
+const EXTERNAL_HTTP_HREF_RE = /^https?:\/\//i;
+
 export function sanitizeArticleBody(html: string): string {
   return sanitizeHtml(html, {
-    allowedTags: ['p', 'br', 'strong', 'em', 'u', 'code', 'ul', 'ol', 'li', 'blockquote', 'img', 'table', 'tbody', 'tr', 'th', 'td'],
-    allowedAttributes: { img: ['src', 'alt'], th: ['colspan', 'rowspan'], td: ['colspan', 'rowspan'] },
-    allowedSchemesByTag: { img: ['http', 'https'] },
+    allowedTags: [
+      'p',
+      'br',
+      'strong',
+      'em',
+      'u',
+      'code',
+      'ul',
+      'ol',
+      'li',
+      'blockquote',
+      'a',
+      'img',
+      'table',
+      'tbody',
+      'tr',
+      'th',
+      'td',
+    ],
+    allowedAttributes: {
+      a: ['href', 'target', 'rel'],
+      img: ['src', 'alt'],
+      th: ['colspan', 'rowspan'],
+      td: ['colspan', 'rowspan'],
+    },
+    allowedSchemesByTag: { img: [] },
+    transformTags: {
+      a: (_tagName, attribs): sanitizeHtml.Tag => {
+        const href = attribs['href'] ?? '';
+        if (!EXTERNAL_HTTP_HREF_RE.test(href) && !href.startsWith('/')) {
+          return { tagName: 'span', attribs: {} };
+        }
+        return { tagName: 'a', attribs: { href, target: '_blank', rel: 'noopener noreferrer' } };
+      },
+      img: (_tagName, attribs): sanitizeHtml.Tag => {
+        const src = attribs['src'] ?? '';
+        if (INTERNAL_IMG_SRC_RE.test(src)) {
+          return {
+            tagName: 'img',
+            attribs: {
+              src,
+              ...(attribs['alt'] ? { alt: attribs['alt'] } : {}),
+            },
+          };
+        }
+        if (EXTERNAL_HTTP_HREF_RE.test(src)) {
+          return {
+            tagName: 'a',
+            attribs: { href: src, target: '_blank', rel: 'noopener noreferrer' },
+            text: attribs['alt'] ? `[Изображение: ${attribs['alt']}]` : '[Внешнее изображение]',
+          };
+        }
+        return { tagName: 'span', attribs: {} };
+      },
+    },
   });
 }

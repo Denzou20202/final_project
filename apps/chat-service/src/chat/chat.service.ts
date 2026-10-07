@@ -160,7 +160,7 @@ export class ChatService {
     actor: JwtPayload,
     body: string,
     isInternal: boolean,
-  ): Promise<{ comment: PublicComment; mentionedUserIds: string[] }> {
+  ): Promise<{ comment: PublicComment; mentionedUserIds: string[]; autoAssigned?: boolean }> {
     // A closed ticket is frozen — nothing new gets added or written by
     // anyone, staff included. Reopening (status back to OPEN) is the only
     // way back in; this rule applies uniformly rather than carving out an
@@ -193,29 +193,43 @@ export class ChatService {
     const sanitizedBody = sanitizeCommentBody(body);
 
     // Operator or admin reply to an unassigned ticket auto-assigns the ticket
-    // to the operator.
+    // to the operator atomically under a row lock.
+    let autoAssigned = false;
     if (actor.role !== UserRole.CLIENT && !ticket.assignedTo) {
-      if (this.ticketsRepository?.update) {
-        try {
-          await this.ticketsRepository.update(
+      try {
+        await this.ticketsRepository.manager.transaction(async (manager) => {
+          const lockedTicket = await manager
+            .getRepository(TicketEntity)
+            .createQueryBuilder('ticket')
+            .setLock('pessimistic_write')
+            .where('ticket.id = :id', { id: ticket.id })
+            .getOne();
+
+          if (!lockedTicket || lockedTicket.assignedTo) {
+            return;
+          }
+
+          await manager.update(
+            TicketEntity,
             { id: ticket.id, assignedTo: IsNull() },
             { assignedTo: actor.sub },
           );
-          if (this.activityRepository?.insert) {
-            await this.activityRepository.insert({
-              ticketId: ticket.id,
-              actorId: actor.sub,
-              type: TicketActivityType.ASSIGNED,
-              fromValue: null,
-              toValue: actor.sub,
-            });
-          }
+
+          await manager.insert(TicketActivityEntity, {
+            ticketId: ticket.id,
+            actorId: actor.sub,
+            type: TicketActivityType.ASSIGNED,
+            fromValue: null,
+            toValue: actor.sub,
+          });
+
           ticket.assignedTo = actor.sub;
-        } catch (error) {
-          this.logger.warn(
-            `Failed to auto-assign ticket ${ticket.id} to ${actor.sub}: ${error instanceof Error ? error.message : error}`,
-          );
-        }
+          autoAssigned = true;
+        });
+      } catch (error) {
+        this.logger.warn(
+          `Failed to auto-assign ticket ${ticket.id} to ${actor.sub}: ${error instanceof Error ? error.message : error}`,
+        );
       }
     }
 
@@ -385,6 +399,6 @@ export class ChatService {
       }
     }
 
-    return { comment: toPublicComment(saved), mentionedUserIds };
+    return { comment: toPublicComment(saved), mentionedUserIds, autoAssigned };
   }
 }

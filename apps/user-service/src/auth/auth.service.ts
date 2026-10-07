@@ -253,7 +253,9 @@ export class AuthService {
       }
       throw error;
     }
-    return this.completeLogin(user, ip);
+    const result = await this.completeLogin(user, ip);
+    await this.loginLockout.recordSuccess(ip);
+    return result;
   }
 
   // Everything after "we know which UserEntity this login attempt resolved
@@ -367,12 +369,14 @@ export class AuthService {
     return this.issueTokens(user, context, matchedHash);
   }
 
-  async logout(userId: string, refreshToken?: string): Promise<void> {
+  async logout(userId: string, refreshToken?: string, allDevices?: boolean): Promise<void> {
+    if (allDevices) {
+      await this.usersService.setRefreshTokenHash(userId, null);
+      return;
+    }
     if (refreshToken) {
       const hash = hashRefreshToken(refreshToken);
       await this.usersService.removeRefreshTokenHash(userId, hash);
-    } else {
-      await this.usersService.setRefreshTokenHash(userId, null);
     }
   }
 

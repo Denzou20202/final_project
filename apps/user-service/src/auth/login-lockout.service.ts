@@ -98,6 +98,14 @@ export class LoginLockoutService implements OnModuleDestroy {
     }
   }
 
+  async recordSuccess(ip: string): Promise<void> {
+    try {
+      await this.redis.del(failKey(ip));
+    } catch (error) {
+      this.logger.warn(`Failed to clear login failure count for ${ip}: ${error instanceof Error ? error.message : error}`);
+    }
+  }
+
   onModuleDestroy(): void {
     this.redis.disconnect();
   }

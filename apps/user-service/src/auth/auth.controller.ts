@@ -9,6 +9,7 @@ import { ChangeOwnPasswordDto } from './dto/change-own-password.dto.js';
 import { ConfirmTwoFactorDto } from './dto/confirm-two-factor.dto.js';
 import { DisableTwoFactorDto } from './dto/disable-two-factor.dto.js';
 import { LoginDto } from './dto/login.dto.js';
+import { LogoutDto } from './dto/logout.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { RegistrationStatusDto } from './dto/registration-status.dto.js';
@@ -80,8 +81,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
-  logout(@CurrentUser() user: JwtPayload, @Body() body?: { refreshToken?: string }) {
-    return this.authService.logout(user.sub, body?.refreshToken);
+  logout(@CurrentUser() user: JwtPayload, @Body() dto?: LogoutDto) {
+    return this.authService.logout(user.sub, dto?.refreshToken, dto?.allDevices);
   }
 
   // ===== 2FA: self-service, requires an existing session =====

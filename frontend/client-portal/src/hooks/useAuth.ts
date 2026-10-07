@@ -239,8 +239,8 @@ export function useLogout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: logoutRequest,
+  return useMutation<void, Error, boolean | void>({
+    mutationFn: (allDevices?: boolean | void) => logoutRequest(Boolean(allDevices)),
     onSettled: () => {
       clear();
       disconnectChatSocket();

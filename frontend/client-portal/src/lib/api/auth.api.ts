@@ -1,6 +1,7 @@
 import type { AuthAudience, Locale } from '@veloxdesk/types';
 import { userApi } from './client.js';
 import type { AuthResponse, AvailableAuthMethods, LoginResult, PendingRegistrationResponse, RegistrationStatusResponse } from '../types.js';
+import { useAuthStore } from '../../store/auth.store.js';
 
 export async function register(
   email: string,
@@ -46,8 +47,12 @@ export async function availableAuthMethods(audience: AuthAudience): Promise<Avai
   return data;
 }
 
-export async function logout(): Promise<void> {
-  await userApi.post('/auth/logout');
+export async function logout(allDevices = false): Promise<void> {
+  const { refreshToken } = useAuthStore.getState();
+  await userApi.post('/auth/logout', {
+    refreshToken: refreshToken ?? undefined,
+    allDevices,
+  });
 }
 
 export async function verifyTwoFactor(challengeToken: string, token: string): Promise<AuthResponse> {

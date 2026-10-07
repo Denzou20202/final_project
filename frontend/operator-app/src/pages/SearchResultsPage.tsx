@@ -67,7 +67,7 @@ export default function SearchResultsPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="font-medium">{renderHighlight(result.highlight['title']?.[0] ?? result.title)}</div>
-                    {status && <StatusBadge status={status} />}
+                    {status && <StatusBadge status={status} unassigned={!result.assignedTo} />}
                     <PriorityBadge priority={result.priority} />
                   </div>
                   {result.highlight['description']?.[0] && (

@@ -20,8 +20,10 @@ export class SlaEscalationRepository {
       .innerJoinAndSelect('ticket.slaPolicy', 'policy')
       .innerJoin('ticket.status', 'status')
       .where('status.tracksSla = true')
+      .andWhere('status.isClosed = false')
+      .andWhere('ticket.closedAt IS NULL')
       .andWhere(
-        `ticket.created_at + ((policy.response_time_min + COALESCE(ticket.paused_duration_min, 0)) || ' minutes')::interval < now()`,
+        `COALESCE(ticket.sla_policy_assigned_at, ticket.created_at) + ((policy.response_time_min + COALESCE(ticket.paused_duration_min, 0)) || ' minutes')::interval < now()`,
       )
       .andWhere(
         `NOT EXISTS (SELECT 1 FROM ticket_activities a WHERE a.ticket_id = ticket.id AND a.type = :responseBreachType)`,
@@ -40,8 +42,10 @@ export class SlaEscalationRepository {
       .innerJoinAndSelect('ticket.slaPolicy', 'policy')
       .innerJoin('ticket.status', 'status')
       .where('status.tracksSla = true')
+      .andWhere('status.isClosed = false')
+      .andWhere('ticket.closedAt IS NULL')
       .andWhere(
-        `ticket.created_at + ((policy.resolution_time_min + COALESCE(ticket.paused_duration_min, 0)) || ' minutes')::interval < now()`,
+        `COALESCE(ticket.sla_policy_assigned_at, ticket.created_at) + ((policy.resolution_time_min + COALESCE(ticket.paused_duration_min, 0)) || ' minutes')::interval < now()`,
       )
       .andWhere(
         `NOT EXISTS (SELECT 1 FROM ticket_activities a WHERE a.ticket_id = ticket.id AND a.type = :resolutionBreachType)`,

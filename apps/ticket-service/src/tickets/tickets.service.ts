@@ -636,10 +636,10 @@ export class TicketsService {
       return toPublicTicket(ticket);
     }
 
-    // Re-picks the policy for the new priority — the SLA clock still runs
-    // from the ticket's original createdAt (see SlaEscalationService), so
-    // re-labeling priority can't be used to buy more time.
+    // Re-picks the policy for the new priority — the SLA clock runs from the
+    // moment the policy is assigned (slaPolicyAssignedAt).
     const slaPolicy = await this.slaPoliciesRepository.findByPriority(dto.priority);
+    const now = new Date();
     await this.dataSource.transaction(async (manager) => {
       // Same fromValue-atomicity idiom as updateStatus() above, for
       // `priority`.
@@ -652,7 +652,13 @@ export class TicketsService {
         throw new NotFoundException('Ticket not found');
       }
 
-      await manager.update(TicketEntity, { id }, { priority: dto.priority, slaPolicyId: slaPolicy?.id ?? null });
+      await manager.update(TicketEntity, { id }, {
+        priority: dto.priority,
+        slaPolicyId: slaPolicy?.id ?? null,
+        slaPolicyAssignedAt: slaPolicy?.id ? now : null,
+        pausedDurationMin: 0,
+        slaPausedAt: !ticket.status.tracksSla && !ticket.status.isClosed ? now : null,
+      });
       await manager.insert(TicketActivityEntity, {
         ticketId: id,
         actorId: actor.sub,
@@ -1227,6 +1233,8 @@ export class TicketsService {
         ticketId: id,
       });
     }
+
+    ticket.priority = nextPriority;
     await this.broadcastTicketUpdated(ticket, null);
   }
 
@@ -1304,8 +1312,15 @@ export class TicketsService {
     if (priority === ticket.priority) return;
 
     const slaPolicy = await this.slaPoliciesRepository.findByPriority(priority);
+    const now = new Date();
     await this.dataSource.transaction(async (manager) => {
-      await manager.update(TicketEntity, { id }, { priority, slaPolicyId: slaPolicy?.id ?? null });
+      await manager.update(TicketEntity, { id }, {
+        priority,
+        slaPolicyId: slaPolicy?.id ?? null,
+        slaPolicyAssignedAt: slaPolicy?.id ? now : null,
+        pausedDurationMin: 0,
+        slaPausedAt: !ticket.status.tracksSla && !ticket.status.isClosed ? now : null,
+      });
       await manager.insert(TicketActivityEntity, {
         ticketId: id,
         actorId: null,

@@ -32,3 +32,4 @@ export * from './telegram/send-telegram-message.js';
 export * from './telegram/telegram-entities-to-html.js';
 export * from './turnstile/verify-turnstile-token.js';
 export * from './translation/translate-text.js';
+export * from './utils/escape-like-pattern.js';

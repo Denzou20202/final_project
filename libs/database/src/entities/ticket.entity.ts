@@ -127,6 +127,11 @@ export class TicketEntity {
   @JoinColumn({ name: 'sla_policy_id' })
   slaPolicy?: SlaPolicyEntity;
 
+  // Timestamp when the current SLA policy was assigned to this ticket.
+  // SLA countdown starts from this timestamp (fallback to created_at if null).
+  @Column({ name: 'sla_policy_assigned_at', type: 'timestamptz', nullable: true })
+  slaPolicyAssignedAt?: Date | null;
+
   // Accumulated time in minutes spent in statuses where tracksSla = false
   @Column({ name: 'paused_duration_min', type: 'int', default: 0 })
   pausedDurationMin!: number;

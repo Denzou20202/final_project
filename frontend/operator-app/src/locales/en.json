@@ -34,6 +34,7 @@
   },
   "ticketStatusFolder": {
     "open": "Open",
+    "unassigned": "Unassigned",
     "pending": "Pending",
     "resolved": "Handed off to developers",
     "closed": "Closed"

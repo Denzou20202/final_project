@@ -1,10 +1,15 @@
 import { userApi } from './client.js';
+import { useAuthStore } from '../../store/auth.store.js';
 
 // No login() here — operator-app has no login form of its own; the shared
 // /login page lives in client-portal (see useAuth.ts / ProtectedRoute.tsx).
 
-export async function logout(): Promise<void> {
-  await userApi.post('/auth/logout');
+export async function logout(allDevices = false): Promise<void> {
+  const { refreshToken } = useAuthStore.getState();
+  await userApi.post('/auth/logout', {
+    refreshToken: refreshToken ?? undefined,
+    allDevices,
+  });
 }
 
 // ===== 2FA self-service (operator/admin's own account, «Мои настройки → Безопасность») =====

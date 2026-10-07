@@ -21,6 +21,8 @@ export class TelegramUserEventsSubscriberService implements OnApplicationBootstr
     this.redis = new Redis({
       host: config.get<string>('REDIS_HOST', 'localhost'),
       port: config.get<number>('REDIS_PORT', 6379),
+      enableReadyCheck: false,
+      maxRetriesPerRequest: null,
     });
     // ioredis emits 'error' as a plain EventEmitter event — with no
     // listener, Node treats it as an unhandled 'error' event and crashes

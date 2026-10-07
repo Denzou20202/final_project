@@ -71,8 +71,7 @@ apps/
 ├── chat-service            — Socket.IO gateway, реалтайм-чат, статус присутствия, исходящие сообщения в Telegram
 ├── knowledge-service    — база знаний, публичные FAQ, полнотекстовый поиск (Elasticsearch)
 ├── analytics-service     — отчёты, метрики, динамика, KPI, дашборды, аудит настроек и тикетов
-├── notification-service — фоновая отправка уведомлений и email-рассылок (BullMQ)
-└── api-gateway           — внутренний микросервисный шлюз
+└── notification-service — фоновая отправка уведомлений и email-рассылок (BullMQ)
 
 frontend/
 ├── client-portal   — PWA-портал для клиентов (доступен по корню `/`)

@@ -285,6 +285,7 @@ export interface TicketSearchResult {
   // ticket_statuses row id — resolve name/color via useTicketStatuses().
   status: string;
   priority: TicketPriority;
+  assignedTo?: string | null;
   createdAt: string;
   score: number | null;
   highlight: Record<string, string[]>;

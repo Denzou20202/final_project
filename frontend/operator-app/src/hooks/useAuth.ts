@@ -77,8 +77,8 @@ export function useLogout() {
   const clear = useAuthStore((s) => s.clear);
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: logoutRequest,
+  return useMutation<void, Error, boolean | void>({
+    mutationFn: (allDevices?: boolean | void) => logoutRequest(Boolean(allDevices)),
     onSettled: () => {
       clear();
       // Not user-scoped in storage — must be wiped on logout, or the next

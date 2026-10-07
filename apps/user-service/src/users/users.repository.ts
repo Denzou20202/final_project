@@ -1,4 +1,4 @@
-import { KeysetCursor } from '@veloxdesk/common';
+import { KeysetCursor, escapeLikePattern } from '@veloxdesk/common';
 import { UserEntity } from '@veloxdesk/database';
 import { AuthProvider, Locale, UserRole } from '@veloxdesk/types';
 import { Injectable } from '@nestjs/common';
@@ -69,7 +69,7 @@ export class UsersRepository {
       .take(limit + 1);
 
     if (search) {
-      qb.where('(user.fullName ILIKE :search OR user.email ILIKE :search)', { search: `%${search}%` });
+      qb.where('(user.fullName ILIKE :search OR user.email ILIKE :search)', { search: `%${escapeLikePattern(search)}%` });
       if (searchAfter) {
         qb.andWhere('(user.fullName, user.id) > (:cursorFullName, :cursorId)', {
           cursorFullName: searchAfter.fullName,
@@ -130,29 +130,43 @@ export class UsersRepository {
   }
 
   async addRefreshTokenHash(id: string, newHash: string, maxSessions = 10): Promise<void> {
-    const user = await this.repository.findOne({ where: { id } });
-    if (!user) return;
-    const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
-      ? user.refreshTokenHashes
-      : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
-    const updated = [...current.filter((h) => h !== newHash), newHash].slice(-maxSessions);
-    await this.repository.update({ id }, {
-      refreshTokenHash: newHash,
-      refreshTokenHashes: updated,
+    await this.repository.manager.transaction(async (manager) => {
+      const user = await manager
+        .getRepository(UserEntity)
+        .createQueryBuilder('user')
+        .setLock('pessimistic_write')
+        .where('user.id = :id', { id })
+        .getOne();
+      if (!user) return;
+      const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
+        ? user.refreshTokenHashes
+        : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
+      const updated = [...current.filter((h) => h !== newHash), newHash].slice(-maxSessions);
+      await manager.update(UserEntity, { id }, {
+        refreshTokenHash: newHash,
+        refreshTokenHashes: updated,
+      });
     });
   }
 
   async removeRefreshTokenHash(id: string, hashToRemove: string): Promise<void> {
-    const user = await this.repository.findOne({ where: { id } });
-    if (!user) return;
-    const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
-      ? user.refreshTokenHashes
-      : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
-    const updated = current.filter((h) => h !== hashToRemove);
-    const latest = updated.length > 0 ? updated[updated.length - 1] : null;
-    await this.repository.update({ id }, {
-      refreshTokenHash: latest,
-      refreshTokenHashes: updated,
+    await this.repository.manager.transaction(async (manager) => {
+      const user = await manager
+        .getRepository(UserEntity)
+        .createQueryBuilder('user')
+        .setLock('pessimistic_write')
+        .where('user.id = :id', { id })
+        .getOne();
+      if (!user) return;
+      const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
+        ? user.refreshTokenHashes
+        : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
+      const updated = current.filter((h) => h !== hashToRemove);
+      const latest = updated.length > 0 ? updated[updated.length - 1] : null;
+      await manager.update(UserEntity, { id }, {
+        refreshTokenHash: latest,
+        refreshTokenHashes: updated,
+      });
     });
   }
 
@@ -163,31 +177,38 @@ export class UsersRepository {
   // Rotates a specific device's refresh token hash in the array while preserving
   // other active sessions for this account.
   async rotateRefreshTokenHash(id: string, previousHash: string, newHash: string): Promise<boolean> {
-    const user = await this.repository.findOne({ where: { id } });
-    if (!user) return false;
-    const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
-      ? user.refreshTokenHashes
-      : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
+    return await this.repository.manager.transaction(async (manager) => {
+      const user = await manager
+        .getRepository(UserEntity)
+        .createQueryBuilder('user')
+        .setLock('pessimistic_write')
+        .where('user.id = :id', { id })
+        .getOne();
+      if (!user) return false;
+      const current = user.refreshTokenHashes && user.refreshTokenHashes.length > 0
+        ? user.refreshTokenHashes
+        : (user.refreshTokenHash ? [user.refreshTokenHash] : []);
 
-    const index = current.indexOf(previousHash);
-    if (index === -1) {
-      if (user.refreshTokenHash === previousHash) {
-        await this.repository.update({ id }, {
-          refreshTokenHash: newHash,
-          refreshTokenHashes: [newHash],
-        });
-        return true;
+      const index = current.indexOf(previousHash);
+      if (index === -1) {
+        if (user.refreshTokenHash === previousHash) {
+          await manager.update(UserEntity, { id }, {
+            refreshTokenHash: newHash,
+            refreshTokenHashes: [newHash],
+          });
+          return true;
+        }
+        return false;
       }
-      return false;
-    }
 
-    const updated = [...current];
-    updated[index] = newHash;
-    await this.repository.update({ id }, {
-      refreshTokenHash: newHash,
-      refreshTokenHashes: updated,
+      const updated = [...current];
+      updated[index] = newHash;
+      await manager.update(UserEntity, { id }, {
+        refreshTokenHash: newHash,
+        refreshTokenHashes: updated,
+      });
+      return true;
     });
-    return true;
   }
 
   async updateRole(id: string, role: UserRole): Promise<void> {

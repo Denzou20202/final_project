@@ -287,8 +287,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const user = this.requireUser(client);
       const ticket = await this.chatService.getTicketForParticipant(dto.ticketId, user);
 
-      const { comment, mentionedUserIds } = await this.chatService.postMessage(ticket, user, dto.body, dto.isInternal ?? false);
-      await this.broadcastMessage(client, user, ticket, comment, mentionedUserIds);
+      const { comment, mentionedUserIds, autoAssigned } = await this.chatService.postMessage(ticket, user, dto.body, dto.isInternal ?? false);
+      await this.broadcastMessage(client, user, ticket, comment, mentionedUserIds, autoAssigned);
       ack(comment);
     } catch (err) {
       const message = err instanceof WsException ? err.message : 'Не удалось отправить сообщение';
@@ -302,6 +302,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     ticket: TicketEntity,
     comment: PublicComment,
     mentionedUserIds: string[],
+    autoAssigned?: boolean,
   ): Promise<void> {
     // An internal comment must never reach the client's own socket, even
     // though they're a member of the same ticket room — broadcasting it
@@ -395,6 +396,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         createdBy: ticket.createdBy,
       };
       client.to(userRoom(ticket.assignedTo)).emit('ticket:notification', assigneeNotification);
+    }
+
+    if (autoAssigned) {
+      const updatedNotification: TicketEventPayload = {
+        type: 'updated',
+        ticketId: ticket.id,
+        ticketNumber: ticket.ticketNumber,
+        title: ticket.title,
+        status: toPublicTicketStatus(ticket.status),
+        teamId: ticket.teamId,
+        assignedTo: ticket.assignedTo,
+        createdBy: ticket.createdBy,
+      };
+      await this.emitToStaffWhoCanSeeTicket(ticket, 'ticket:notification', updatedNotification);
     }
   }
 

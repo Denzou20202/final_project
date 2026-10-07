@@ -1,4 +1,5 @@
 import { TagEntity, TicketTagEntity } from '@veloxdesk/database';
+import { escapeLikePattern } from '@veloxdesk/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
@@ -22,7 +23,7 @@ export class TagsRepository {
 
   findByName(name: string): Promise<TagEntity | null> {
     const trimmed = name.trim();
-    return this.tagsRepository.findOne({ where: { name: ILike(trimmed) } });
+    return this.tagsRepository.findOne({ where: { name: ILike(escapeLikePattern(trimmed)) } });
   }
 
   async updateName(id: string, name: string, nameUk?: string | null, nameEn?: string | null): Promise<void> {
@@ -31,7 +32,8 @@ export class TagsRepository {
 
   async findOrCreateByName(name: string): Promise<TagEntity> {
     const trimmed = name.trim();
-    const existing = await this.tagsRepository.findOne({ where: { name: ILike(trimmed) } });
+    const escaped = escapeLikePattern(trimmed);
+    const existing = await this.tagsRepository.findOne({ where: { name: ILike(escaped) } });
     if (existing) return existing;
     // A concurrent request could create the same tag between the read above
     // and this save — the unique index on `name` is the real guarantee;
@@ -39,7 +41,7 @@ export class TagsRepository {
     try {
       return await this.tagsRepository.save(this.tagsRepository.create({ name: trimmed }));
     } catch {
-      const createdConcurrently = await this.tagsRepository.findOne({ where: { name: ILike(trimmed) } });
+      const createdConcurrently = await this.tagsRepository.findOne({ where: { name: ILike(escaped) } });
       if (createdConcurrently) return createdConcurrently;
       throw new Error(`Failed to create or find tag "${trimmed}"`);
     }

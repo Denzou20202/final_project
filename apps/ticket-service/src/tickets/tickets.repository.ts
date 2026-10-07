@@ -138,6 +138,7 @@ export class TicketsRepository {
       statusId: defaultStatus.id,
       pausedDurationMin: 0,
       slaPausedAt: !defaultStatus.tracksSla && !defaultStatus.isClosed ? new Date() : null,
+      slaPolicyAssignedAt: data.slaPolicyId ? new Date() : null,
     });
     return manager.save(TicketEntity, ticket);
   }

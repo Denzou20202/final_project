@@ -38,10 +38,30 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 export function showNotification(title: string, body: string): void {
   if (!isPushSupported() || Notification.permission !== 'granted') return;
+  const options: NotificationOptions = {
+    body,
+    icon: '/staff/pwa-192x192.png',
+    badge: '/staff/pwa-192x192.png',
+  };
+
+  if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.ready
+      .then((registration) => registration.showNotification(title, options))
+      .catch(() => {
+        try {
+          new Notification(title, options);
+        } catch {
+          // Some browsers throw when called outside a service-worker context —
+          // a missed notification isn't worth crashing over.
+        }
+      });
+    return;
+  }
+
   try {
-    new Notification(title, { body, icon: '/pwa-192x192.png' });
+    new Notification(title, options);
   } catch {
-    // Some browsers throw when called outside a service-worker context in
-    // certain embeddings — a missed notification isn't worth crashing over.
+    // Some browsers throw when called outside a service-worker context —
+    // a missed notification isn't worth crashing over.
   }
 }
